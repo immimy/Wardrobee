@@ -1,6 +1,6 @@
-import FormInput from '../form/FormInput';
 import { LiaSearchPlusSolid } from 'react-icons/lia';
 import { Label } from '../ui/label';
+import { Input } from '../ui/input';
 
 function NavSearch() {
   return (
@@ -8,11 +8,7 @@ function NavSearch() {
       <Label htmlFor='search'>
         <LiaSearchPlusSolid className='size-5 mx-2' />
       </Label>
-      <FormInput
-        type='search'
-        name='search'
-        defaultValue=''
-      />
+      <Input type='search' id='search' name='search' />
     </div>
   );
 }

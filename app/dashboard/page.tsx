@@ -1,6 +1,6 @@
+import { redirect } from 'next/navigation';
+
 function DashboardPage() {
-  return (
-    <div>DashboardPage</div>
-  )
+  return redirect('/dashboard/profile');
 }
-export default DashboardPage
+export default DashboardPage;

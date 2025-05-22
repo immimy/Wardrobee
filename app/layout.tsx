@@ -3,6 +3,8 @@ import { Exo_2 } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/navbar/Navbar';
 import Container from '@/components/global/Container';
+import { ClerkProvider } from '@clerk/nextjs';
+import { Toaster } from '@/components/ui/sonner';
 
 const exo = Exo_2({
   subsets: ['latin'],
@@ -19,13 +21,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
-      <body className={`${exo.className}`}>
-        <main>
-          <Navbar />
-          <Container>{children}</Container>
-        </main>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang='en'>
+        <body className={`${exo.className}`}>
+          <main>
+            <Navbar />
+            <Container>{children}</Container>
+            <Toaster />
+          </main>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

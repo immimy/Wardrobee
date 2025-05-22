@@ -27,6 +27,7 @@ function HeroCarousel() {
                 src={image}
                 alt='hero'
                 className='w-full h-[24rem] rounded-full rounded-tr-none object-cover -skew-y-4 shadow-xl'
+                priority
               />
             </CarouselItem>
           );

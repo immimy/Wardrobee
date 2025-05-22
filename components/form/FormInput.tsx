@@ -1,24 +1,33 @@
-import { cn } from '@/lib/utils';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 
 function FormInput({
   type,
   name,
-  label,
   labelText,
   defaultValue,
+  placeholder,
 }: {
   type: string;
   name: string;
-  label?: boolean;
+  isLabel?: boolean;
   labelText?: string;
-  defaultValue: string;
+  defaultValue?: string;
+  placeholder?: string;
 }) {
   return (
-    <div>
-      {label && <Label htmlFor={name}>{labelText ?? name}</Label>}
-      <Input type={type} id={name} name={name} defaultValue={defaultValue} />
+    <div className='mb-4'>
+      <Label htmlFor={name} className='capitalize tracking-tight text-base'>
+        {labelText ?? name}
+      </Label>
+      <Input
+        type={type}
+        id={name}
+        name={name}
+        defaultValue={defaultValue}
+        placeholder={placeholder}
+        required
+      />
     </div>
   );
 }
