@@ -1,10 +1,9 @@
 import Title from '../global/Title';
 import AvatarImage from '../global/AvatarImage';
-import FormContainer from '../form/FormContainer';
-import SubmitButton from '../form/SubmitButton';
-import { getAuthUser, deleteUserAction } from '@/utils/actions';
+import { getAuthUser } from '@/utils/actions';
+import DeleteUserButton from './DeleteUserButton';
 
-async function ProfileContainer() {
+async function AccountContainer() {
   const user = await getAuthUser();
 
   return (
@@ -18,13 +17,7 @@ async function ProfileContainer() {
           <p>{user?.username || '-'}</p>
         </div>
         <div className='mt-6'>
-          <FormContainer action={deleteUserAction}>
-            <SubmitButton
-              text='delete account'
-              variant='destructive'
-              className='uppercase font-medium tracking-wide'
-            />
-          </FormContainer>
+          <DeleteUserButton />
         </div>
       </div>
       {/* Address */}
@@ -32,4 +25,4 @@ async function ProfileContainer() {
     </div>
   );
 }
-export default ProfileContainer;
+export default AccountContainer;

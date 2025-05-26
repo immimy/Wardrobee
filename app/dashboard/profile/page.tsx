@@ -1,6 +1,6 @@
 import EditAccountContainer from '@/components/profile/EditAccountContainer';
 import PasswordContainer from '@/components/profile/PasswordContainer';
-import ProfileContainer from '@/components/profile/ProfileContainer';
+import AccountContainer from '@/components/profile/AccountContainer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 function ProfilePage() {
@@ -19,7 +19,7 @@ function ProfilePage() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value='account'>
-          <ProfileContainer />
+          <AccountContainer />
         </TabsContent>
         <TabsContent value='edit account'>
           <EditAccountContainer />

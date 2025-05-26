@@ -4,14 +4,13 @@ import { useUser } from '@clerk/nextjs';
 import ImageInput from '../form/ImageInput';
 import SubmitButton from '../form/SubmitButton';
 import FormContainer from '../form/FormContainer';
-import { updateUserProfileAction } from '@/utils/actions';
 import FormInput from '../form/FormInput';
-import Loading from '../global/Loading';
+import LoadingContainer from '../global/LoadingContainer';
 import { FormState } from '@/utils/types';
 import Title from '../global/Title';
 import AvatarImage from '../global/AvatarImage';
 import { renderError } from '@/utils/actions';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 
 const convertToBase64AndSetImage = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -27,8 +26,9 @@ const convertToBase64AndSetImage = (file: File): Promise<string> =>
   });
 
 function EditAccountContainer() {
+  const router = useRouter();
   const { user, isLoaded } = useUser();
-  if (!isLoaded) return <Loading />;
+  if (!isLoaded) return <LoadingContainer />;
   if (!user) return redirect('/');
   const username = user.username || '';
 
@@ -57,6 +57,21 @@ function EditAccountContainer() {
     }
   };
 
+  const updateUserProfile = async (
+    prevState: any,
+    formData: FormData
+  ): Promise<FormState> => {
+    const username = formData.get('username') as string;
+    try {
+      await user.update({ username });
+      await user.reload();
+      router.refresh();
+      return { message: 'Update profile successfully.', type: 'success' };
+    } catch (error) {
+      return renderError(error);
+    }
+  };
+
   return (
     <div className='p-4'>
       <Title title='Edit account' className='text-center' />
@@ -78,7 +93,7 @@ function EditAccountContainer() {
         </div>
       </div>
       {/* Username Update */}
-      <FormContainer action={updateUserProfileAction}>
+      <FormContainer action={updateUserProfile}>
         <div className='p-4 mx-auto max-w-96'>
           <FormInput
             type='text'

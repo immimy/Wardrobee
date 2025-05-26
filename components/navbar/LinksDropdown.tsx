@@ -10,42 +10,37 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import Link from 'next/link';
-import { SignInButton, SignOutButton, useUser } from '@clerk/nextjs';
-import { LuUserRound } from 'react-icons/lu';
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignOutButton,
+  useUser,
+} from '@clerk/nextjs';
 import AvatarImage from '../global/AvatarImage';
-import Loading from '../global/Loading';
+import LoadingContainer from '../global/LoadingContainer';
 
 function LinksDropdown() {
   const { user, isLoaded } = useUser();
-  if (!isLoaded) return <Loading />;
+  if (!isLoaded) return <LoadingContainer />;
+  const username =
+    user?.username ??
+    user?.emailAddresses[0].emailAddress.split('@')[0] ??
+    'user';
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        {user ? (
-          <Button
-            variant='outline'
-            size='sm'
-            className='flex items-center gap-x-2'
-          >
-            <AvatarImage height={24} width={24} className='h-6 w-6' />
-            <span className='capitalize tracking-wide font-medium'>
-              {user.username ??
-                user.emailAddresses[0].emailAddress.split('@')[0]}
-            </span>
-          </Button>
-        ) : (
-          <Button
-            variant='outline'
-            size='sm'
-            className='flex items-center gap-x-2'
-          >
-            <span className='p-1 bg-secondary rounded-full'>
-              <LuUserRound className='size-5' />
-            </span>
-            <span className='font-medium tracking-wide'>User</span>
-          </Button>
-        )}
+        <Button
+          variant='outline'
+          size='sm'
+          className='flex items-center gap-x-2'
+        >
+          <AvatarImage height={24} width={24} className='h-6 w-6' />
+          <span className='capitalize tracking-wide font-medium'>
+            {username}
+          </span>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
         {links.map((link) => {
@@ -61,15 +56,16 @@ function LinksDropdown() {
         })}
         <DropdownMenuSeparator />
         <DropdownMenuItem>
-          {user ? (
+          <SignedIn>
             <SignOutButton>
               <span className='w-full'>Sign out</span>
             </SignOutButton>
-          ) : (
+          </SignedIn>
+          <SignedOut>
             <SignInButton mode='modal'>
               <span className='w-full'>Sign in</span>
             </SignInButton>
-          )}
+          </SignedOut>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

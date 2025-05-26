@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
-import Loading from './Loading';
+import LoadingContainer from './LoadingContainer';
 import { LuUserRound } from 'react-icons/lu';
 
 function AvatarImage({
@@ -16,13 +16,12 @@ function AvatarImage({
   className: string;
 }) {
   const { user, isLoaded } = useUser();
-  if (!isLoaded) return <Loading />;
-  if (!user) return <LuUserRound />;
-  const imageUrl = user?.imageUrl as string;
+  if (!isLoaded) return <LoadingContainer />;
+  if (!user) return <LuUserRound className={className} />;
 
   return (
     <Image
-      src={imageUrl}
+      src={user.imageUrl}
       width={width}
       height={height}
       alt='avatar'
