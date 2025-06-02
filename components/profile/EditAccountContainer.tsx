@@ -9,45 +9,47 @@ import LoadingContainer from '../global/LoadingContainer';
 import { FormState } from '@/utils/types';
 import Title from '../global/Title';
 import AvatarImage from '../global/AvatarImage';
-import { renderError } from '@/utils/actions';
-import { redirect, useRouter } from 'next/navigation';
-
-const convertToBase64AndSetImage = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      resolve(result);
-    };
-    reader.onerror = () => {
-      reject(new Error('Failed to read file.'));
-    };
-  });
+import { renderError, updateUserProfile } from '@/utils/actions';
+import { redirect } from 'next/navigation';
 
 function EditAccountContainer() {
-  const router = useRouter();
   const { user, isLoaded } = useUser();
   if (!isLoaded) return <LoadingContainer />;
   if (!user) return redirect('/');
   const username = user.username || '';
 
-  const updateAvatar = async (
+  const updateAvatarAction = async (
     prevState: any,
     formData: FormData
   ): Promise<FormState> => {
-    const file = formData.get('avatar') as File;
     try {
-      const image = await convertToBase64AndSetImage(file);
-      await user.setProfileImage({ file: image });
+      const file = formData.get('avatar');
+      const maxUploadSize = 1024 * 1024 * 0.5; //0.5MB
+      const maxUploadSizeText = '0.5MB';
+
+      if (!file || !(file instanceof File)) {
+        return { message: 'Please provide file.', type: 'error' };
+      }
+      if (!file.type.startsWith('image/')) {
+        return { message: 'Only accept image file.', type: 'error' };
+      }
+      if (file.size > maxUploadSize) {
+        return {
+          message: `File size must be less than ${maxUploadSizeText}.`,
+          type: 'error',
+        };
+      }
+
+      await user.setProfileImage({ file });
       await user.reload();
+
       return { message: 'Update avatar successfully.', type: 'success' };
     } catch (error) {
       return renderError(error);
     }
   };
 
-  const deleteAvatar = async (): Promise<FormState> => {
+  const deleteAvatarAction = async (): Promise<FormState> => {
     try {
       await user.setProfileImage({ file: null });
       await user.reload();
@@ -57,16 +59,14 @@ function EditAccountContainer() {
     }
   };
 
-  const updateUserProfile = async (
+  const updateProfileAction = async (
     prevState: any,
     formData: FormData
   ): Promise<FormState> => {
-    const username = formData.get('username') as string;
     try {
-      await user.update({ username });
+      const result = await updateUserProfile(formData);
       await user.reload();
-      router.refresh();
-      return { message: 'Update profile successfully.', type: 'success' };
+      return result;
     } catch (error) {
       return renderError(error);
     }
@@ -79,11 +79,11 @@ function EditAccountContainer() {
       <div className='mt-6 px-4 flex justify-center items-center gap-x-6'>
         <AvatarImage height={128} width={128} className='h-32 w-32 min-w-32' />
         <div className='mb-6'>
-          <FormContainer action={updateAvatar}>
+          <FormContainer action={updateAvatarAction}>
             <ImageInput name='avatar' />
             <SubmitButton text='update avatar' className='w-full' />
           </FormContainer>
-          <FormContainer action={deleteAvatar}>
+          <FormContainer action={deleteAvatarAction}>
             <SubmitButton
               text='delete avatar'
               variant='link'
@@ -93,7 +93,7 @@ function EditAccountContainer() {
         </div>
       </div>
       {/* Username Update */}
-      <FormContainer action={updateUserProfile}>
+      <FormContainer action={updateProfileAction}>
         <div className='p-4 mx-auto max-w-96'>
           <FormInput
             type='text'
