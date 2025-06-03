@@ -1,5 +1,3 @@
-'use client';
-
 import { links } from '@/utils/links';
 import { Button } from '../ui/button';
 import {
@@ -15,40 +13,31 @@ import {
   SignedOut,
   SignInButton,
   SignOutButton,
-  useUser,
 } from '@clerk/nextjs';
 import AvatarImage from '../global/AvatarImage';
-import LoadingContainer from '../global/LoadingContainer';
+import { auth } from '@clerk/nextjs/server';
 
-function LinksDropdown() {
-  const { user, isLoaded } = useUser();
-  if (!isLoaded) return <LoadingContainer />;
-  const username =
-    user?.username ??
-    user?.emailAddresses[0].emailAddress.split('@')[0] ??
-    'user';
+async function LinksDropdown() {
+  const { userId } = await auth();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant='outline'
-          size='sm'
-          className='flex items-center gap-x-2'
+          variant='secondary'
+          size='icon'
+          className='rounded-full hover:cursor-pointer shadow-2xl'
         >
-          <AvatarImage height={24} width={24} className='h-6 w-6' />
-          <span className='capitalize tracking-wide font-medium'>
-            {username}
-          </span>
+          <AvatarImage height={36} width={36} className='w-9 h-9' />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
         {links.map((link) => {
           const { href, labelText } = link;
-          if (href === '/dashboard' && !user) return null;
+          if (href === '/dashboard' && !userId) return null;
           return (
             <DropdownMenuItem asChild key={href}>
-              <Link href={href} className='capitalize'>
+              <Link href={href} className='capitalize hover:cursor-pointer'>
                 {labelText}
               </Link>
             </DropdownMenuItem>
@@ -58,12 +47,12 @@ function LinksDropdown() {
         <DropdownMenuItem>
           <SignedIn>
             <SignOutButton>
-              <span className='w-full'>Sign out</span>
+              <span className='w-full hover:cursor-pointer'>Sign out</span>
             </SignOutButton>
           </SignedIn>
           <SignedOut>
             <SignInButton mode='modal'>
-              <span className='w-full'>Sign in</span>
+              <span className='w-full hover:cursor-pointer'>Sign in</span>
             </SignInButton>
           </SignedOut>
         </DropdownMenuItem>

@@ -8,4 +8,5 @@ export const sidebarLinks: { href: string; labelText: string }[] = [
   { href: '/dashboard/profile', labelText: 'profile' },
   { href: '/dashboard/orders', labelText: 'orders' },
   { href: '/dashboard/favorite', labelText: 'favorite' },
+  { href: '/dashboard/account', labelText: 'account' },
 ];

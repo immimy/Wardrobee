@@ -25,7 +25,8 @@ export const renderError = async (error: unknown): Promise<FormState> => {
 
 /////////////////////// Actions ///////////////////////
 
-export const updateUserProfile = async (
+export const updateProfileAction = async (
+  prevState: any,
   formData: FormData
 ): Promise<FormState> => {
   try {
@@ -42,6 +43,16 @@ export const updateUserProfile = async (
         type: 'error',
       };
     }
+    return renderError(error);
+  }
+};
+
+export const deleteAccount = async (): Promise<FormState> => {
+  try {
+    const { id: userId } = await getAuthUser();
+    await client.users.deleteUser(userId);
+    return { message: 'Closed account already.', type: 'success' };
+  } catch (error) {
     return renderError(error);
   }
 };
