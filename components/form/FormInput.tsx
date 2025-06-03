@@ -10,7 +10,6 @@ function FormInput({
 }: {
   type: string;
   name: string;
-  isLabel?: boolean;
   labelText?: string;
   defaultValue?: string;
   placeholder?: string;

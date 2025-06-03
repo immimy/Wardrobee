@@ -45,10 +45,3 @@ export const updateUserProfile = async (
     return renderError(error);
   }
 };
-
-export const changePasswordAction = async (
-  prevState: any,
-  formData: FormData
-): Promise<FormState> => {
-  return { message: 'Change password successfully.', type: 'success' };
-};
