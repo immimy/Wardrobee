@@ -47,12 +47,11 @@ export const updateProfileAction = async (
   }
 };
 
-export const deleteAccount = async (): Promise<FormState> => {
+export const deleteAccount = async () => {
   try {
     const { id: userId } = await getAuthUser();
     await client.users.deleteUser(userId);
-    return { message: 'Closed account already.', type: 'success' };
   } catch (error) {
-    return renderError(error);
+    throw error;
   }
 };

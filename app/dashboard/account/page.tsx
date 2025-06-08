@@ -9,6 +9,14 @@ import AvatarContainer from '@/components/account/AvatarContainer';
 import { FormState } from '@/utils/types';
 import { renderError, deleteAccount } from '@/utils/actions';
 import UsernameContainer from '@/components/account/UsernameContainer';
+import { validateAvatar } from '@/utils/schemas';
+
+const renderClientError = (error: unknown): FormState => {
+  return {
+    message: error instanceof Error ? error.message : 'An error occurred.',
+    type: 'error',
+  };
+};
 
 function AccountPage() {
   const { signOut } = useClerk();
@@ -22,28 +30,12 @@ function AccountPage() {
   ): Promise<FormState> => {
     try {
       const file = formData.get('avatar');
-      const maxUploadSize = 1024 * 1024 * 0.5; //0.5MB
-      const maxUploadSizeText = '0.5MB';
-
-      if (!file || !(file instanceof File)) {
-        return { message: 'Please provide file.', type: 'error' };
-      }
-      if (!file.type.startsWith('image/')) {
-        return { message: 'Only accept image file.', type: 'error' };
-      }
-      if (file.size > maxUploadSize) {
-        return {
-          message: `File size must be less than ${maxUploadSizeText}.`,
-          type: 'error',
-        };
-      }
-
-      await user.setProfileImage({ file });
+      const validatedFile = validateAvatar(file);
+      await user.setProfileImage({ file: validatedFile });
       await user.reload();
-
       return { message: 'Update avatar successfully.', type: 'success' };
     } catch (error) {
-      return renderError(error);
+      return renderClientError(error);
     }
   };
 
@@ -58,12 +50,13 @@ function AccountPage() {
   };
 
   const deleteUserAction = async (): Promise<FormState> => {
-    const result = await deleteAccount();
-    if (result.type === 'error') {
-      return result;
+    try {
+      await deleteAccount();
+      signOut({ redirectUrl: '/' });
+      return { message: 'Closed account already.', type: 'success' };
+    } catch (error) {
+      return renderClientError(error);
     }
-    signOut({ redirectUrl: '/' });
-    return result;
   };
 
   return (
