@@ -7,3 +7,5 @@ export type ActionFunction = (
   prevState: any,
   formData: FormData
 ) => Promise<FormState>;
+
+export type ProductCategory = 'clothes' | 'bag' | 'accessory';
