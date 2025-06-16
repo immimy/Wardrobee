@@ -12,17 +12,18 @@ datasource db {
 //////////////////// Models ////////////////////
 
 model Product{
- id String @id @default(uuid())
- name String
- category String
- brand String
- image String
- description String?
- price Int
- featured Boolean @default(false)
- variants ProductVariant[]
- createdAt DateTime @default(now())
- updatedAt DateTime @updatedAt
+  id String @id @default(uuid())
+  name String
+  category String
+  brand String
+  image String
+  description String?
+  price Int
+  featured Boolean @default(false)
+  variants ProductVariant[]
+  creator String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ProductVariant{
@@ -35,6 +36,7 @@ model ProductVariant{
   sales Int @default(0)
   isOnSale Boolean @default(false)
   discount Int @default(0)
+  creator String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

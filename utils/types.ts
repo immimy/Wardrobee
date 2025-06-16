@@ -8,4 +8,6 @@ export type ActionFunction = (
   formData: FormData
 ) => Promise<FormState>;
 
+export type HaveCreator = { creator: string; [key: string]: unknown };
+
 export type ProductCategory = 'clothes' | 'bag' | 'accessory';
