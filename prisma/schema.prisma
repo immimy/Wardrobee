@@ -21,6 +21,8 @@ model Product{
   price Int
   featured Boolean @default(false)
   variants ProductVariant[]
+  totalStock Int @default(0)
+  totalSales Int @default(0)
   creator String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

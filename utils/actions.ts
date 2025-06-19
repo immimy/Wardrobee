@@ -14,7 +14,6 @@ import {
 import { revalidatePath } from 'next/cache';
 import { convertFormDataByFieldset } from './form';
 import db from './db';
-import { Product } from '@/lib/generated/prisma';
 
 const client = await clerkClient();
 
@@ -83,9 +82,24 @@ export const deleteAccount = async () => {
   }
 };
 
-// export const getAllProducts = async (): Array<Product> => {};
+export const fetchAllProducts = async () => {
+  const products = await db.product.findMany({
+    include: {
+      variants: { where: { stock: { gt: 0 } }, take: 1 },
+    },
+    orderBy: [
+      { totalSales: 'desc' },
+      { totalStock: 'desc' },
+      { updatedAt: 'desc' },
+    ],
+  });
+  return products;
+};
 
-// export const getSingleProduct = async (): Product => {};
+export const fetchSingleProduct = async (id: string) => {
+  const product = await db.product.findUnique({ where: { id } });
+  return product;
+};
 
 export const createProductAction = async (
   prevState: any,
@@ -121,6 +135,12 @@ export const createProductAction = async (
     await db.productVariant.createMany({
       data: validatedProductVariants,
     });
+    // Update total product stock
+    const totalStock = validatedProductVariants.reduce(
+      (total, variant) => total + variant.stock,
+      0
+    );
+    await db.product.update({ where: { id: productId }, data: { totalStock } });
 
     return { message: 'Create product successfully.', type: 'success' };
   } catch (error) {
@@ -178,9 +198,19 @@ export const updateProductVariantAction = async (
     )![0];
     // Sales figure update is not allowed.
     delete validatedVariant['sales'];
-    await db.productVariant.update({
+    const { productId } = await db.productVariant.update({
       where: { id: productVariantId },
       data: validatedVariant,
+    });
+    // Update total product stock
+    await db.product.update({
+      where: { id: productId },
+      data: {
+        totalStock: {
+          decrement: dbVariant.stock,
+          increment: validatedVariant.stock,
+        },
+      },
     });
     return { message: 'Update product details successfully.', type: 'success' };
   } catch (error) {
@@ -220,9 +250,32 @@ export const deleteProductVariant = async (prevState: {
     // Only allow admin or moderator who own the asset to perform an action.
     await verifyCreatorOrAdmin(dbVariant);
 
+    const productId = dbVariant.productId;
+    // Delete product variant
     await db.productVariant.delete({ where: { id: productVariantId } });
+
+    // Update total product stock
+    await db.product.update({
+      where: { id: productId },
+      data: {
+        totalStock: {
+          decrement: dbVariant.stock,
+        },
+      },
+    });
+
     return { message: 'Delete product details successfully.', type: 'success' };
   } catch (error) {
     return renderError(error);
   }
+};
+
+export const addToCartAction = async (
+  prevState: any,
+  formData: FormData
+): Promise<FormState> => {
+  const data = Object.fromEntries(formData);
+  console.log(data);
+
+  return { message: 'test add product to cart', type: 'default' };
 };

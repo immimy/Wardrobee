@@ -1,4 +1,10 @@
+import ProductsContainer from '@/components/products/ProductsContainer';
+
 function ProductsPage() {
-  return <div>ProductsPage</div>;
+  return (
+    <section className='pt-8'>
+      <ProductsContainer />
+    </section>
+  );
 }
 export default ProductsPage;
