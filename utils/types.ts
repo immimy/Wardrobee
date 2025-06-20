@@ -22,3 +22,11 @@ const productWithVariants = Prisma.validator<Prisma.ProductDefaultArgs>()({
 export type ProductWithVariants = Prisma.ProductGetPayload<
   typeof productWithVariants
 >;
+
+export type CartItem = {
+  variantId: string | null;
+  price: number;
+  discount: number;
+  isOnSale: boolean;
+  stock?: number;
+};

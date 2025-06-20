@@ -97,7 +97,10 @@ export const fetchAllProducts = async () => {
 };
 
 export const fetchSingleProduct = async (id: string) => {
-  const product = await db.product.findUnique({ where: { id } });
+  const product = await db.product.findUnique({
+    where: { id },
+    include: { variants: true },
+  });
   return product;
 };
 

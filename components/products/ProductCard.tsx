@@ -18,13 +18,11 @@ import { addToCartAction } from '@/utils/actions';
 function ProductCard(props: ProductWithVariants) {
   const { id, image, name, brand, price, variants, totalSales } = props;
   const isOutOfStock = variants.length < 1;
-  console.log(props);
 
   return (
     <Card
       className={`relative pt-0 pb-4 gap-2 bg-card text-card-foreground ${
-        isOutOfStock &&
-        'before:absolute before:block before:inset-0 before:bg-muted-foreground/30 before:z-10 before:rounded-xl'
+        isOutOfStock && 'opacity-50'
       }`}
     >
       <Link href={`/products/${id}`}>
