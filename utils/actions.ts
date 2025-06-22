@@ -17,7 +17,7 @@ import db from './db';
 
 const client = await clerkClient();
 
-export const getAuthUser = async () => {
+const getAuthUser = async () => {
   const user = await currentUser();
   if (!user) return redirect('/');
   return user;

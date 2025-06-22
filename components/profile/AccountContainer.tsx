@@ -1,9 +1,9 @@
 import Title from '../global/Title';
 import AvatarImage from '../global/AvatarImage';
-import { getAuthUser } from '@/utils/actions';
+import { currentUser } from '@clerk/nextjs/server';
 
 async function AccountContainer() {
-  const user = await getAuthUser();
+  const user = await currentUser();
 
   return (
     <div className='p-4'>
