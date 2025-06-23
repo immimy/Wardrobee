@@ -33,12 +33,12 @@ async function LinksDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
         {links.map((link) => {
-          const { href, labelText } = link;
-          if (href === '/dashboard' && !userId) return null;
+          const { url, title } = link;
+          if (url === '/dashboard' && !userId) return null;
           return (
-            <DropdownMenuItem asChild key={href}>
-              <Link href={href} className='capitalize hover:cursor-pointer'>
-                {labelText}
+            <DropdownMenuItem asChild key={url}>
+              <Link href={url} className='capitalize hover:cursor-pointer'>
+                {title}
               </Link>
             </DropdownMenuItem>
           );

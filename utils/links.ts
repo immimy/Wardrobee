@@ -1,12 +1,26 @@
-export const links: { href: string; labelText: string }[] = [
-  { href: '/promotion', labelText: 'promotion' },
-  { href: '/products', labelText: 'products' },
-  { href: '/dashboard', labelText: 'dashboard' },
+import { NavLink } from './types';
+import { FaUser, FaGear } from 'react-icons/fa6';
+import { PiShoppingBagLight } from 'react-icons/pi';
+import { TbShoppingBagEdit } from 'react-icons/tb';
+import { IoMdHeart } from 'react-icons/io';
+
+export const links: Array<NavLink> = [
+  { url: '/promotion', title: 'promotion' },
+  { url: '/products', title: 'products' },
+  { url: '/dashboard', title: 'dashboard' },
 ];
 
-export const sidebarLinks: { href: string; labelText: string }[] = [
-  { href: '/dashboard/profile', labelText: 'profile' },
-  { href: '/dashboard/orders', labelText: 'orders' },
-  { href: '/dashboard/favorite', labelText: 'favorite' },
-  { href: '/dashboard/account', labelText: 'account' },
+const userLinks: Array<NavLink> = [
+  { url: '/dashboard/profile', title: 'profile', icon: FaUser },
+  { url: '/dashboard/orders', title: 'orders', icon: PiShoppingBagLight },
+  { url: '/dashboard/favorite', title: 'favorite', icon: IoMdHeart },
+  { url: '/dashboard/account', title: 'account', icon: FaGear },
 ];
+const adminLinks: Array<NavLink> = [
+  {
+    url: '/dashboard/admin/products',
+    title: 'products',
+    icon: TbShoppingBagEdit,
+  },
+];
+export const dashboardLinks = { userLinks, adminLinks };

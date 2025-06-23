@@ -1,4 +1,11 @@
 import { Prisma } from '@/lib/generated/prisma';
+import { IconType } from 'react-icons/lib';
+
+export type NavLink = {
+  url: string;
+  title: string;
+  icon?: IconType;
+};
 
 export type FormState = {
   message: string;
