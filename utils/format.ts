@@ -5,3 +5,7 @@ export const priceFormatter = (input: number): string => {
   });
   return thaiBaht.format(Number(input));
 };
+
+export const capitalizeFirstLetter = (input: string): string => {
+  return input[0].toUpperCase() + input.slice(1);
+};

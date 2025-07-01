@@ -20,6 +20,13 @@ export type ActionFunction = (
 export type HaveCreator = { creator: string; [key: string]: unknown };
 
 export type ProductCategory = 'clothes' | 'bag' | 'accessory';
+export type ProductBrand =
+  | 'Aero Style'
+  | 'Free Spirit'
+  | 'Legacy Trek'
+  | 'Prestige'
+  | 'Calista'
+  | 'Wander Lux';
 
 const productWithVariants = Prisma.validator<Prisma.ProductDefaultArgs>()({
   include: {

@@ -14,6 +14,7 @@ import {
 import { revalidatePath } from 'next/cache';
 import { convertFormDataByFieldset } from './form';
 import db from './db';
+import { Product } from '@/lib/generated/prisma';
 
 const client = await clerkClient();
 
@@ -41,7 +42,7 @@ const verifyCreatorOrAdmin = async (data: HaveCreator): Promise<void> => {
     throw new Error('Unauthorized to perform this action.');
 };
 
-export const renderError = async (error: unknown): Promise<FormState> => {
+const renderError = async (error: unknown): Promise<FormState> => {
   console.log(error);
   return {
     message: error instanceof Error ? error.message : 'An error occurred.',
@@ -151,32 +152,28 @@ export const createProductAction = async (
   }
 };
 
-export const updateProductAction = async (
-  prevState: any,
-  formData: FormData
-): Promise<FormState> => {
-  try {
-    // Check if product is present.
-    const productId = formData.get('id') as string;
-    const dbProduct = await db.product.findUnique({ where: { id: productId } });
-    if (!dbProduct) throw new Error(`No product with id ${productId}.`);
-    // Only allow admin or moderator who own the asset to perform an action.
-    await verifyCreatorOrAdmin(dbProduct);
-
-    // Input validation
-    const validatedProduct = validateWithZodSchema(
-      productSchema,
-      Object.fromEntries(formData)
-    );
-    // Update product
-    await db.product.update({
-      where: { id: productId },
-      data: validatedProduct,
-    });
-    return { message: 'Update product successfully.', type: 'success' };
-  } catch (error) {
-    return renderError(error);
+export const updateProduct = async (formData: FormData): Promise<Product> => {
+  // Check if product is present.
+  const productId = formData.get('id') as string;
+  const dbProduct = await db.product.findUnique({ where: { id: productId } });
+  if (!dbProduct) throw new Error(`No product with id ${productId}.`);
+  // Only allow admin or moderator who own the asset to perform an action.
+  await verifyCreatorOrAdmin(dbProduct);
+  // Input validation
+  const validatedProduct = validateWithZodSchema(
+    productSchema,
+    Object.fromEntries(formData)
+  );
+  // Enable featured?
+  if (!validatedProduct?.featured) {
+    validatedProduct['featured'] = false;
   }
+  // Update product
+  const newProduct = await db.product.update({
+    where: { id: productId },
+    data: validatedProduct,
+  });
+  return newProduct;
 };
 
 export const updateProductVariantAction = async (

@@ -1,10 +1,14 @@
 import AppSidebar from '@/components/dashboard/AppSidebar';
 import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { cookies } from 'next/headers';
 
-function layout({ children }: { children: React.ReactNode }) {
+async function layout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+  const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true';
+
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar />
       <main className='mt-4 md:mt-8 w-full'>
         <div className='flex items-center gap-x-2'>

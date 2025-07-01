@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from '../ui/card';
-import Image from 'next/image';
 import Link from 'next/link';
 import { priceFormatter } from '@/utils/format';
 import { TbShoppingCartPlus } from 'react-icons/tb';
@@ -14,6 +13,7 @@ import { ProductWithVariants } from '@/utils/types';
 import SubmitButton from '../form/SubmitButton';
 import FormContainer from '../form/FormContainer';
 import { addToCartAction } from '@/utils/actions';
+import ImageContainer from '../global/ImageContainer';
 
 function ProductCard(props: ProductWithVariants) {
   const { id, image, name, brand, price, variants, totalSales } = props;
@@ -27,15 +27,11 @@ function ProductCard(props: ProductWithVariants) {
     >
       <Link href={`/products/${id}`}>
         <CardHeader className='px-0'>
-          <figure className='relative h-54 overflow-hidden rounded-t-xl'>
-            <Image
-              alt='product image'
-              src={image}
-              fill
-              sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
-              className='object-cover'
-            />
-          </figure>
+          <ImageContainer
+            alt='product image'
+            src={image}
+            className='h-54 rounded-t-xl'
+          />
         </CardHeader>
       </Link>
       <CardContent>
@@ -43,7 +39,7 @@ function ProductCard(props: ProductWithVariants) {
           <Link href={`/products/${id}`}>
             <CardTitle>
               <h6 className='text-primary'>{name}</h6>
-              <p className='text-sm font-normal'>{brand}</p>
+              <p className='text-sm font-normal capitalize'>{brand}</p>
             </CardTitle>
           </Link>
           <CardDescription className='self-start'>
@@ -57,7 +53,7 @@ function ProductCard(props: ProductWithVariants) {
             sales : {totalSales}
           </span>
         </CardDescription>
-        <CardAction className='w-full mt-1.5 relative'>
+        <CardAction className='w-full mt-1.5'>
           {isOutOfStock ? (
             <p className=' uppercase text-center tracking-wide text-destructive'>
               out of stock
