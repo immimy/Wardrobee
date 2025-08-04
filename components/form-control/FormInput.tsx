@@ -1,6 +1,9 @@
-import { cn } from '@/lib/utils';
+'use client';
+
+import { useState } from 'react';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { cn } from '@/lib/utils';
 
 type ParamsType = {
   type: string;
@@ -9,7 +12,6 @@ type ParamsType = {
   defaultValue?: string | number;
   placeholder?: string;
   className?: string;
-  readOnly?:boolean
 };
 
 function FormInput({
@@ -18,8 +20,14 @@ function FormInput({
   labelText,
   defaultValue,
   placeholder,
-  className,readOnly
+  className,
 }: ParamsType) {
+  const initialValue =
+    typeof defaultValue === 'number'
+      ? String(defaultValue)
+      : defaultValue ?? '';
+  const [value, setValue] = useState(initialValue);
+
   return (
     <div className={cn('mb-4', className)}>
       <Label
@@ -32,10 +40,10 @@ function FormInput({
         type={type}
         id={name}
         name={name}
-        defaultValue={defaultValue && String(defaultValue)}
         placeholder={placeholder}
         required
-        readOnly={readOnly}
+        value={value}
+        onChange={(e) => setValue(e.currentTarget.value)}
       />
     </div>
   );

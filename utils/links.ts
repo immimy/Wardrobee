@@ -1,7 +1,7 @@
 import { NavLink } from './types';
 import { FaUser, FaGear } from 'react-icons/fa6';
 import { PiShoppingBagLight } from 'react-icons/pi';
-import { TbShoppingBagEdit } from 'react-icons/tb';
+import { TbShoppingBagEdit, TbShoppingBagPlus } from 'react-icons/tb';
 import { IoMdHeart } from 'react-icons/io';
 
 export const links: Array<NavLink> = [
@@ -21,6 +21,11 @@ const adminLinks: Array<NavLink> = [
     url: '/dashboard/admin/products',
     title: 'products',
     icon: TbShoppingBagEdit,
+  },
+  {
+    url: '/dashboard/admin/products/create',
+    title: 'create product',
+    icon: TbShoppingBagPlus,
   },
 ];
 export const dashboardLinks = { userLinks, adminLinks };

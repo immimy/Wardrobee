@@ -6,15 +6,18 @@ import { isClerkAPIResponseError } from '@clerk/nextjs/errors';
 import { FormState, HaveCreator, ProductCategory } from './types';
 import { redirect } from 'next/navigation';
 import {
+  allProductVariantsSchema,
+  imageSchema,
   productSchema,
+  productUpdateSchema,
+  singleProductVariantSchema,
   userSchema,
-  validateProductVariant,
   validateWithZodSchema,
 } from './schemas';
 import { revalidatePath } from 'next/cache';
 import { convertFormDataByFieldset } from './form';
 import db from './db';
-import { Product } from '@/lib/generated/prisma';
+import { deleteImage, uploadImage } from './supabase';
 
 const client = await clerkClient();
 
@@ -24,8 +27,8 @@ const getAuthUser = async () => {
   return user;
 };
 
-const checkRole = async (
-  ...role: Array<Roles | undefined>
+const authorizeRoles = async (
+  ...role: Array<Roles>
 ): Promise<{ userId: string; userRole: Roles }> => {
   const { sessionClaims, userId } = await auth();
   const userRole = sessionClaims?.metadata.role;
@@ -36,10 +39,13 @@ const checkRole = async (
 
 // Admin are enable to perform all actions.
 // Moderator can only perform an action on their asset.
-const verifyCreatorOrAdmin = async (data: HaveCreator): Promise<void> => {
-  const { userId, userRole } = await checkRole('admin', 'moderator');
+const authorizeCreatorOrAdmin = async (
+  data: HaveCreator
+): Promise<{ userId: string; userRole: Roles }> => {
+  const { userId, userRole } = await authorizeRoles('admin', 'moderator');
   if (userRole !== 'admin' && data.creator !== userId)
     throw new Error('Unauthorized to perform this action.');
+  return { userId, userRole: userRole };
 };
 
 const renderError = async (error: unknown): Promise<FormState> => {
@@ -59,10 +65,10 @@ export const updateProfileAction = async (
   try {
     const { id: userId } = await getAuthUser();
     const rawData = Object.fromEntries(formData);
-    const validatedData = validateWithZodSchema(userSchema, rawData);
-    await client.users.updateUser(userId, { ...validatedData });
+    const data = validateWithZodSchema(userSchema, rawData);
+    await client.users.updateUser(userId, { ...data });
     revalidatePath('/dashboard/profile');
-    return { message: 'Update profile successfully.', type: 'success' };
+    return { message: 'Profile updated', type: 'success' };
   } catch (error) {
     if (isClerkAPIResponseError(error) && error.status === 422) {
       return {
@@ -86,7 +92,11 @@ export const deleteAccount = async () => {
 export const fetchAllProducts = async () => {
   const products = await db.product.findMany({
     include: {
-      variants: { where: { stock: { gt: 0 } }, take: 1 },
+      variants: {
+        where: { stock: { gt: 0 } },
+        take: 1,
+        orderBy: { numberId: 'asc' },
+      },
     },
     orderBy: [
       { totalSales: 'desc' },
@@ -100,7 +110,7 @@ export const fetchAllProducts = async () => {
 export const fetchSingleProduct = async (id: string) => {
   const product = await db.product.findUnique({
     where: { id },
-    include: { variants: true },
+    include: { variants: { orderBy: { numberId: 'asc' } } },
   });
   return product;
 };
@@ -111,8 +121,7 @@ export const createProductAction = async (
 ): Promise<FormState> => {
   try {
     // Only allow admin or moderator to perform an action.
-    const { userId } = await checkRole('admin', 'moderator');
-
+    const { userId } = await authorizeRoles('admin', 'moderator');
     // Collect input data by fieldset
     const { nestedFormData } = convertFormDataByFieldset(formData);
     const { product } = nestedFormData;
@@ -120,13 +129,21 @@ export const createProductAction = async (
 
     // Input validation
     // 1. Product validation
-    const validatedProduct = validateWithZodSchema(productSchema, product);
+    // 1.1) Image
+    const rawFile = product.image as File;
+    const file = validateWithZodSchema(imageSchema, rawFile);
+    const imageUrl = await uploadImage(file);
+    // 1.2) Data
+    const validatedProduct = validateWithZodSchema(productSchema, {
+      ...product,
+      image: imageUrl,
+    });
     const { category } = validatedProduct;
     // 2. Product variant validation
-    const validatedVariants = validateProductVariant(
-      Object.values(nestedFormData),
-      category
-    )!;
+    const validatedVariants = validateWithZodSchema(
+      allProductVariantsSchema(category),
+      Object.values(nestedFormData)
+    );
 
     // Create product
     const { id: productId } = await db.product.create({
@@ -145,77 +162,150 @@ export const createProductAction = async (
       0
     );
     await db.product.update({ where: { id: productId }, data: { totalStock } });
-
-    return { message: 'Create product successfully.', type: 'success' };
   } catch (error) {
     return renderError(error);
   }
+  return redirect('/dashboard/admin/products');
 };
 
-export const updateProduct = async (formData: FormData): Promise<Product> => {
+export const createProductVariant = async (formData: FormData) => {
   // Check if product is present.
-  const productId = formData.get('id') as string;
+  const productId = formData.get('productId') as string;
   const dbProduct = await db.product.findUnique({ where: { id: productId } });
   if (!dbProduct) throw new Error(`No product with id ${productId}.`);
   // Only allow admin or moderator who own the asset to perform an action.
-  await verifyCreatorOrAdmin(dbProduct);
+  const { userId } = await authorizeCreatorOrAdmin(dbProduct);
   // Input validation
-  const validatedProduct = validateWithZodSchema(
-    productSchema,
+  const category = formData.get('category') as ProductCategory;
+  const data = validateWithZodSchema(
+    singleProductVariantSchema(category),
     Object.fromEntries(formData)
   );
-  // Enable featured?
-  if (!validatedProduct?.featured) {
-    validatedProduct['featured'] = false;
-  }
-  // Update product
-  const newProduct = await db.product.update({
-    where: { id: productId },
-    data: validatedProduct,
+  // Create product variant
+  await db.productVariant.create({
+    data: { productId, creator: userId, ...data },
   });
-  return newProduct;
+  // Update total product stock
+  await db.product.update({
+    where: { id: productId },
+    data: { totalStock: { increment: data.stock } },
+  });
+  // Revalidate current path
+  revalidatePath(`${productId}`);
 };
 
-export const updateProductVariantAction = async (
+export const updateProductImage = async (
+  formData: FormData
+): Promise<string> => {
+  const productId = formData.get('productId') as string;
+  const image = formData.get('image') as File;
+  // Check if product is present.
+  const dbProduct = await db.product.findUnique({ where: { id: productId } });
+  if (!dbProduct) throw new Error(`No product with id ${productId}`);
+  const oldUrl = dbProduct.image;
+  // Only allow admin or moderator who own the asset to perform an action.
+  await authorizeCreatorOrAdmin(dbProduct);
+  // Input validation
+  const file = validateWithZodSchema(imageSchema, image);
+  // Update product image
+  const newUrl = await uploadImage(file);
+  await db.product.update({
+    where: { id: productId },
+    data: { image: newUrl },
+  });
+  //  Delete old image from database storage
+  await deleteImage(oldUrl);
+  return newUrl;
+};
+
+export const updateProductAction = async (
   prevState: any,
   formData: FormData
 ): Promise<FormState> => {
   try {
-    // Check if product variant is present.
-    const productVariantId = formData.get('id') as string;
-    const dbVariant = await db.productVariant.findUnique({
-      where: { id: productVariantId },
-    });
-    if (!dbVariant)
-      throw new Error(`No product details with id ${productVariantId}.`);
+    // Check if product is present.
+    const productId = formData.get('id') as string;
+    const dbProduct = await db.product.findUnique({ where: { id: productId } });
+    if (!dbProduct) throw new Error(`No product with id ${productId}.`);
     // Only allow admin or moderator who own the asset to perform an action.
-    await verifyCreatorOrAdmin(dbVariant);
-
-    const category = formData.get('category') as ProductCategory;
-    const validatedVariant = validateProductVariant(
-      [Object.fromEntries(formData)],
-      category
-    )![0];
-    // Sales figure update is not allowed.
-    delete validatedVariant['sales'];
-    const { productId } = await db.productVariant.update({
-      where: { id: productVariantId },
-      data: validatedVariant,
-    });
-    // Update total product stock
+    await authorizeCreatorOrAdmin(dbProduct);
+    // Input validation
+    const product = validateWithZodSchema(
+      productUpdateSchema,
+      Object.fromEntries(formData)
+    );
+    // Update product
     await db.product.update({
       where: { id: productId },
-      data: {
-        totalStock: {
-          decrement: dbVariant.stock,
-          increment: validatedVariant.stock,
-        },
-      },
+      data: product,
     });
-    return { message: 'Update product details successfully.', type: 'success' };
+    return { message: 'Product updated.', type: 'success' };
   } catch (error) {
     return renderError(error);
   }
+};
+
+export const updateProductVariant = async (formData: FormData) => {
+  // Check if product variant is present.
+  const variantId = formData.get('id') as string;
+  const dbVariant = await db.productVariant.findUnique({
+    where: { id: variantId },
+  });
+  if (!dbVariant) throw new Error(`No product option with id ${variantId}.`);
+  // Only allow admin or moderator who own the asset to perform an action.
+  await authorizeCreatorOrAdmin(dbVariant);
+  // Input validation
+  const category = formData.get('category') as ProductCategory;
+  const variant = validateWithZodSchema(
+    singleProductVariantSchema(category),
+    Object.fromEntries(formData)
+  );
+  // Update product variant
+  const { productId } = await db.productVariant.update({
+    where: { id: variantId },
+    data: variant,
+  });
+  // Update total product stock
+  await db.product.update({
+    where: { id: productId },
+    data: {
+      totalStock: { increment: variant.stock - dbVariant.stock },
+    },
+  });
+  // Revalidate current path
+  revalidatePath(`${productId}`);
+};
+
+export const updateAllProductVariants = async (formData: FormData) => {
+  // Check if product is present.
+  const productId = formData.get('productId') as string;
+  formData.delete('productId');
+  const dbProduct = await db.product.findUnique({ where: { id: productId } });
+  if (!dbProduct) throw new Error(`No product with id ${productId}.`);
+  // Only allow admin or moderator who own the asset to perform an action.
+  await authorizeCreatorOrAdmin(dbProduct);
+  // Input validation
+  const category = formData.get('category') as ProductCategory;
+  formData.delete('category');
+  const { nestedFormData } = convertFormDataByFieldset(formData);
+  const data = validateWithZodSchema(
+    allProductVariantsSchema(category),
+    Object.values(nestedFormData)
+  );
+  // Update all variants
+  data.map(async (item) => {
+    const { id } = item!;
+    delete item['id'];
+    await db.productVariant.update({ where: { id }, data: item });
+  });
+  // Update product category and total stock
+  const newTotalStock = data.reduce((acc, item) => acc + item.stock, 0);
+  await db.product.update({
+    where: { id: productId },
+    data: { category, totalStock: newTotalStock },
+  });
+  // Revalidate path
+  revalidatePath(`${productId}`);
 };
 
 export const deleteProduct = async (prevState: {
@@ -227,33 +317,32 @@ export const deleteProduct = async (prevState: {
     const dbProduct = await db.product.findUnique({ where: { id: productId } });
     if (!dbProduct) throw new Error(`No product with id ${productId}.`);
     // Only allow admin or moderator who own the asset to perform an action.
-    await verifyCreatorOrAdmin(dbProduct);
-
+    await authorizeCreatorOrAdmin(dbProduct);
+    // Remove product from database
+    await deleteImage(dbProduct.image);
     await db.product.delete({ where: { id: productId } });
-    return { message: 'Delete product successfully.', type: 'success' };
+    revalidatePath('/dashboard/admin/products');
+    return { message: 'Product deleted', type: 'success' };
   } catch (error) {
     return renderError(error);
   }
 };
 
-export const deleteProductVariant = async (prevState: {
-  productVariantId: string;
-}): Promise<FormState> => {
-  const { productVariantId } = prevState;
+export const deleteProductVariant = async (
+  variantId: string
+): Promise<FormState> => {
   try {
     // Check if product variant is present.
     const dbVariant = await db.productVariant.findUnique({
-      where: { id: productVariantId },
+      where: { id: variantId },
     });
-    if (!dbVariant)
-      throw new Error(`No product details with id ${productVariantId}.`);
+    if (!dbVariant) throw new Error(`No product details with id ${variantId}.`);
     // Only allow admin or moderator who own the asset to perform an action.
-    await verifyCreatorOrAdmin(dbVariant);
+    await authorizeCreatorOrAdmin(dbVariant);
 
     const productId = dbVariant.productId;
     // Delete product variant
-    await db.productVariant.delete({ where: { id: productVariantId } });
-
+    await db.productVariant.delete({ where: { id: variantId } });
     // Update total product stock
     await db.product.update({
       where: { id: productId },
@@ -263,8 +352,9 @@ export const deleteProductVariant = async (prevState: {
         },
       },
     });
-
-    return { message: 'Delete product details successfully.', type: 'success' };
+    // Revalidate current path
+    revalidatePath(`${productId}`);
+    return { message: 'Product option deleted', type: 'success' };
   } catch (error) {
     return renderError(error);
   }

@@ -14,3 +14,5 @@ export const PRODUCT_BRAND: Array<ProductBrand> = [
   'Prestige',
   'Wander Lux',
 ];
+
+export const CLOTHES_SIZE = ['XS', 'S', 'M', 'L', 'XL'];

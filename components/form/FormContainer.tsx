@@ -12,9 +12,11 @@ const initialState: FormState = {
 function FormContainer({
   children,
   action,
+  id,
 }: {
   children: React.ReactNode;
   action: ActionFunction;
+  id?: string;
 }) {
   const [state, formAction] = useActionState(action, initialState);
   useEffect(() => {
@@ -35,6 +37,6 @@ function FormContainer({
       }
     }
   }, [state]);
-  return <form action={formAction}>{children}</form>;
+  return <form id={id} action={formAction}>{children}</form>;
 }
 export default FormContainer;

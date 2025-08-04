@@ -7,9 +7,9 @@ import LoadingContainer from '@/components/global/LoadingContainer';
 import { redirect } from 'next/navigation';
 import AvatarContainer from '@/components/account/AvatarContainer';
 import { FormState } from '@/utils/types';
-import { renderError, deleteAccount } from '@/utils/actions';
+import { deleteAccount } from '@/utils/actions';
 import UsernameContainer from '@/components/account/UsernameContainer';
-import { validateAvatar } from '@/utils/schemas';
+import { validateAvatar } from '@/utils/clientFunctions';
 
 const renderClientError = (error: unknown): FormState => {
   return {
@@ -45,7 +45,7 @@ function AccountPage() {
       await user.reload();
       return { message: 'Delete avatar successfully.', type: 'success' };
     } catch (error) {
-      return renderError(error);
+      return renderClientError(error);
     }
   };
 

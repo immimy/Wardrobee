@@ -13,42 +13,55 @@ export function validateWithZodSchema<T>(schema: ZodType<T>, data: unknown): T {
   return result.data;
 }
 
-export function validateAvatar(file: unknown) {
-  const maxUploadSize = 1024 * 1024 * 0.5; //0.5MB
-  const maxUploadSizeText = '0.5MB';
+function validateImageFile(
+  maxUploadSize: number = 1024 * 1024 * 0.5,
+  maxUploadSizeText: string = '0.5MB'
+) {
   const acceptedFileTypes = 'image/';
-
-  if (!file || !(file instanceof File)) {
-    throw new Error('Please provide the file.');
-  }
-  if (!file.type.startsWith(acceptedFileTypes)) {
-    throw new Error('File must be an image.');
-  }
-  if (file.size > maxUploadSize) {
-    throw new Error(`File size must be less than ${maxUploadSizeText}.`);
-  }
-
-  return file as File;
+  return z
+    .instanceof(File)
+    .refine((file) => {
+      return file && file.size <= maxUploadSize;
+    }, `File size must be less than ${maxUploadSizeText}`)
+    .refine((file) => {
+      return file && file.type.startsWith(acceptedFileTypes);
+    }, 'File must be an image');
 }
 
-export function validateProductVariant(
-  variant: unknown,
-  category: ProductCategory
-) {
-  switch (category) {
-    case 'clothes':
-      return validateWithZodSchema(clothesVariantsSchema, variant);
-    case 'bag':
-      return validateWithZodSchema(bagVariantsSchema, variant);
-    case 'accessory':
-      return validateWithZodSchema(accessoryVariantsSchema, variant);
-    default:
-      const error: never = category;
-      throw new Error('Product category is not supported.');
-  }
+function validateProductVariant({
+  sizeRequired,
+  colorRequired,
+}: {
+  sizeRequired: boolean;
+  colorRequired: boolean;
+}) {
+  return z
+    .object({
+      id:z.string().optional(),
+      size: z.string().optional(),
+      color: z.string().optional(),
+      stock: z.coerce
+        .number('Please provide product stock.')
+        .int('Product stock must be an integer.')
+        .nonnegative('Product stock must not less than 0'),
+      isOnSale: z.coerce.boolean(),
+      discount: z.coerce
+        .number()
+        .int('Discount must be an integer.')
+        .nonnegative('Discount must not less than 0')
+        .optional(),
+    })
+    .refine((input) => {
+      return !(sizeRequired && !input.size);
+    }, 'Product size is required.')
+    .refine((input) => {
+      return !(colorRequired && !input.color);
+    }, 'Product color is required.');
 }
 
 ///////////////////// Schemas /////////////////////
+
+export const imageSchema = validateImageFile();
 
 export const userSchema = z.object({
   username: z
@@ -84,60 +97,43 @@ export const productSchema = z.object({
   price: z.coerce
     .number()
     .int('Price must be an integer.')
-    .positive('Price must be positive.'),
-  featured: z.coerce.boolean().optional(),
+    .nonnegative('Price must not less than 0.'),
+  featured: z.coerce.boolean(),
+});
+export const productUpdateSchema = productSchema.omit({
+  category: true,
+  image: true,
 });
 
-export const clothesVariantsSchema = z.array(
-  createProductVariantSchema({
-    sizeRequired: true,
-    colorRequired: false,
-  })
-);
-export const bagVariantsSchema = z.array(
-  createProductVariantSchema({
-    sizeRequired: false,
-    colorRequired: true,
-  })
-);
-export const accessoryVariantsSchema = z.array(
-  createProductVariantSchema({
-    sizeRequired: false,
-    colorRequired: false,
-  })
-);
-
-export function createProductVariantSchema({
-  sizeRequired,
-  colorRequired,
-}: {
-  sizeRequired: boolean;
-  colorRequired: boolean;
-}) {
-  return z
-    .object({
-      size: z.string().optional(),
-      color: z.string().optional(),
-      stock: z.coerce
-        .number('Please provide product stock.')
-        .int('Product stock must be an integer.')
-        .positive('Product stock must be positive.'),
-      sales: z.coerce
-        .number()
-        .int('Sales quantity must be an integer.')
-        .positive('Sales quantity must be positive.')
-        .optional(),
-      isOnSale: z.coerce.boolean().optional(),
-      discount: z.coerce
-        .number()
-        .int('Discount must be an integer.')
-        .positive('Discount must be positive.')
-        .optional(),
-    })
-    .refine((input) => {
-      return !(sizeRequired && !input.size);
-    }, 'Product size is required.')
-    .refine((input) => {
-      return !(colorRequired && !input.color);
-    }, 'Product color is required.');
-}
+const clothesVariantSchema = validateProductVariant({
+  sizeRequired: true,
+  colorRequired: false,
+});
+const bagVariantSchema = validateProductVariant({
+  sizeRequired: false,
+  colorRequired: true,
+});
+const accessoryVariantSchema = validateProductVariant({
+  sizeRequired: false,
+  colorRequired: false,
+});
+export const singleProductVariantSchema = (category: ProductCategory) => {
+  switch (category) {
+    case 'clothes':
+      return clothesVariantSchema;
+    case 'bag':
+      return bagVariantSchema;
+    case 'accessory':
+      return accessoryVariantSchema;
+  }
+};
+export const allProductVariantsSchema = (category: ProductCategory) => {
+  switch (category) {
+    case 'clothes':
+      return z.array(clothesVariantSchema);
+    case 'bag':
+      return z.array(bagVariantSchema);
+    case 'accessory':
+      return z.array(accessoryVariantSchema);
+  }
+};

@@ -1,4 +1,4 @@
-import UpdateProductForm from '@/components/admin/UpdateProductForm';
+import UpdateProductLayout from '@/components/admin/product-update/UpdateProductLayout';
 import LoadingContainer from '@/components/global/LoadingContainer';
 import { Button } from '@/components/ui/button';
 import { fetchSingleProduct } from '@/utils/actions';
@@ -15,8 +15,9 @@ async function AdminProductPage({ params }: AdminProductParams) {
   const product = fetchSingleProduct(id);
 
   return (
-    <section className='mt-4 px-8'>
-      <Button asChild variant='secondary' size='sm'>
+    <section className='pt-4 pb-16 px-8'>
+      {/* Back to previous page */}
+      <Button asChild variant='secondary' size='sm' className='mb-6'>
         <Link
           href={'/dashboard/admin/products'}
           className='flex gap-x-2 items-center uppercase tracking-wider'
@@ -27,8 +28,9 @@ async function AdminProductPage({ params }: AdminProductParams) {
           back
         </Link>
       </Button>
+      {/* Update product form */}
       <Suspense fallback={<LoadingContainer />}>
-        <UpdateProductForm product={product} role={role} />
+        <UpdateProductLayout product={product} role={role} />
       </Suspense>
     </section>
   );

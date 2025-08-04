@@ -1,25 +1,28 @@
-import { cn } from '@/lib/utils';
-import { Input } from '../ui/input';
+'use client';
+
+import { useState } from 'react';
 import { Label } from '../ui/label';
+import { cn } from '@/lib/utils';
 
 type ParamsType = {
-  type: string;
   name: string;
   labelText?: string;
-  defaultValue?: string | number;
+  defaultValue?: string;
   placeholder?: string;
+  disabled?: boolean;
   className?: string;
-  readOnly?:boolean
 };
 
-function FormInput({
-  type,
+function ColorInput({
   name,
   labelText,
   defaultValue,
   placeholder,
-  className,readOnly
+  disabled,
+  className,
 }: ParamsType) {
+  const [value, setValue] = useState(defaultValue || '#000');
+
   return (
     <div className={cn('mb-4', className)}>
       <Label
@@ -28,16 +31,18 @@ function FormInput({
       >
         {labelText ?? name}
       </Label>
-      <Input
-        type={type}
+      <input
+        type='color'
         id={name}
         name={name}
-        defaultValue={defaultValue && String(defaultValue)}
         placeholder={placeholder}
         required
-        readOnly={readOnly}
+        disabled={disabled}
+        className='h-10 w-12 rounded-xl shadow-2xs'
+        value={value}
+        onChange={(e) => setValue(e.currentTarget.value)}
       />
     </div>
   );
 }
-export default FormInput;
+export default ColorInput;

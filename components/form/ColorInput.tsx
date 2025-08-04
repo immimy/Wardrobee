@@ -1,43 +1,39 @@
-import { cn } from '@/lib/utils';
-import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 
 type ParamsType = {
-  type: string;
   name: string;
   labelText?: string;
-  defaultValue?: string | number;
+  defaultValue?: string;
   placeholder?: string;
-  className?: string;
-  readOnly?:boolean
+  disabled?: boolean;
 };
 
-function FormInput({
-  type,
+function ColorInput({
   name,
   labelText,
   defaultValue,
   placeholder,
-  className,readOnly
+  disabled,
 }: ParamsType) {
   return (
-    <div className={cn('mb-4', className)}>
+    <div className='mb-4'>
       <Label
         htmlFor={name}
         className='mb-1 capitalize tracking-tight text-base'
       >
         {labelText ?? name}
       </Label>
-      <Input
-        type={type}
+      <input
+        type='color'
         id={name}
         name={name}
-        defaultValue={defaultValue && String(defaultValue)}
+        defaultValue={defaultValue}
         placeholder={placeholder}
         required
-        readOnly={readOnly}
+        disabled={disabled}
+        className='h-10 w-12 rounded-xl shadow-2xs'
       />
     </div>
   );
 }
-export default FormInput;
+export default ColorInput;

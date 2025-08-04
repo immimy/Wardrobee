@@ -16,22 +16,27 @@ type VariantParam =
   | undefined;
 type SizeParam = 'default' | 'sm' | 'lg' | 'icon' | null | undefined;
 
+type ParamsType = {
+  text?: string;
+  icon?: React.ReactNode;
+  variant?: VariantParam;
+  size?: SizeParam;
+  className?: string;
+  form?: string;
+};
+
 function SubmitButton({
   text,
   icon,
   variant,
   size,
   className,
-}: {
-  text?: string;
-  icon?: React.ReactNode;
-  variant?: VariantParam;
-  size?: SizeParam;
-  className?: string;
-}) {
+  form,
+}: ParamsType) {
   const { pending } = useFormStatus();
   return (
     <Button
+      form={form}
       variant={variant ?? 'default'}
       size={size ?? 'default'}
       disabled={pending}
