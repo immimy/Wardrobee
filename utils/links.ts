@@ -8,6 +8,7 @@ export const links: Array<NavLink> = [
   { url: '/promotion', title: 'promotion' },
   { url: '/products', title: 'products' },
   { url: '/dashboard', title: 'dashboard' },
+  { url: '/admin', title: 'admin' },
 ];
 
 const userLinks: Array<NavLink> = [
@@ -18,12 +19,12 @@ const userLinks: Array<NavLink> = [
 ];
 const adminLinks: Array<NavLink> = [
   {
-    url: '/dashboard/admin/products',
+    url: '/admin/products',
     title: 'products',
     icon: TbShoppingBagEdit,
   },
   {
-    url: '/dashboard/admin/products/create',
+    url: '/admin/create-product',
     title: 'create product',
     icon: TbShoppingBagPlus,
   },

@@ -18,7 +18,8 @@ import AvatarImage from '../global/AvatarImage';
 import { auth } from '@clerk/nextjs/server';
 
 async function LinksDropdown() {
-  const { userId } = await auth();
+  const { userId, sessionClaims } = await auth();
+  const userRole = sessionClaims?.metadata.role;
 
   return (
     <DropdownMenu>
@@ -35,6 +36,7 @@ async function LinksDropdown() {
         {links.map((link) => {
           const { url, title } = link;
           if (url === '/dashboard' && !userId) return null;
+          if (url === '/admin' && (!userId || !userRole)) return null;
           return (
             <DropdownMenuItem asChild key={url}>
               <Link href={url} className='capitalize hover:cursor-pointer'>

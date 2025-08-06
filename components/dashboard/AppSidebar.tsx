@@ -29,15 +29,18 @@ async function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         {Object.entries(dashboardLinks).map(([key, values]) => {
+          let headerLink: string = '';
           let headerTitle: string = '';
           let headerIcon: React.ReactNode | undefined;
           if (key.includes('user')) {
+            headerLink = '/dashboard';
             headerTitle = 'dashboard';
             headerIcon = <MdSpaceDashboard />;
           }
           if (key.includes('admin')) {
             // Rendering only when user is an admin or moderator.
             if (!isAuthorized) return null;
+            headerLink = '/admin';
             headerTitle = 'admin';
             headerIcon = <FaUserLock />;
           }
@@ -49,10 +52,12 @@ async function AppSidebar() {
                   className='capitalize bg-sidebar-primary text-sidebar-primary-foreground'
                 >
                   <CollapsibleTrigger>
-                    <div className='flex items-center gap-x-4 text-sm tracking-widest font-bold'>
-                      <span className='text-xl'>{headerIcon}</span>
-                      {headerTitle}
-                    </div>
+                    <Link href={headerLink}>
+                      <div className='flex items-center gap-x-4 text-sm tracking-widest font-bold'>
+                        <span className='text-xl'>{headerIcon}</span>
+                        {headerTitle}
+                      </div>
+                    </Link>
                     <ChevronDown className='ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180' />
                   </CollapsibleTrigger>
                 </SidebarGroupLabel>

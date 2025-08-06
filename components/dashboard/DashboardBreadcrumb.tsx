@@ -5,43 +5,47 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { usePathname } from 'next/navigation';
+import PageOrLinkItem from './PageOrLinkItem';
 
 function DashboardBreadcrumb() {
+  // example: '/admin/products/:id' -> '', 'admin', 'products', ':id'
   const pathname = usePathname();
-  const currentPath = pathname.split('/').pop();
+  const pathnameList = pathname.split('/');
 
-  let headerPath: string | undefined;
-  let headerTitle: string | undefined;
-  let page: string | undefined;
-
-  if (pathname.startsWith('/dashboard')) {
-    headerPath = '/dashboard';
-    headerTitle = 'Dashboard';
-    page = currentPath === 'dashboard' ? '' : currentPath;
-  }
-  if (pathname.startsWith('/dashboard/admin')) {
-    headerPath = '/dashboard/admin';
-    headerTitle = 'Admin';
-    page = currentPath === 'admin' ? '' : currentPath;
-  }
   return (
     <Breadcrumb>
       <BreadcrumbList>
+        {/* 1) Home page */}
         <BreadcrumbItem>
           <BreadcrumbLink href='/'>Home</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
+        {/* 2) Dashboard page */}
         <BreadcrumbItem>
-          <BreadcrumbLink href={headerPath}>{headerTitle}</BreadcrumbLink>
+          <PageOrLinkItem
+            total={pathnameList.length}
+            index={1}
+            pathName={pathnameList[1]}
+            path={pathnameList.slice(0, 2).join('/')}
+          />
         </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbPage className='capitalize'>{page}</BreadcrumbPage>
-        </BreadcrumbItem>
+        {/* 3) Topic page */}
+        {pathnameList.length > 2 && (
+          <>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <PageOrLinkItem
+                total={pathnameList.length}
+                index={2}
+                pathName={pathnameList[2]}
+                path={pathnameList.slice(0,3).join('/')}
+              />
+            </BreadcrumbItem>
+          </>
+        )}
       </BreadcrumbList>
     </Breadcrumb>
   );
