@@ -19,6 +19,7 @@ import { Label } from '@/components/ui/label';
 import { capitalizeFirstLetter, lowerCaseString } from '@/utils/format';
 import { PRODUCT_CATEGORY } from '@/utils/constants';
 import { useCategoryFormContext } from '@/components/admin/product-update/CategoryForm';
+import { ProductCategory } from '@/utils/types';
 
 export function CategorySelect() {
   const { category, setCategory } = useCategoryFormContext()!;
@@ -65,7 +66,7 @@ export function CategorySelect() {
                       key={framework}
                       value={lowerCaseString(framework)}
                       onSelect={(currentValue) => {
-                        setCategory(currentValue);
+                        setCategory(currentValue as ProductCategory);
                         setOpen(false);
                       }}
                     >

@@ -6,7 +6,7 @@ async function AccountContainer() {
   const user = await currentUser();
 
   return (
-    <div className='p-4'>
+    <div className='px-4'>
       {/* Account */}
       <Title title='account' />
       <div className='p-4 flex flex-col items-center'>

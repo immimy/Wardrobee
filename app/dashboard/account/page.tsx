@@ -60,7 +60,7 @@ function AccountPage() {
   };
 
   return (
-    <div className='p-4'>
+    <div className='px-4'>
       <Title title='Edit account' className='text-center' />
       <div className='mt-6'>
         <AvatarContainer

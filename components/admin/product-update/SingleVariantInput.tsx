@@ -7,15 +7,15 @@ import { CLOTHES_SIZE } from '@/utils/constants';
 
 type ParamsType = {
   index?: number;
-  id: string;
-  size: string | undefined;
-  color: string | undefined;
-  stock: number;
-  isOnSale: boolean;
-  discount: number;
+  id?: string;
+  size?: string | undefined;
+  color?: string | undefined;
+  stock?: number;
+  isOnSale?: boolean;
+  discount?: number;
 };
 
-function SingleVariant({
+function SingleVariantInput({
   index,
   id,
   size,
@@ -28,11 +28,13 @@ function SingleVariant({
   return (
     <div className='mb-2 md:mb-0 text-center grid justify-center md:flex flex-wrap md:justify-start gap-x-6'>
       {/* Variant Id */}
-      <input
-        type='hidden'
-        name={index ? `variant${index}[id]` : 'id'}
-        defaultValue={id}
-      />
+      {id && (
+        <input
+          type='hidden'
+          name={index ? `variant${index}[id]` : 'id'}
+          defaultValue={id}
+        />
+      )}
       {/* (optional) Product category */}
       {!index && (
         <input type='hidden' name='category' defaultValue={category} />
@@ -73,4 +75,4 @@ function SingleVariant({
     </div>
   );
 }
-export default SingleVariant;
+export default SingleVariantInput;

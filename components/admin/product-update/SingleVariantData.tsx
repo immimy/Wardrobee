@@ -35,14 +35,16 @@ function SingleVariantDisplay() {
       {/* Buttons */}
       <div className='grid grid-cols-2 items-center gap-x-2 transition-all'>
         {/* Delete product option */}
-        <FormContainer action={deleteVariantAction}>
-          <SubmitButton
-            icon={<FaTrashCan />}
-            size='icon'
-            variant='destructive'
-            className='md:rounded-full md:w-8'
-          />
-        </FormContainer>
+        {product.category !== 'accessory' && (
+          <FormContainer action={deleteVariantAction}>
+            <SubmitButton
+              icon={<FaTrashCan />}
+              size='icon'
+              variant='destructive'
+              className='md:rounded-full md:w-8'
+            />
+          </FormContainer>
+        )}
         {/* Enter update mode */}
         <Button
           type='button'

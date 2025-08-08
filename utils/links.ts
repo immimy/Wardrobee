@@ -13,7 +13,7 @@ export const links: Array<NavLink> = [
 
 const userLinks: Array<NavLink> = [
   { url: '/dashboard/profile', title: 'profile', icon: FaUser },
-  { url: '/dashboard/orders', title: 'orders', icon: PiShoppingBagLight },
+  { url: '/dashboard/orders', title: 'my orders', icon: PiShoppingBagLight },
   { url: '/dashboard/favorite', title: 'favorite', icon: IoMdHeart },
   { url: '/dashboard/account', title: 'account', icon: FaGear },
 ];
@@ -24,7 +24,7 @@ const adminLinks: Array<NavLink> = [
     icon: TbShoppingBagEdit,
   },
   {
-    url: '/admin/create-product',
+    url: '/admin/product-create',
     title: 'create product',
     icon: TbShoppingBagPlus,
   },
