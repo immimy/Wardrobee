@@ -4,11 +4,9 @@ import { currentUser } from '@clerk/nextjs/server';
 
 async function AccountContainer() {
   const user = await currentUser();
-
   return (
-    <div className='px-4'>
-      {/* Account */}
-      <Title title='account' />
+    <>
+      <Title title='profile' />
       <div className='p-4 flex flex-col items-center'>
         <AvatarImage height={128} width={128} className='h-32 w-32' />
         <div className='mt-4 flex items-center gap-x-4'>
@@ -16,9 +14,7 @@ async function AccountContainer() {
           <p>{user?.username || '-'}</p>
         </div>
       </div>
-      {/* Address */}
-      <Title title='address' />
-    </div>
+    </>
   );
 }
 export default AccountContainer;

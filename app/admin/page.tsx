@@ -3,7 +3,7 @@ import { dashboardLinks } from '@/utils/links';
 
 function AdminDashboardPage() {
   return (
-    <section>
+    <section className='mb-8'>
       <MenuContainer links={dashboardLinks.adminLinks} />
     </section>
   );

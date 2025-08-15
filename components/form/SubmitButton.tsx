@@ -41,7 +41,7 @@ function SubmitButton({
       size={size ?? 'default'}
       disabled={pending}
       className={cn(
-        'capitalize tracking-tight font-semibold hover:cursor-pointer w-full',
+        'capitalize tracking-tight font-semibold hover:cursor-pointer',
         className
       )}
     >

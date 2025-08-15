@@ -5,7 +5,7 @@ type ParamsType = { links: Array<NavLink> };
 
 function MenuContainer({ links }: ParamsType) {
   return (
-    <div className='sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
+    <div className='grid gap-6 grid-cols-auto'>
       {links.map((link) => {
         return <MenuCard key={link.url} {...link} />;
       })}

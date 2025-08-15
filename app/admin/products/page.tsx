@@ -9,7 +9,7 @@ function AdminProductsPage() {
     <section className='mt-4 md:mt-8'>
       <ProductsContainer />
       <Tooltip>
-        <TooltipTrigger className='p-3 z-10 fixed bottom-20 right-16 rounded-full bg-primary text-primary-foreground hover:animate-bounce transition-all'>
+        <TooltipTrigger className='hidden 2xl:block p-3 z-10 fixed bottom-20 right-16 rounded-full bg-primary text-primary-foreground hover:animate-bounce transition-all'>
           <Link href='/admin/product-create'>
             <TbShoppingBagPlus className='text-4xl' />
           </Link>

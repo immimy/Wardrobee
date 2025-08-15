@@ -1,5 +1,8 @@
 import { Prisma } from '@/lib/generated/prisma';
 import { IconType } from 'react-icons/lib';
+import { Roles } from '@/types/globals';
+
+export type AllRoles = 'user' | Roles;
 
 export type NavLink = {
   url: string;
@@ -16,8 +19,6 @@ export type ActionFunction = (
   prevState: any,
   formData: FormData
 ) => Promise<FormState>;
-
-export type HaveCreator = { creator: string; [key: string]: unknown };
 
 export type ProductCategory = 'clothes' | 'bag' | 'accessory';
 export type ProductBrand =
@@ -44,3 +45,5 @@ export type CartItem = {
   isOnSale: boolean;
   stock?: number;
 };
+
+export type Location = { lat: number; lng: number };

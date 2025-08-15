@@ -1,4 +1,4 @@
-import { z, ZodType } from 'zod/v4';
+import { boolean, z, ZodType } from 'zod/v4';
 import { ProductCategory } from './types';
 
 export function validateWithZodSchema<T>(schema: ZodType<T>, data: unknown): T {
@@ -37,7 +37,7 @@ function validateProductVariant({
 }) {
   return z
     .object({
-      id:z.string().optional(),
+      id: z.string().optional(),
       size: z.string().optional(),
       color: z.string().optional(),
       stock: z.coerce
@@ -137,3 +137,10 @@ export const allProductVariantsSchema = (category: ProductCategory) => {
       return z.array(accessoryVariantSchema);
   }
 };
+
+export const shippingAddressSchema = z.object({
+  receiver: z.string(),
+  address: z.string(),
+  phoneNumber: z.string(),
+  isDefault: z.coerce.boolean(),
+});

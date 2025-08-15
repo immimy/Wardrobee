@@ -50,7 +50,7 @@ function ProductImageForm() {
           {isUpdated ? (
             <>
               <ImageInput name='image' labelText='product image' />
-              <SubmitButton text='update product image' />
+              <SubmitButton text='update product image' className='w-full' />
               <Button
                 type='button'
                 variant='link'

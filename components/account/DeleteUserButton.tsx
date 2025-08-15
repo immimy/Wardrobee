@@ -9,7 +9,7 @@ function DeleteUserButton({
 }) {
   return (
     <FormContainer action={deleteUserAction}>
-      <div className='p-4 mx-auto max-w-96'>
+      <div className='p-4 pt-0 mx-auto max-w-96'>
         <SubmitButton
           text='delete account'
           variant='destructive'

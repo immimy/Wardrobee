@@ -1,15 +1,15 @@
 'use server';
 
-import { clerkClient, currentUser, auth } from '@clerk/nextjs/server';
-import { Roles } from '@/types/globals';
+import { clerkClient, auth } from '@clerk/nextjs/server';
 import { isClerkAPIResponseError } from '@clerk/nextjs/errors';
-import { FormState, HaveCreator, ProductCategory } from './types';
+import { AllRoles, FormState, ProductCategory } from './types';
 import { redirect } from 'next/navigation';
 import {
   allProductVariantsSchema,
   imageSchema,
   productSchema,
   productUpdateSchema,
+  shippingAddressSchema,
   singleProductVariantSchema,
   userSchema,
   validateWithZodSchema,
@@ -22,30 +22,34 @@ import { deleteImage, uploadImage } from './supabase';
 const client = await clerkClient();
 
 const getAuthUser = async () => {
-  const user = await currentUser();
-  if (!user) return redirect('/');
-  return user;
+  const { userId, sessionClaims } = await auth();
+  if (!userId) return redirect('/');
+  return { userId, role: (sessionClaims?.metadata.role || 'user') as AllRoles };
 };
 
 const authorizeRoles = async (
-  ...role: Array<Roles>
-): Promise<{ userId: string; userRole: Roles }> => {
-  const { sessionClaims, userId } = await auth();
-  const userRole = sessionClaims?.metadata.role;
-  if (!userId || !userRole || !role.includes(userRole))
+  authorizedRoles: Array<AllRoles>,
+  user: Awaited<ReturnType<typeof getAuthUser>>
+) => {
+  if (!authorizedRoles.includes(user.role))
     throw new Error('Unauthorized to perform this action.');
-  return { userId, userRole: userRole };
 };
 
-// Admin are enable to perform all actions.
-// Moderator can only perform an action on their asset.
-const authorizeCreatorOrAdmin = async (
-  data: HaveCreator
-): Promise<{ userId: string; userRole: Roles }> => {
-  const { userId, userRole } = await authorizeRoles('admin', 'moderator');
-  if (userRole !== 'admin' && data.creator !== userId)
+const authorizeOwnerOrAdmin = async (
+  dbUserId: string,
+  user: Awaited<ReturnType<typeof getAuthUser>>
+) => {
+  if (user.role === 'admin') return;
+  if (dbUserId !== user.userId)
     throw new Error('Unauthorized to perform this action.');
-  return { userId, userRole: userRole };
+};
+
+const authorizeOwner = async (
+  dbUserId: string,
+  user: Awaited<ReturnType<typeof getAuthUser>>
+) => {
+  if (dbUserId !== user.userId)
+    throw new Error('Unauthorized to perform this action.');
 };
 
 const renderError = async (error: unknown): Promise<FormState> => {
@@ -63,7 +67,7 @@ export const updateProfileAction = async (
   formData: FormData
 ): Promise<FormState> => {
   try {
-    const { id: userId } = await getAuthUser();
+    const { userId } = await getAuthUser();
     const rawData = Object.fromEntries(formData);
     const data = validateWithZodSchema(userSchema, rawData);
     await client.users.updateUser(userId, { ...data });
@@ -82,7 +86,7 @@ export const updateProfileAction = async (
 
 export const deleteAccount = async () => {
   try {
-    const { id: userId } = await getAuthUser();
+    const { userId } = await getAuthUser();
     await client.users.deleteUser(userId);
   } catch (error) {
     throw error;
@@ -120,8 +124,10 @@ export const createProductAction = async (
   formData: FormData
 ): Promise<FormState> => {
   try {
+    const user = await getAuthUser();
     // Only allow admin or moderator to perform an action.
-    const { userId } = await authorizeRoles('admin', 'moderator');
+    await authorizeRoles(['admin', 'moderator'], user);
+
     // Collect input data by fieldset
     const { nestedFormData } = convertFormDataByFieldset(formData);
     const { product } = nestedFormData;
@@ -147,11 +153,11 @@ export const createProductAction = async (
 
     // Create product
     const { id: productId } = await db.product.create({
-      data: { creator: userId, ...validatedProduct },
+      data: { creator: user.userId, ...validatedProduct },
     });
     // Create multiple product variants
     const validatedProductVariants = validatedVariants.map((variant) => {
-      return { productId, creator: userId, ...variant };
+      return { productId, creator: user.userId, ...variant };
     });
     await db.productVariant.createMany({
       data: validatedProductVariants,
@@ -169,12 +175,13 @@ export const createProductAction = async (
 };
 
 export const createProductVariant = async (formData: FormData) => {
+  const user = await getAuthUser();
   // Check if product is present.
   const productId = formData.get('productId') as string;
   const dbProduct = await db.product.findUnique({ where: { id: productId } });
   if (!dbProduct) throw new Error(`No product with id ${productId}.`);
-  // Only allow admin or moderator who own the asset to perform an action.
-  const { userId } = await authorizeCreatorOrAdmin(dbProduct);
+  // Only allow user who own the asset to perform an action.
+  await authorizeOwner(dbProduct.creator, user);
   // Input validation
   const category = formData.get('category') as ProductCategory;
   const data = validateWithZodSchema(
@@ -183,7 +190,7 @@ export const createProductVariant = async (formData: FormData) => {
   );
   // Create product variant
   await db.productVariant.create({
-    data: { productId, creator: userId, ...data },
+    data: { productId, creator: user.userId, ...data },
   });
   // Update total product stock
   await db.product.update({
@@ -197,14 +204,16 @@ export const createProductVariant = async (formData: FormData) => {
 export const updateProductImage = async (
   formData: FormData
 ): Promise<string> => {
+  const user = await getAuthUser();
+
   const productId = formData.get('productId') as string;
   const image = formData.get('image') as File;
   // Check if product is present.
   const dbProduct = await db.product.findUnique({ where: { id: productId } });
   if (!dbProduct) throw new Error(`No product with id ${productId}`);
   const oldUrl = dbProduct.image;
-  // Only allow admin or moderator who own the asset to perform an action.
-  await authorizeCreatorOrAdmin(dbProduct);
+  // Only allow admin or creator who own the asset to perform an action.
+  await authorizeOwnerOrAdmin(dbProduct.creator, user);
   // Input validation
   const file = validateWithZodSchema(imageSchema, image);
   // Update product image
@@ -223,12 +232,13 @@ export const updateProductAction = async (
   formData: FormData
 ): Promise<FormState> => {
   try {
+    const user = await getAuthUser();
     // Check if product is present.
     const productId = formData.get('id') as string;
     const dbProduct = await db.product.findUnique({ where: { id: productId } });
     if (!dbProduct) throw new Error(`No product with id ${productId}.`);
-    // Only allow admin or moderator who own the asset to perform an action.
-    await authorizeCreatorOrAdmin(dbProduct);
+    // Only allow admin or creator who own the asset to perform an action.
+    await authorizeOwnerOrAdmin(dbProduct.creator, user);
     // Input validation
     const product = validateWithZodSchema(
       productUpdateSchema,
@@ -246,14 +256,15 @@ export const updateProductAction = async (
 };
 
 export const updateProductVariant = async (formData: FormData) => {
-  // Check if product variant is present.
+  const user = await getAuthUser();
+  // Check if product variant is present
   const variantId = formData.get('id') as string;
   const dbVariant = await db.productVariant.findUnique({
     where: { id: variantId },
   });
   if (!dbVariant) throw new Error(`No product option with id ${variantId}.`);
-  // Only allow admin or moderator who own the asset to perform an action.
-  await authorizeCreatorOrAdmin(dbVariant);
+  // Only allow admin or creator who own the asset to perform an action
+  await authorizeOwnerOrAdmin(dbVariant.creator, user);
   // Input validation
   const category = formData.get('category') as ProductCategory;
   const variant = validateWithZodSchema(
@@ -281,13 +292,14 @@ export const updateCategoryAndVariantsAction = async (
   formData: FormData
 ): Promise<FormState> => {
   try {
+    const user = await getAuthUser();
     // Check if product is present.
     const productId = formData.get('productId') as string;
     formData.delete('productId');
     const dbProduct = await db.product.findUnique({ where: { id: productId } });
     if (!dbProduct) throw new Error(`No product with id ${productId}.`);
-    // Only allow admin or moderator who own the asset to perform an action.
-    await authorizeCreatorOrAdmin(dbProduct);
+    // Only allow admin or creator who own the asset to perform an action.
+    await authorizeOwnerOrAdmin(dbProduct.creator, user);
 
     const category = formData.get('category') as ProductCategory;
     formData.delete('category');
@@ -346,11 +358,12 @@ export const deleteProduct = async (prevState: {
 }): Promise<FormState> => {
   const { productId } = prevState;
   try {
+    const user = await getAuthUser();
     // Check if product is present.
     const dbProduct = await db.product.findUnique({ where: { id: productId } });
     if (!dbProduct) throw new Error(`No product with id ${productId}.`);
-    // Only allow admin or moderator who own the asset to perform an action.
-    await authorizeCreatorOrAdmin(dbProduct);
+    // Only allow admin or creator who own the asset to perform an action.
+    await authorizeOwnerOrAdmin(dbProduct.creator, user);
     // Remove product from database
     await deleteImage(dbProduct.image);
     await db.product.delete({ where: { id: productId } });
@@ -365,13 +378,14 @@ export const deleteProductVariant = async (
   variantId: string
 ): Promise<FormState> => {
   try {
+    const user = await getAuthUser();
     // Check if product variant is present.
     const dbVariant = await db.productVariant.findUnique({
       where: { id: variantId },
     });
     if (!dbVariant) throw new Error(`No product details with id ${variantId}.`);
-    // Only allow admin or moderator who own the asset to perform an action.
-    await authorizeCreatorOrAdmin(dbVariant);
+    // Only allow admin or creator who own the asset to perform an action.
+    await authorizeOwnerOrAdmin(dbVariant.creator, user);
 
     const productId = dbVariant.productId;
     // Delete product variant
@@ -388,6 +402,106 @@ export const deleteProductVariant = async (
     // Revalidate current path
     revalidatePath(`${productId}`);
     return { message: 'Product option deleted', type: 'success' };
+  } catch (error) {
+    return renderError(error);
+  }
+};
+
+export const fetchAllAddresses = async () => {
+  const { userId } = await getAuthUser();
+  const addresses = await db.shippingAddress.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'asc' },
+  });
+  return addresses;
+};
+
+export const createAddress = async (formData: FormData): Promise<void> => {
+  // Only login user can perform an action
+  const { userId } = await getAuthUser();
+  // Input validation
+  const rawData = Object.fromEntries(formData);
+  const data = validateWithZodSchema(shippingAddressSchema, rawData);
+  // Limit address to 3
+  const numOfShippingAddress = await db.shippingAddress.count({
+    where: { userId },
+  });
+  if (numOfShippingAddress === 3)
+    throw new Error('Shipping address is limited to 3');
+  // The first address must be default.
+  if (numOfShippingAddress < 1) {
+    data.isDefault = true;
+  } else {
+    // Ensure only 1 default address per 1 userId
+    if (data.isDefault) {
+      const oldDefault = await db.shippingAddress.findFirst({
+        where: { userId, isDefault: true },
+      });
+      oldDefault &&
+        (await db.shippingAddress.update({
+          where: { id: oldDefault.id },
+          data: { isDefault: false },
+        }));
+    }
+  }
+  // Crete shipping address
+  await db.shippingAddress.create({ data: { userId, ...data } });
+  // Revalidate path
+  revalidatePath('/dashboard/profile');
+  revalidatePath('/cart');
+};
+
+export const updateAddress = async (formData: FormData): Promise<void> => {
+  const user = await getAuthUser();
+  // Check if address is present
+  const addressId = formData.get('id') as string;
+  const dbAddress = await db.shippingAddress.findUnique({
+    where: { id: addressId },
+  });
+  if (!dbAddress) throw new Error(`No shipping address with id ${addressId}`);
+  // Only allow user who own the asset to perform an action.
+  await authorizeOwner(dbAddress.userId, user);
+  // Input validation
+  const data = validateWithZodSchema(
+    shippingAddressSchema,
+    Object.fromEntries(formData)
+  );
+  // Ensure only 1 default address per 1 userId
+  if (data.isDefault) {
+    const oldDefault = await db.shippingAddress.findFirst({
+      where: { userId: user.userId, isDefault: true },
+    });
+    oldDefault &&
+      (await db.shippingAddress.update({
+        where: { id: oldDefault.id },
+        data: { isDefault: false },
+      }));
+  }
+  // Update address
+  await db.shippingAddress.update({
+    where: { id: addressId },
+    data: { ...data },
+  });
+  // Revalidate path
+  revalidatePath('/dashboard/profile');
+  revalidatePath('/cart');
+};
+
+export const deleteAddress = async (addressId: string): Promise<FormState> => {
+  try {
+    const user = await getAuthUser();
+    // Check if address is present
+    const dbAddress = await db.shippingAddress.findUnique({
+      where: { id: addressId },
+    });
+    if (!dbAddress) throw new Error(`No shipping address with id ${addressId}`);
+    // Only allow user who own the asset to perform an action.
+    await authorizeOwner(dbAddress.userId, user);
+    // Remove address from database
+    await db.shippingAddress.delete({ where: { id: addressId } });
+    revalidatePath('/dashboard/profile');
+    revalidatePath('/cart');
+    return { message: 'Deleted shipping address', type: 'success' };
   } catch (error) {
     return renderError(error);
   }

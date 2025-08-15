@@ -1,9 +1,13 @@
-import AccountContainer from '@/components/profile/AccountContainer';
+import AddressContainer from '@/components/profile/AddressContainer';
+import ProfileContainer from '@/components/profile/ProfileContainer';
+import { fetchAllAddresses } from '@/utils/actions';
 
-function ProfilePage() {
+async function ProfilePage() {
+  const addresses = await fetchAllAddresses();
   return (
-    <section>
-      <AccountContainer />
+    <section className='px-4'>
+      <ProfileContainer />
+      <AddressContainer addresses={addresses} />
     </section>
   );
 }

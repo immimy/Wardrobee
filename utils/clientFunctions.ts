@@ -23,3 +23,13 @@ export function validateAvatar(file: unknown) {
   }
   return file as File;
 }
+
+export const mapDisplay = (isShown: boolean) => {
+  const checkbox = document.getElementById('map-display') as HTMLInputElement;
+  checkbox.checked = isShown;
+};
+
+export const setAddress = (addressId: string, address: string) => {
+  const addressInput = document.getElementById(addressId) as HTMLInputElement;
+  addressInput.value = address;
+};

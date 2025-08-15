@@ -24,11 +24,9 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang='en'>
         <body className={`${exo.className}`}>
-          <main>
-            <Navbar />
-            <Container>{children}</Container>
-            <Toaster />
-          </main>
+          <Navbar />
+          <Container>{children}</Container>
+          <Toaster />
         </body>
       </html>
     </ClerkProvider>

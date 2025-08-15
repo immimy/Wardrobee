@@ -19,7 +19,7 @@ async function AdminProductPage({ params }: AdminProductParams) {
       {/* Back to previous page */}
       <Button asChild variant='secondary' size='sm' className='mb-6'>
         <Link
-          href={'/dashboard/admin/products'}
+          href={'/admin/products'}
           className='flex gap-x-2 items-center uppercase tracking-wider'
         >
           <span>

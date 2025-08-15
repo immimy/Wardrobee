@@ -6,6 +6,7 @@ import { FormState } from '@/utils/types';
 import { renderError } from '@/utils/clientFunctions';
 import SingleVariantInput from './SingleVariantInput';
 import { useSingleVariantContext } from './SingleVariantLists';
+import SubmitButton from '@/components/form/SubmitButton';
 
 function SingleVariantForm() {
   const { id, size, color, stock, isOnSale, discount, setIsUpdate } =
@@ -44,14 +45,12 @@ function SingleVariantForm() {
       {/* Buttons */}
       <div className='flex justify-center gap-x-2'>
         {/* Submit button */}
-        <Button
-          type='submit'
+        <SubmitButton
           form={`update-${id}-variant`}
           size='icon'
           className='md:rounded-full text-input bg-successful hover:bg-successful hover:scale-120 hover:cursor-pointer'
-        >
-          <FaCheck />
-        </Button>
+          icon={<FaCheck />}
+        />
         {/* Cancel update mode */}
         <Button
           type='button'

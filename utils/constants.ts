@@ -16,3 +16,5 @@ export const PRODUCT_BRAND: Array<ProductBrand> = [
 ];
 
 export const CLOTHES_SIZE = ['XS', 'S', 'M', 'L', 'XL'];
+
+export const BKK_LOCATION = { latitude: 13.736717, longitude: 100.523186 };
