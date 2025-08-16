@@ -2,6 +2,7 @@ import AppSidebar from '@/components/dashboard/AppSidebar';
 import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { cookies } from 'next/headers';
+import Container from '../global/Container';
 
 async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
@@ -10,15 +11,19 @@ async function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar />
-      <main className='mt-4 md:mt-8 w-full'>
-        <div className='mb-4  md:mb-8 flex items-center md:gap-x-8'>
-          <SidebarTrigger />
-          <div className='mx-auto md:ml-0'>
-            <DashboardBreadcrumb />
-          </div>
+      <section className='w-full'>
+        {/* BREADCRUMB */}
+        <div className='py-4 bg-background text-foreground sticky top-[60px] z-50'>
+          <Container className='flex items-center md:gap-x-8'>
+            <SidebarTrigger variant='default' className='rounded-full' />
+            <div className='mx-auto md:ml-0'>
+              <DashboardBreadcrumb />
+            </div>
+          </Container>
         </div>
-        {children}
-      </main>
+        {/* CONTENT */}
+        <Container className='pb-16'>{children}</Container>
+      </section>
     </SidebarProvider>
   );
 }

@@ -26,7 +26,7 @@ async function AppSidebar() {
   const isAuthorized = adminRoles.includes(role);
 
   return (
-    <Sidebar>
+    <Sidebar className='z-50'>
       <SidebarContent>
         {Object.entries(dashboardLinks).map(([key, values]) => {
           let headerLink: string = '';

@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Exo_2 } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/navbar/Navbar';
-import Container from '@/components/global/Container';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -23,9 +22,11 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang='en'>
-        <body className={`${exo.className}`}>
+        <body
+          className={`${exo.className} min-h-screen bg-background text-foreground`}
+        >
           <Navbar />
-          <Container>{children}</Container>
+          <main>{children}</main>
           <Toaster />
         </body>
       </html>

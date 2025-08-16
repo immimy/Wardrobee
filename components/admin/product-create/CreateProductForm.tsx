@@ -31,15 +31,13 @@ function CreateProductForm({ role }: ParamsType) {
   );
   return (
     <CreateProductContext.Provider value={{ role, category, setCategory }}>
-      <div className='mb-16'>
-        <FormContainer action={createProductAction}>
-          <div className='grid gap-y-4'>
-            <ProductFieldset />
-            <VariantFieldset />
-          </div>
-          <SubmitButton text='create product' />
-        </FormContainer>
-      </div>
+      <FormContainer action={createProductAction}>
+        <div className='grid gap-y-4'>
+          <ProductFieldset />
+          <VariantFieldset />
+        </div>
+        <SubmitButton text='create product' className='w-full' />
+      </FormContainer>
     </CreateProductContext.Provider>
   );
 }
