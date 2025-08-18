@@ -4,53 +4,97 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
-//////////////////// Models ////////////////////
-
-model Product{
-  id String @id @default(uuid())
-  name String
-  category String
-  brand String
-  image String
+model Product {
+  id          String           @id @default(uuid())
+  name        String
+  category    String
+  brand       String
+  image       String
   description String?
-  price Int
-  featured Boolean @default(false)
-  variants ProductVariant[]
-  totalStock Int @default(0)
-  totalSales Int @default(0)
-  creator String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  price       Int
+  featured    Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  creator     String
+  totalSales  Int              @default(0)
+  totalStock  Int              @default(0)
+  variants    ProductVariant[]
 }
 
-model ProductVariant{
-  id String @id @default(uuid())
-  numberId Int @default(autoincrement())
-  product Product @relation(fields: [productId],references: [id],onDelete: Cascade)
+model ProductVariant {
   productId String
-  color String?
-  size String?
-  stock Int
-  sales Int @default(0)
-  isOnSale Boolean @default(false)
-  discount Int @default(0)
-  creator String
+  color     String?
+  size      String?
+  stock     Int
+  sales     Int      @default(0)
+  isOnSale  Boolean  @default(false)
+  discount  Int      @default(0) // as percent (%)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  creator   String
+  id        String   @id @default(uuid())
+  numberId  Int      @default(autoincrement())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems CartItem[]
 }
 
-model ShippingAddress{
+model ShippingAddress {
+  id          String   @id @default(uuid())
+  userId      String
+  receiver    String
+  address     String
+  phoneNumber String
+  isDefault   Boolean
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Display the latest product details
+model CartItem{
+  id String @id @default(uuid())
+  cartId String
+  cart Cart @relation(fields: [cartId],references: [id],onDelete: Cascade)
+  productVariantId String
+  productVariant ProductVariant @relation(fields: [productVariantId],references: [id],onDelete: Cascade)
+  quantity Int @default(1)
+  @@unique([cartId,productVariantId])
+}
+model Cart{
+  id String @id @default(uuid())
+  userId String @unique
+  cartItems CartItem[]
+}
+
+// Capture product details when user places an order
+model OrderItem{
+  id String @id @default(uuid())
+  orderId String
+  order Order @relation(fields: [orderId],references: [id],onDelete: Cascade)
+  productId String
+  productVariantId String
+  productImage String
+  productName String
+  productSize String?
+  productColor String?
+  unitPrice Int
+  discount Int // as percent (%)
+  quantity Int
+  total Decimal @db.Decimal(8,2)
+}
+model Order{
   id String @id @default(uuid())
   userId String
-  receiver String
-  address String
-  phoneNumber String
-  isDefault Boolean
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  OrderItems OrderItem[]
+  status String @default("PENDING") // PENDING, PAID, SHIPPED, CANCELLED
+  subtotal Decimal @db.Decimal(8,2)
+  shippingFee Int
+  total Decimal @db.Decimal(8,2)
+  shippingAddress String
+  clientSecret String
+  paymentIntentId String
 }

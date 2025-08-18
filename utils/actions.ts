@@ -1,6 +1,6 @@
 'use server';
 
-import { clerkClient, auth } from '@clerk/nextjs/server';
+import { clerkClient, auth, currentUser } from '@clerk/nextjs/server';
 import { isClerkAPIResponseError } from '@clerk/nextjs/errors';
 import { AllRoles, FormState, ProductCategory } from './types';
 import { redirect } from 'next/navigation';
@@ -505,6 +505,16 @@ export const deleteAddress = async (addressId: string): Promise<FormState> => {
   } catch (error) {
     return renderError(error);
   }
+};
+
+export const fetchCart = async () => {
+  const user = await currentUser();
+  if (!user) return null;
+  const cart = await db.cart.findUnique({
+    where: { userId: user.id },
+    include: { cartItems: { include: {} } },
+  });
+  return cart;
 };
 
 export const addToCartAction = async (

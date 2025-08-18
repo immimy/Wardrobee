@@ -3,8 +3,8 @@ import HeroCarousel from '@/components/homepage/HeroCarousel';
 
 function page() {
   return (
-    <Container>
-      <section className='py-8 md:py-12 grid md:grid-cols-2 gap-8 md:gap-12'>
+    <Container className='pt-8 md:pt-12 pb-16'>
+      <section className='grid md:grid-cols-2 gap-8 md:gap-12'>
         <div className='text-center md:text-end md:flex md:flex-col md:justify-center'>
           <h1 className='font-bold text-6xl tracking-tight text-primary-foreground'>
             Wardrobee
