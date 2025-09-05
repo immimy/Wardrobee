@@ -5,15 +5,21 @@ import Link from 'next/link';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import CartItemList from '../cart/CartItemList';
 import { IoCart } from 'react-icons/io5';
-import { useOptimistic, useTransition } from 'react';
+import { useCallback, useOptimistic, useTransition } from 'react';
 import { useCartContext } from '../providers/CartProvider';
-import { isObjectEmpty, sumSubtotalAndQuantity } from '@/utils/clientFunctions';
+import {
+  isObjectEmpty,
+  renderError,
+  sumSubtotalAndQuantity,
+} from '@/utils/clientFunctions';
 import { createContext, useContext } from 'react';
-import { CartStateType, OptimisticAction } from '@/utils/types';
-import { deleteCartItem, updateCartItem } from '@/utils/actions';
+import { CartStateType, FormState, OptimisticAction } from '@/utils/types';
+import { clearCart, deleteCartItem, updateCartItem } from '@/utils/actions';
 import { toast } from 'sonner';
 import RemoveItemModal from '../cart/RemoveItemModal';
 import LoadingContainer from '../global/LoadingContainer';
+import SubmitButton from '../form/SubmitButton';
+import FormContainer from '../form/FormContainer';
 
 type ContextType = {
   isPending: boolean;
@@ -63,7 +69,7 @@ function CartButton() {
   const { subtotal, totalQuantity, cartItems } = optimisticState;
 
   // Update cart item action
-  const updateCartItemAction = async (cartItemId: string) => {
+  const updateCartItemAction = useCallback(async (cartItemId: string) => {
     const form = document.getElementById(cartItemId) as HTMLFormElement;
     const formData = new FormData(form);
     try {
@@ -78,34 +84,34 @@ function CartButton() {
         error instanceof Error ? error.message : 'An error occurred';
       toast.error(message);
     }
-  };
+  }, []);
 
   // Cancel remove cart item action
-  const cancelRemoveCartItemAction = async(formData: FormData) => {
-      try {
-        // Update cart item in database
-        const cart = await updateCartItem(formData);
-        const { cartItems, subtotal, totalQuantity } = cart;
-        toast.success('Updated cart item');
-        // Update cart state
-        setCartState({
-          ...cartState,
-          cartItems,
-          subtotal,
-          totalQuantity,
-          // Close remove cart item modal
-          removeItemOpen: false,
-          removeItemId: '',
-        });
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : 'An error occurred';
-        toast.error(message);
-      }
-  };
+  const cancelRemoveCartItemAction = useCallback(async (formData: FormData) => {
+    try {
+      // Update cart item in database
+      const cart = await updateCartItem(formData);
+      const { cartItems, subtotal, totalQuantity } = cart;
+      toast.success('Updated cart item');
+      // Update cart state
+      setCartState({
+        ...cartState,
+        cartItems,
+        subtotal,
+        totalQuantity,
+        // Close remove cart item modal
+        removeItemOpen: false,
+        removeItemId: '',
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'An error occurred';
+      toast.error(message);
+    }
+  }, []);
 
   // Remove cart item action
-  const removeCartItemAction = (cartItemId: string) => {
+  const removeCartItemAction = useCallback((cartItemId: string) => {
     startTransition(async () => {
       try {
         // Delete cart item from database
@@ -130,7 +136,27 @@ function CartButton() {
         updateCartState('removeItemOpen', false);
       }
     });
-  };
+  }, []);
+
+  // Clear cart action
+  const clearCartAction = useCallback(async (): Promise<FormState> => {
+    try {
+      // Delete all cart items from database
+      const cart = await clearCart();
+      const { cartItems, subtotal, totalQuantity } = cart;
+      toast.success('The cart is already cleared.');
+      // Update cart state
+      setCartState({
+        ...cartState,
+        cartItems,
+        subtotal,
+        totalQuantity,
+      });
+      return { message: 'The cart is already cleared.', type: 'success' };
+    } catch (error) {
+      return renderError(error);
+    }
+  }, []);
 
   return (
     <OptimisticCartContext
@@ -195,6 +221,14 @@ function CartButton() {
               >
                 <Link href='/cart'>View Cart</Link>
               </Button>
+              {/* Clear cart button */}
+              <FormContainer action={clearCartAction}>
+                <SubmitButton
+                  text='clear cart'
+                  variant='link'
+                  className='w-full text-destructive'
+                />
+              </FormContainer>
             </>
           )}
         </PopoverContent>

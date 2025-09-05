@@ -637,6 +637,20 @@ export const fetchCart = async (): Promise<CartType> => {
   return returnData;
 };
 
+export const clearCart = async () => {
+  const user = await currentUser();
+  if (!user) throw new Error('Please log in before performing an action');
+  // Delete all cart items related to the user
+  const cart = await db.cart.findUnique({
+    where: { userId: user.id },
+    select: { id: true },
+  });
+  if (!cart) throw new Error('No cart related with the user');
+  await db.cartItem.deleteMany({ where: { cartId: cart.id } });
+  revalidateTag('cart');
+  return fetchCart();
+};
+
 export const addToCart = async (formData: FormData) => {
   // Check if user log in
   const user = await currentUser();
