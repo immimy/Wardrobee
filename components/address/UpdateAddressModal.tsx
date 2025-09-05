@@ -14,65 +14,57 @@ import {
 } from '../ui/dialog';
 import { FaPencil } from 'react-icons/fa6';
 import { useState } from 'react';
-import { FormState } from '@/utils/types';
-import { renderError, setAddress } from '@/utils/clientFunctions';
 import AddressForm from './AddressForm';
 import { ShippingAddress } from '@/lib/generated/prisma';
+import FormContainer from '../form/FormContainer';
+import { toast } from 'sonner';
 
 type ParamsType = { shippingAddress: ShippingAddress };
 
 function UpdateAddressModal({ shippingAddress }: ParamsType) {
   const [open, setOpen] = useState(false);
 
-  const updateAddressAction = async (
-    prevState: any,
-    formData: FormData
-  ): Promise<FormState> => {
+  const updateAddressAction = async (formState: any, formData: FormData) => {
     try {
       await updateAddress(formData);
-      const addressId = formData.get('id') as string;
-      const address = formData.get('address') as string;
-      setAddress(addressId, address);
+      toast.success('Shipping address is updated.');
       setOpen(false);
-      return { message: 'Shipping address is updated.', type: 'success' };
     } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'An error occurred');
       setOpen(false);
-      return renderError(error);
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant='ghost' size='icon'>
+        <Button type='button' variant='ghost' size='icon'>
           <FaPencil />
         </Button>
       </DialogTrigger>
-      <DialogContent className='p-4 sm:p-6 md:p-8'>
+      <DialogContent aria-describedby={undefined} className='p-4 sm:p-6 md:p-8'>
         {/* Header */}
         <DialogHeader>
           <DialogTitle>Shipping Address</DialogTitle>
         </DialogHeader>
-        {/* Content */}
-        <div className='overflow-y-scroll max-h-[450px]'>
-          <AddressForm
-            addressId={`${shippingAddress.id}`}
-            action={updateAddressAction}
-            defaultValue={shippingAddress}
-            disableDefaultUpdate={shippingAddress.isDefault}
-          />
-        </div>
-        {/* Footer */}
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant='outline'>Cancel</Button>
-          </DialogClose>
-          <SubmitButton
-            form='address-form'
-            text='update shipping address'
-            className='w-auto'
-          />
-        </DialogFooter>
+        <FormContainer action={updateAddressAction}>
+          {/* Content */}
+          <div className='overflow-y-scroll max-h-[450px]'>
+            <AddressForm
+              defaultValue={shippingAddress}
+              disableDefaultUpdate={shippingAddress.isDefault}
+            />
+          </div>
+          {/* Footer */}
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type='button' variant='outline'>
+                Cancel
+              </Button>
+            </DialogClose>
+            <SubmitButton text='update shipping address' className='w-auto' />
+          </DialogFooter>
+        </FormContainer>
       </DialogContent>
     </Dialog>
   );

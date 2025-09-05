@@ -6,12 +6,11 @@ import FormInput from '@/components/form-control/FormInput';
 
 type ParamsType = {
   index?: number;
-  isOnSale?: boolean;
   discount?: number;
 };
 
-function OnSaleAndDiscountInput({ index, isOnSale, discount }: ParamsType) {
-  const [isChecked, setIsChecked] = useState(isOnSale || false);
+function OnSaleAndDiscountInput({ index, discount }: ParamsType) {
+  const [isChecked, setIsChecked] = useState(Boolean(discount));
 
   return (
     <div className='md:flex gap-x-6'>

@@ -32,10 +32,10 @@ function NewVariantForm({ setIsCreate }: ParamsType) {
   };
 
   return (
-    <li className='mt-2 flex flex-wrap justify-center gap-x-6'>
-      {/* Form */}
-      <FormContainer id='create-variant' action={createProductVariantAction}>
-        <div className='flex flex-wrap gap-x-6 md:justify-center transition-transform border-b last:border-b-0 *:mb-0'>
+    <div className='py-3 border-t lg:border-t-0 grid justify-center'>
+      {/* New single variant form */}
+      <FormContainer action={createProductVariantAction}>
+        <div className='md:flex justify-center items-center gap-x-8'>
           {/* Hidden input */}
           <input type='hidden' name='productId' defaultValue={product.id} />
           <input
@@ -61,30 +61,29 @@ function NewVariantForm({ setIsCreate }: ParamsType) {
           <FormInput type='text' name='stock' labelText='stock' />
           {/* OnSale and Discount */}
           <OnSaleContainer />
+          {/* Buttons */}
+          <div className='flex items-center gap-x-2 justify-self-center'>
+            <>
+              {/* Submit button */}
+              <SubmitButton
+                icon={<FaCheck />}
+                size='icon'
+                className='w-8 rounded-full text-successful bg-transparent border-0 hover:bg-transparent hover:scale-120 shadow-none'
+              />
+              {/* Cancel button */}
+              <Button
+                type='button'
+                size='icon'
+                className='w-8 rounded-full text-destructive bg-transparent border-0 hover:cursor-pointer hover:bg-transparent hover:scale-120 shadow-none'
+                onClick={() => setIsCreate(false)}
+              >
+                <FaXmark />
+              </Button>
+            </>
+          </div>
         </div>
       </FormContainer>
-      {/* Buttons */}
-      <div className='flex items-center gap-x-2'>
-        <>
-          {/* Submit button */}
-          <SubmitButton
-            form='create-variant'
-            icon={<FaCheck />}
-            size='icon'
-            className='w-8 rounded-full text-successful bg-transparent border-0 hover:bg-transparent hover:scale-120'
-          />
-          {/* Cancel button */}
-          <Button
-            type='button'
-            size='icon'
-            className='w-8 rounded-full text-destructive bg-transparent border-0 hover:cursor-pointer hover:bg-transparent hover:scale-120'
-            onClick={() => setIsCreate(false)}
-          >
-            <FaXmark />
-          </Button>
-        </>
-      </div>
-    </li>
+    </div>
   );
 }
 export default NewVariantForm;

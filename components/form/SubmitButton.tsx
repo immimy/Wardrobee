@@ -18,34 +18,32 @@ type SizeParam = 'default' | 'sm' | 'lg' | 'icon' | null | undefined;
 
 type ParamsType = {
   text?: string;
-  icon?: React.ReactNode;
+  icon?: React.ReactElement;
   variant?: VariantParam;
   size?: SizeParam;
   className?: string;
-  form?: string;
 };
 
 function SubmitButton({
   text,
   icon,
-  variant,
-  size,
+  variant = 'default',
+  size = 'default',
   className,
-  form,
 }: ParamsType) {
   const { pending } = useFormStatus();
   return (
     <Button
-      form={form}
-      variant={variant ?? 'default'}
-      size={size ?? 'default'}
+      type='submit'
+      variant={variant}
+      size={size}
       disabled={pending}
       className={cn(
         'capitalize tracking-tight font-semibold hover:cursor-pointer',
         className
       )}
     >
-      {pending ? <LoadingContainer /> : text ?? icon ?? 'submit'}
+      {pending ? <LoadingContainer /> : icon || text || 'submit'}
     </Button>
   );
 }

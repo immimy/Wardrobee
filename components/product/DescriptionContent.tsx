@@ -1,27 +1,29 @@
-'use client';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
-import { useState } from 'react';
-import { MdOutlineExpandMore, MdOutlineExpandLess } from 'react-icons/md';
-import { Button } from '../ui/button';
-
-function DescriptionContent({ content }: { content?: string | null }) {
-  if (!content) return null;
-  const [isOpen, setIsOpen] = useState(false);
+type ParamsType = { description: string | null };
+function DescriptionContent({ description }: ParamsType) {
+  if (!description) return null;
 
   return (
-    <>
-      <p className='tracking-wide leading-8'>
-        {isOpen ? content : <>{content.slice(0, 200)}...</>}
-        <Button
-          variant='outline'
-          size='icon'
-          className='rounded-full size-5 ml-3'
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? <MdOutlineExpandLess /> : <MdOutlineExpandMore />}
-        </Button>
+    <div className='group'>
+      <p className='line-clamp-3 group-has-checked:line-clamp-none'>
+        {description}
       </p>
-    </>
+      <label
+        htmlFor='cutoff-btn'
+        className='mt-2 flex gap-x-2 items-center hover:cursor-pointer'
+      >
+        <span className='text-xs rounded-full bg-primary size-6 grid place-items-center'>
+          <FaChevronDown className='group-has-checked:hidden' />
+          <FaChevronUp className='hidden group-has-checked:block' />
+        </span>
+        <input
+          type='checkbox'
+          id='cutoff-btn'
+          className='appearance-none text-sm tracking-widest font-medium text-destructive hover:cursor-pointer before:content-["READ_MORE"] checked:before:content-["COLLAPSE"]'
+        />
+      </label>
+    </div>
   );
 }
 export default DescriptionContent;

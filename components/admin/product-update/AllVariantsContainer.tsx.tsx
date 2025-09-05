@@ -13,7 +13,7 @@ function AllVariantsContainer() {
         </li>
       ) : (
         product.variants.map((variant, index) => {
-          const { id, size, color, stock, isOnSale, discount } = variant;
+          const { id, size, color, stock, discount } = variant;
           return (
             <li
               key={variant.id}
@@ -25,7 +25,6 @@ function AllVariantsContainer() {
                 size={size || undefined}
                 color={color || undefined}
                 stock={stock}
-                isOnSale={isOnSale}
                 discount={discount}
               />
             </li>

@@ -18,8 +18,7 @@ import { deleteProduct } from '@/utils/actions';
 
 function ProductCard(props: ProductWithVariants) {
   const { id, image, name, brand, price } = props;
-  const deleteProductAction = deleteProduct.bind(null, { productId: id });
-
+  const deleteProductAction = deleteProduct.bind(null, id);
   return (
     <Card className='relative pt-0 pb-4 gap-2 bg-card text-card-foreground'>
       <CardHeader className='px-0'>
@@ -42,6 +41,7 @@ function ProductCard(props: ProductWithVariants) {
           </CardDescription>
         </div>
         <CardAction className='mt-1.5 flex justify-end gap-x-1.5'>
+          {/* Delete product button */}
           <FormContainer action={deleteProductAction}>
             <SubmitButton
               icon={<HiMiniTrash />}
@@ -49,6 +49,7 @@ function ProductCard(props: ProductWithVariants) {
               className='rounded-full w-9'
             />
           </FormContainer>
+          {/* Navigate to product update page */}
           <Button asChild size='icon' className='rounded-full w-9'>
             <Link href={`products/${id}`}>
               <HiMiniPencilSquare />

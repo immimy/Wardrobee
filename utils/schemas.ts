@@ -1,4 +1,4 @@
-import { boolean, z, ZodType } from 'zod/v4';
+import { z, ZodType } from 'zod/v4';
 import { ProductCategory } from './types';
 
 export function validateWithZodSchema<T>(schema: ZodType<T>, data: unknown): T {
@@ -35,28 +35,42 @@ function validateProductVariant({
   sizeRequired: boolean;
   colorRequired: boolean;
 }) {
-  return z
-    .object({
-      id: z.string().optional(),
-      size: z.string().optional(),
-      color: z.string().optional(),
-      stock: z.coerce
-        .number('Please provide product stock.')
-        .int('Product stock must be an integer.')
-        .nonnegative('Product stock must not less than 0'),
-      isOnSale: z.coerce.boolean(),
-      discount: z.coerce
-        .number()
-        .int('Discount must be an integer.')
-        .nonnegative('Discount must not less than 0')
-        .optional(),
-    })
-    .refine((input) => {
-      return !(sizeRequired && !input.size);
-    }, 'Product size is required.')
-    .refine((input) => {
-      return !(colorRequired && !input.color);
-    }, 'Product color is required.');
+  return (
+    z
+      .object({
+        id: z.string().optional(),
+        size: z.string().optional(),
+        color: z.string().optional(),
+        stock: z.coerce
+          .number('Please provide product stock.')
+          .int('Product stock must be an integer.')
+          .nonnegative('Product stock must not less than 0'),
+        isOnSale: z.coerce.boolean(),
+        discount: z.coerce
+          .number()
+          .int('Discount must be an integer.')
+          .nonnegative('Discount must not less than 0')
+          .optional(),
+      })
+      .refine((input) => {
+        return !(sizeRequired && !input.size);
+      }, 'Product size is required.')
+      .refine((input) => {
+        return !(colorRequired && !input.color);
+      }, 'Product color is required.')
+      .transform((input) => {
+        if (!input.isOnSale) {
+          return { ...input, discount: 0 };
+        }
+        return input;
+      })
+      // NOTED:
+      // Validated product variant data from Zod must be removed "isOnSale" field before performing an operation to prisma.
+      .transform((input) => {
+        const { isOnSale, ...data } = input;
+        return data;
+      })
+  );
 }
 
 ///////////////////// Schemas /////////////////////
@@ -143,4 +157,17 @@ export const shippingAddressSchema = z.object({
   address: z.string(),
   phoneNumber: z.string(),
   isDefault: z.coerce.boolean(),
+});
+
+export const cartItemSchema = z.object({
+  productVariantId: z.string(),
+  quantity: z.coerce
+    .number()
+    .default(1)
+    .transform((input) => {
+      // Quantity must not be negative or equal to zero
+      if (input < 1) return 1;
+      // Quantity must be an integer
+      return Math.floor(input);
+    }),
 });

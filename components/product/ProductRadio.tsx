@@ -1,31 +1,29 @@
-import { ProductCategory, CartItem } from '@/utils/types';
-import { Dispatch, SetStateAction } from 'react';
+import { ProductCategory } from '@/utils/types';
+import { useProductContext } from './ProductProvider';
 
 type ProductRadioType = {
   category: ProductCategory;
-  label?: string | null;
-  gradientColor?: string | null;
-  name: string;
-  productItem: CartItem;
-  currentVariantId: string | null;
-  setCurrentCartItem: Dispatch<SetStateAction<CartItem>>;
+  label: string | null;
+  gradientColor: string | null;
+  value: string;
+  discount: number;
+  stock: number;
+  quantityList: number[] | undefined;
 };
 
 function ProductRadio({
   category,
   label,
   gradientColor,
-  name,
-  productItem,
-  currentVariantId,
-  setCurrentCartItem,
+  value,
+  discount,
+  stock,
+  quantityList,
 }: ProductRadioType) {
-  const handleOnChange = () => {
-    setCurrentCartItem(productItem);
-  };
-
-  const variantId = productItem.variantId!;
-  const isOutOfStock = productItem.stock! < 1;
+  const isOutOfStock = stock < 1;
+  const { cartItem, setCartItem } = useProductContext();
+  const handleOnChange = () =>
+    setCartItem({ ...cartItem, discount, stock, stockList: quantityList });
 
   if (category === 'clothes') {
     return (
@@ -34,20 +32,20 @@ function ProductRadio({
           htmlFor={label!}
           className='relative grid place-items-center px-4 bg-input text-foreground'
         >
-          <span>{label}</span>
+          <span className='uppercase'>{label}</span>
           <input
             type='radio'
             id={label!}
-            name={name}
+            name='productVariantId'
             className={`appearance-none m-0 absolute inset-0 w-full border border-border before:absolute before:inset-0 before:w-full checked:before:border-2 checked:before:border-ring ${
               isOutOfStock
                 ? 'hover:cursor-default before:bg-muted/80 before:rounded-full'
                 : 'hover:cursor-pointer'
             }`}
-            value={variantId}
-            defaultChecked={currentVariantId === variantId}
+            value={value}
             onChange={handleOnChange}
             disabled={isOutOfStock}
+            required
           />
         </label>
       </div>
@@ -61,17 +59,17 @@ function ProductRadio({
           <input
             type='radio'
             id={gradientColor!}
-            name={name}
+            name='productVariantId'
             className={`appearance-none m-0 size-8 border border-border rounded-full shadow shadow-ring/50 relative before:absolute before:inset-0 before:size-8 checked:before:border-2 checked:before:border-ring checked:before:rounded-full ${
               isOutOfStock
                 ? 'hover:cursor-default before:bg-muted/80 before:rounded-full'
                 : 'hover:cursor-pointer'
             }`}
             style={{ backgroundColor: gradientColor! }}
-            value={variantId}
-            defaultChecked={currentVariantId === variantId}
+            value={value}
             onChange={handleOnChange}
             disabled={isOutOfStock}
+            required
           />
         </label>
       </div>

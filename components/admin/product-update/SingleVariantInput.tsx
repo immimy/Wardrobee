@@ -11,7 +11,6 @@ type ParamsType = {
   size?: string | undefined;
   color?: string | undefined;
   stock?: number;
-  isOnSale?: boolean;
   discount?: number;
 };
 
@@ -21,12 +20,11 @@ function SingleVariantInput({
   size,
   color,
   stock,
-  isOnSale,
   discount,
 }: ParamsType) {
   const { category } = useCategoryFormContext()!;
   return (
-    <div className='mb-2 md:mb-0 text-center grid justify-center md:flex flex-wrap md:justify-start gap-x-6'>
+    <div className='mb-2 md:mb-0 text-center grid justify-center md:flex flex-wrap  gap-x-6'>
       {/* Variant Id */}
       {id && (
         <input
@@ -67,11 +65,7 @@ function SingleVariantInput({
         className='max-w-[200px]'
       />
       {/* On sale And Discount */}
-      <OnSaleAndDiscountInput
-        index={index}
-        isOnSale={isOnSale}
-        discount={discount}
-      />
+      <OnSaleAndDiscountInput index={index} discount={discount} />
     </div>
   );
 }

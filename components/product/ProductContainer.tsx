@@ -1,16 +1,15 @@
 import DescriptionContent from '@/components/product/DescriptionContent';
-import { ProductCategory, ProductWithVariants } from '@/utils/types';
+import { ProductWithVariants } from '@/utils/types';
 import Image from 'next/image';
 import AddToCartContainer from './AddToCartContainer';
 
-async function ProductContainer({ product }: { product: ProductWithVariants }) {
-  const { image, name, brand, description, price, totalStock, variants } =
-    product;
-
-  const category = product.category as ProductCategory;
+type ParamsType = { product: ProductWithVariants };
+function ProductContainer({ product }: ParamsType) {
+  const { image, name, brand, description } = product;
 
   return (
-    <section className='pt-8 grid gap-8 sm:grid-cols-[380px_1fr] md:gap-10'>
+    <section className='pt-8 grid gap-8 md:grid-cols-[380px_1fr] md:gap-10'>
+      {/* Product Image */}
       <figure className='relative h-68 md:h-[350px] transition-all overflow-hidden rounded-2xl shadow-xl'>
         <Image
           alt='product image'
@@ -20,25 +19,19 @@ async function ProductContainer({ product }: { product: ProductWithVariants }) {
           className='object-cover'
         />
       </figure>
+      {/* Product Details */}
       <article className='flex flex-col gap-y-4'>
+        {/* Name & Brand */}
         <header>
           <h4 className='text-xl md:text-2xl font-semibold text-primary tracking-wider'>
             {name}
           </h4>
-          <p className='text-lg md:text-xl font-medium'>{brand}</p>
+          <p className='text-lg md:text-xl font-medium uppercase'>{brand}</p>
         </header>
-        <DescriptionContent content={description} />
-        {totalStock < 1 ? (
-          <h4 className='text-destructive capitalize text-2xl md:text-4xl tracking-wide text-center'>
-            out of stock
-          </h4>
-        ) : (
-          <AddToCartContainer
-            category={category}
-            price={price}
-            variants={variants}
-          />
-        )}
+        {/* Description */}
+        <DescriptionContent description={description} />
+        {/* Selection */}
+        <AddToCartContainer />
       </article>
     </section>
   );

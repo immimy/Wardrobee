@@ -129,3 +129,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide arrow in number input */
+@layer base {
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}

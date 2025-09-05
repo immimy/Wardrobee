@@ -1,9 +1,9 @@
-import { FormState } from './types';
+import { CartItemType, FormState } from './types';
 
 export const renderError = async (error: unknown): Promise<FormState> => {
   console.log(error);
   return {
-    message: error instanceof Error ? error.message : 'An error occurred.',
+    message: error instanceof Error ? error.message : 'An error occurred',
     type: 'error',
   };
 };
@@ -29,7 +29,37 @@ export const mapDisplay = (isShown: boolean) => {
   checkbox.checked = isShown;
 };
 
-export const setAddress = (addressId: string, address: string) => {
-  const addressInput = document.getElementById(addressId) as HTMLInputElement;
+export const setAddress = (address: string) => {
+  const addressInput = document.getElementById('address') as HTMLInputElement;
   addressInput.value = address;
+};
+
+export const isObjectEmpty = (obj: object): boolean => {
+  return Object.keys(obj).length < 1;
+};
+
+export const sumSubtotalAndQuantity = (cartItems: {
+  [cartItemId: string]: CartItemType;
+}): {
+  subtotal: number;
+  totalQuantity: number;
+} => {
+  return Object.values(cartItems).reduce(
+    (acc, cartItem) => {
+      const { data, state, options } = cartItem;
+      const price = data.price;
+      const { variantId, quantity } = state;
+      const { discount } = options.find((option) => option.id === variantId)!;
+      const sellingPrice = price * (1 - discount / 100);
+      return {
+        subtotal: acc.subtotal + sellingPrice * quantity,
+        totalQuantity: acc.totalQuantity + quantity,
+      };
+    },
+    { subtotal: 0, totalQuantity: 0 }
+  );
+};
+
+export const generateNumberList = (length: number) => {
+  return Array.from({ length }, (_, i) => i + 1);
 };

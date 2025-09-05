@@ -1,9 +1,12 @@
+import Container from '@/components/global/Container';
 import ProductsContainer from '@/components/products/ProductsContainer';
 
 function ProductsPage() {
   return (
-    <section className='pt-8'>
-      <ProductsContainer />
+    <section className='py-8'>
+      <Container>
+        <ProductsContainer />
+      </Container>
     </section>
   );
 }

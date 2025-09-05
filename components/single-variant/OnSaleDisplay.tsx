@@ -2,11 +2,11 @@ import { Label } from '@/components/ui/label';
 import TextDisplay from './TextDisplay';
 
 type ParamsType = {
-  isOnSale: boolean;
   discount: number;
 };
 
-function OnSaleDisplay({ isOnSale, discount }: ParamsType) {
+function OnSaleDisplay({ discount }: ParamsType) {
+  const isOnSale = Boolean(discount);
   return (
     <div className='flex gap-x-6'>
       {/* On sale */}

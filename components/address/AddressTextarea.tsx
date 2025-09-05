@@ -6,17 +6,19 @@ import { Badge } from '../ui/badge';
 import { mapDisplay } from '@/utils/clientFunctions';
 
 type ParamsType = {
-  id: string;
   defaultValue?: string;
 };
 
-function AddressTextarea({ id, defaultValue }: ParamsType) {
+function AddressTextarea({ defaultValue }: ParamsType) {
   return (
     <div className='mb-4 relative'>
-      <Label htmlFor={id} className='mb-1 capitalize tracking-tight text-base'>
+      <Label
+        htmlFor='address'
+        className='mb-1 capitalize tracking-tight text-base'
+      >
         address
       </Label>
-      <Textarea id={id} name='address' defaultValue={defaultValue} />
+      <Textarea id='address' name='address' defaultValue={defaultValue} />
       <Badge asChild variant='secondary' className='absolute top-0 right-0'>
         <button
           type='button'

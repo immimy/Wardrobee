@@ -8,15 +8,16 @@ import {
 } from '../ui/card';
 import Link from 'next/link';
 import { priceFormatter } from '@/utils/format';
-import { TbShoppingCartPlus } from 'react-icons/tb';
 import { ProductWithVariants } from '@/utils/types';
-import SubmitButton from '../form/SubmitButton';
-import FormContainer from '../form/FormContainer';
-import { addToCartAction } from '@/utils/actions';
 import ImageContainer from '../global/ImageContainer';
+import AddToCartButton from './AddToCartButton';
+import { fetchAllProducts } from '@/utils/actions';
 
-function ProductCard(props: ProductWithVariants) {
-  const { id, image, name, brand, price, variants, totalSales } = props;
+type ParamsType = {
+  product: ProductWithVariants;
+};
+function ProductCard({ product }: ParamsType) {
+  const { id, image, name, brand, price, variants, totalSales } = product;
   const isOutOfStock = variants.length < 1;
 
   return (
@@ -59,19 +60,7 @@ function ProductCard(props: ProductWithVariants) {
               out of stock
             </p>
           ) : (
-            <FormContainer action={addToCartAction}>
-              <fieldset>
-                <input type='hidden' name='variantId' value={variants[0].id} />
-                <input type='hidden' name='amount' value={1} />
-              </fieldset>
-              <div className='max-w-10 ml-auto'>
-                <SubmitButton
-                  icon={<TbShoppingCartPlus />}
-                  size='icon'
-                  className='inset-shadow-2xs shadow-muted-foreground/50'
-                />
-              </div>
-            </FormContainer>
+            <AddToCartButton variantId={variants[0].id} />
           )}
         </CardAction>
       </CardContent>

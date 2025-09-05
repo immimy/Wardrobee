@@ -1,6 +1,8 @@
 import { fetchSingleProduct } from '@/utils/actions';
 import ProductContainer from '@/components/product/ProductContainer';
 import NotFoundContainer from '@/components/global/NotFoundContainer';
+import ProductProvider from '@/components/product/ProductProvider';
+import Container from '@/components/global/Container';
 
 type ProductParams = { params: Promise<{ id: string }> };
 
@@ -11,9 +13,11 @@ async function ProductPage({ params }: ProductParams) {
   if (!product) return <NotFoundContainer />;
 
   return (
-    <div>
-      <ProductContainer product={product} />
-    </div>
+    <ProductProvider product={product}>
+      <Container>
+        <ProductContainer product={product} />
+      </Container>
+    </ProductProvider>
   );
 }
 export default ProductPage;

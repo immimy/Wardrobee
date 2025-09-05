@@ -4,7 +4,6 @@ import { Button } from '../ui/button';
 import { toast } from 'sonner';
 import { Location } from '@/utils/types';
 import { setAddress } from '@/utils/clientFunctions';
-import { useAddressFormContext } from '../address/AddressForm';
 
 type ParamsType = {
   setLocation: Dispatch<Location>;
@@ -13,7 +12,6 @@ type ParamsType = {
 
 function MapControlContainer({ setLocation, location }: ParamsType) {
   const map = useMap()!;
-  const { addressId } = useAddressFormContext()!;
 
   const getAddress = async () => {
     try {
@@ -22,7 +20,7 @@ function MapControlContainer({ setLocation, location }: ParamsType) {
       const data = await resp.json();
       if (data.status !== 'OK') throw new Error(data.error_message);
       const address = data.results[0].formatted_address as string;
-      setAddress(addressId, address);
+      setAddress(address);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Failed to get an address';

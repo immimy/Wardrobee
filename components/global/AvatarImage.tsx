@@ -1,10 +1,10 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import LoadingContainer from './LoadingContainer';
 import { LuUserRound } from 'react-icons/lu';
+import { useUserContext } from '../providers/UserProvider';
 
 function AvatarImage({
   width,
@@ -15,7 +15,7 @@ function AvatarImage({
   height: number;
   className: string;
 }) {
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded } = useUserContext();
   if (!isLoaded) return <LoadingContainer />;
   if (!user) return <LuUserRound className={className} />;
 

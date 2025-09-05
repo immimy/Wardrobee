@@ -11,7 +11,7 @@ import { FaTrashCan, FaPencil } from 'react-icons/fa6';
 
 function SingleVariantDisplay() {
   const { product } = useUpdateProductContext()!;
-  const { id, size, color, stock, isOnSale, discount, setIsUpdate } =
+  const { id, size, color, stock, discount, setIsUpdate } =
     useSingleVariantContext()!;
 
   const enterUpdateMode = () => setIsUpdate(true);
@@ -30,7 +30,7 @@ function SingleVariantDisplay() {
         {/* Stock */}
         <TextDisplay label='stock' value={stock} />
         {/* On sale and Discount */}
-        <OnSaleDisplay isOnSale={isOnSale} discount={discount} />
+        <OnSaleDisplay discount={discount} />
       </div>
       {/* Buttons */}
       <div className='grid grid-cols-2 items-center gap-x-2 transition-all'>
@@ -41,7 +41,7 @@ function SingleVariantDisplay() {
               icon={<FaTrashCan />}
               size='icon'
               variant='destructive'
-              className='md:rounded-full md:w-8'
+              className='md:rounded-full md:w-9'
             />
           </FormContainer>
         )}
@@ -49,7 +49,7 @@ function SingleVariantDisplay() {
         <Button
           type='button'
           size='icon'
-          className='md:w-8 md:rounded-full hover:cursor-pointer'
+          className='md:w-9 md:rounded-full hover:cursor-pointer'
           onClick={enterUpdateMode}
         >
           <FaPencil />

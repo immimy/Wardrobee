@@ -3,7 +3,7 @@ import { Exo_2 } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/navbar/Navbar';
 import { ClerkProvider } from '@clerk/nextjs';
-import { Toaster } from '@/components/ui/sonner';
+import AppProviders from '@/components/providers/Providers';
 
 const exo = Exo_2({
   subsets: ['latin'],
@@ -25,9 +25,10 @@ export default function RootLayout({
         <body
           className={`${exo.className} min-h-screen bg-background text-foreground`}
         >
-          <Navbar />
-          <main>{children}</main>
-          <Toaster />
+          <AppProviders>
+            <Navbar />
+            <main>{children}</main>
+          </AppProviders>
         </body>
       </html>
     </ClerkProvider>

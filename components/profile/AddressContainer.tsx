@@ -10,10 +10,8 @@ function AddressContainer({ addresses }: ParamsType) {
     <>
       <Title title='address' />
       <div className='p-4'>
-        <div className='mx-auto max-w-sm grid gap-y-2'>
-          <AddressList addresses={addresses} />
-          <CreateAddressModal />
-        </div>
+        <AddressList className='mb-2' addresses={addresses} />
+        <CreateAddressModal />
       </div>
     </>
   );

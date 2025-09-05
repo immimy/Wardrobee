@@ -1,4 +1,6 @@
 export const convertFormDataByFieldset = (formData: FormData) => {
+  // input's name — fieldset[prop]
+  // e.g. product[category], variant1[stock]
   let fieldsetList: string[] = [];
   let nestedFormData: any = {};
 

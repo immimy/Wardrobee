@@ -14,24 +14,21 @@ import {
 } from '../ui/dialog';
 import { FaHome } from 'react-icons/fa';
 import { useState } from 'react';
-import { FormState } from '@/utils/types';
-import { renderError } from '@/utils/clientFunctions';
 import AddressForm from './AddressForm';
+import { toast } from 'sonner';
+import FormContainer from '../form/FormContainer';
 
 function CreateAddressModal() {
   const [open, setOpen] = useState(false);
 
-  const createAddressAction = async (
-    prevState: any,
-    formData: FormData
-  ): Promise<FormState> => {
+  const createAddressAction = async (formState: any, formData: FormData) => {
     try {
       await createAddress(formData);
+      toast.success('Shipping address is added.');
       setOpen(false);
-      return { message: 'Shipping address is added.', type: 'success' };
     } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'An error occurred');
       setOpen(false);
-      return renderError(error);
     }
   };
 
@@ -45,26 +42,26 @@ function CreateAddressModal() {
           Add Shipping Address
         </Button>
       </DialogTrigger>
-      <DialogContent className='p-4 sm:p-6 md:p-8'>
+      <DialogContent aria-describedby={undefined} className='p-4 sm:p-6 md:p-8'>
         {/* Header */}
         <DialogHeader>
           <DialogTitle>Shipping Address</DialogTitle>
         </DialogHeader>
-        {/* Content */}
-        <div className='overflow-y-scroll max-h-[450px]'>
-          <AddressForm addressId='address' action={createAddressAction} />
-        </div>
-        {/* Footer */}
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant='outline'>Cancel</Button>
-          </DialogClose>
-          <SubmitButton
-            form='address-form'
-            text='add shipping address'
-            className='w-auto'
-          />
-        </DialogFooter>
+        <FormContainer action={createAddressAction}>
+          {/* Content */}
+          <div className='overflow-y-scroll max-h-[450px]'>
+            <AddressForm  />
+          </div>
+          {/* Footer */}
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type='button' variant='outline'>
+                Cancel
+              </Button>
+            </DialogClose>
+            <SubmitButton text='add shipping address' className='w-auto' />
+          </DialogFooter>
+        </FormContainer>
       </DialogContent>
     </Dialog>
   );

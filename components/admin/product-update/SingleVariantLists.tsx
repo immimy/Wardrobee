@@ -16,23 +16,15 @@ type ParamsType = {
   size: string | undefined;
   color: string | undefined;
   stock: number;
-  isOnSale: boolean;
   discount: number;
 };
 
-function SingleVariantList({
-  id,
-  size,
-  color,
-  stock,
-  isOnSale,
-  discount,
-}: ParamsType) {
+function SingleVariantList({ id, size, color, stock, discount }: ParamsType) {
   const [isUpdate, setIsUpdate] = useState(false);
   return (
     <SingleVariantContext.Provider
       key={id}
-      value={{ id, size, color, stock, isOnSale, discount, setIsUpdate }}
+      value={{ id, size, color, stock, discount, setIsUpdate }}
     >
       {isUpdate ? <SingleVariantForm /> : <SingleVariantData />}
     </SingleVariantContext.Provider>

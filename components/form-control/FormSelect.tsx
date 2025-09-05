@@ -28,6 +28,7 @@ type ParamsType = {
   disabled?: boolean;
   onChange?: (value: string) => void;
   className?: string;
+  uppercase?: boolean;
 };
 
 export function FormSelect({
@@ -40,6 +41,7 @@ export function FormSelect({
   disabled,
   onChange,
   className,
+  uppercase,
 }: ParamsType) {
   const initialValue = lowerCaseString(defaultValue);
   const [value, setValue] = useState(initialValue);
@@ -95,7 +97,9 @@ export function FormSelect({
                         onChange && onChange(String(currentValue));
                       }}
                     >
-                      {capitalizeFirstLetter(framework)}
+                      {uppercase
+                        ? framework.toString().toUpperCase()
+                        : capitalizeFirstLetter(framework)}
                       <Check
                         className={cn(
                           'ml-auto',

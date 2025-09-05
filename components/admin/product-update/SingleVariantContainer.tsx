@@ -6,7 +6,7 @@ function SingleVariantContainer() {
   return (
     <ul className='md:grid justify-center'>
       {product.variants.map((variant) => {
-        const { id, size, color, stock, isOnSale, discount } = variant;
+        const { id, size, color, stock, discount } = variant;
         return (
           <SingleVariantLists
             key={id}
@@ -14,7 +14,6 @@ function SingleVariantContainer() {
             size={size || undefined}
             color={color || undefined}
             stock={stock}
-            isOnSale={isOnSale}
             discount={discount}
           />
         );
