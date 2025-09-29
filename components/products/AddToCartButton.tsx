@@ -1,52 +1,45 @@
 'use client';
 
 import { TbShoppingCartPlus } from 'react-icons/tb';
-import SubmitButton from '../form/SubmitButton';
-import FormContainer from '../form/FormContainer';
-import { addToCart } from '@/utils/actions';
-import { FormState } from '@/utils/types';
-import { renderError } from '@/utils/clientFunctions';
-import { useClerk } from '@clerk/nextjs';
-import { useCartContext } from '../providers/CartProvider';
+import { ProductWithVariants } from '@/utils/types';
+import { formatCartItemData } from '@/utils/clientFunctions';
+import { FormEventHandler, useTransition } from 'react';
+import { useAddToCart } from '@/lib/hooks';
+import { Button } from '../ui/button';
+import LoadingContainer from '../global/LoadingContainer';
 
 type ParamsType = {
   variantId: string;
+  product: ProductWithVariants;
 };
 
-function AddToCartButton({ variantId }: ParamsType) {
-  const { openSignIn } = useClerk();
-  const { cartState, setCartState } = useCartContext();
+function AddToCartButton({ variantId, product }: ParamsType) {
+  const [isPending, startTransition] = useTransition();
+  const cartItemData = formatCartItemData(product);
+  const addToCart = useAddToCart();
 
-  const addToCartAction = async (
-    formState: any,
-    formData: FormData
-  ): Promise<FormState> => {
-    try {
-      // Add cart item to database
-      const cart = await addToCart(formData);
-      const { cartItems, subtotal, totalQuantity } = cart;
-      // Update cart state
-      setCartState({ ...cartState, cartItems, subtotal, totalQuantity });
-      return { message: 'Added product to cart', type: 'success' };
-    } catch (error) {
-      if (error instanceof Error && error.message.startsWith('Please log in')) {
-        openSignIn();
-      }
-      return renderError(error);
-    }
+  const addToCartHandler: FormEventHandler<HTMLFormElement> = (e) => {
+    startTransition(async () => {
+      e.preventDefault();
+      const formData = new FormData(e.currentTarget);
+      await addToCart(formData, cartItemData);
+    });
   };
 
   return (
-    <FormContainer action={addToCartAction}>
+    <form onSubmit={addToCartHandler}>
       <input type='hidden' name='productVariantId' defaultValue={variantId} />
+      <input type='hidden' name='quantity' defaultValue={1} />
       <div className='max-w-10 ml-auto'>
-        <SubmitButton
-          icon={<TbShoppingCartPlus />}
+        <Button
           size='icon'
           className='inset-shadow-2xs shadow-muted-foreground/50'
-        />
+          disabled={isPending}
+        >
+          {isPending ? <LoadingContainer /> : <TbShoppingCartPlus />}
+        </Button>
       </div>
-    </FormContainer>
+    </form>
   );
 }
 export default AddToCartButton;

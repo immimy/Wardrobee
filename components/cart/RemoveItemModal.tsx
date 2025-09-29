@@ -11,17 +11,17 @@ import {
   AlertDialogTitle,
 } from '../ui/alert-dialog';
 import LoadingContainer from '../global/LoadingContainer';
-import { useCartContext } from '../providers/CartProvider';
-import { useOptimisticCartContext } from '../navbar/CartButton';
-import {  useTransition } from 'react';
-
+import { useTransition } from 'react';
+import { useAppDispatch, useAppSelector, useRemoveCartItem } from '@/lib/hooks';
+import { setCartState } from '@/lib/features/cart/cartSlice';
 
 function RemoveItemModal() {
-  const [isCancelPending, startTransition] = useTransition();
-  const {
-    cartState: { removeItemOpen, removeItemId },
-  } = useCartContext();
-  const { isPending,optimisticState, removeCartItemAction ,cancelRemoveCartItemAction} = useOptimisticCartContext();
+  const [isPending, startTransition] = useTransition();
+  const dispatch = useAppDispatch();
+  const removeCartItem = useRemoveCartItem();
+  const { removeItemOpen, removeItemId } = useAppSelector(
+    (store) => store.cart
+  );
 
   return (
     <AlertDialog open={removeItemOpen}>
@@ -34,26 +34,29 @@ function RemoveItemModal() {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel
-            disabled={isCancelPending}
             onClick={() => {
-              startTransition(() => {
-                const { variantId, quantity } =
-                  optimisticState.cartItems[removeItemId].state;
-
-                const formData = new FormData();
-                formData.set('id', removeItemId);
-                formData.set('productVariantId', variantId);
-                formData.set('quantity', String(quantity));
-
-                cancelRemoveCartItemAction(formData);
-              });
+              dispatch(
+                // Close remove cart item modal
+                setCartState({ removeItemOpen: false, removeItemId: '' })
+              );
             }}
           >
-            {isCancelPending ? <LoadingContainer /> : 'Cancel'}
+            Cancel
           </AlertDialogCancel>
           <AlertDialogAction
             disabled={isPending}
-            onClick={() => removeCartItemAction(removeItemId)}
+            onClick={() =>
+              startTransition(() => {
+                removeCartItem(removeItemId);
+                // Close remove cart item modal
+                dispatch(
+                  setCartState({
+                    removeItemOpen: false,
+                    removeItemId: '',
+                  })
+                );
+              })
+            }
           >
             {isPending ? <LoadingContainer /> : 'Continue'}
           </AlertDialogAction>

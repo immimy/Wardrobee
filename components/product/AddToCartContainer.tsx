@@ -5,21 +5,17 @@ import { FormEventHandler, useTransition } from 'react';
 import { ProductCategory } from '@/utils/types';
 import { priceFormatter } from '@/utils/format';
 import { Badge } from '../ui/badge';
-import { generateNumberList } from '@/utils/clientFunctions';
+import {
+  formatCartItemData,
+  generateNumberList,
+} from '@/utils/clientFunctions';
 import { useProductContext } from './ProductProvider';
 import QuantitySelect from './QuantitySelect';
 import { Button } from '../ui/button';
 import LoadingContainer from '../global/LoadingContainer';
-import { addToCart } from '@/utils/actions';
-import { useClerk } from '@clerk/nextjs';
-import { useCartContext } from '../providers/CartProvider';
-import { toast } from 'sonner';
+import { useAddToCart } from '@/lib/hooks';
 
 function AddToCartContainer() {
-  const [isPending, startTransition] = useTransition();
-  const { openSignIn } = useClerk();
-  const { cartState, setCartState } = useCartContext();
-
   const {
     product,
     cartItem: { discount },
@@ -27,28 +23,15 @@ function AddToCartContainer() {
   const { category, price, variants, totalStock } = product;
   const sellingPrice = price * (1 - discount / 100);
 
-  const addToCartHandler: FormEventHandler = (e) => {
+  const [isPending, startTransition] = useTransition();
+  const cartItemData = formatCartItemData(product);
+  const addToCart = useAddToCart();
+
+  const addToCartHandler: FormEventHandler<HTMLFormElement> = (e) => {
     startTransition(async () => {
       e.preventDefault();
-      const formData = new FormData(e.target as HTMLFormElement);
-      try {
-        // Add cart item to database
-        const cart = await addToCart(formData);
-        const { cartItems, subtotal, totalQuantity } = cart;
-        // Update cart state
-        setCartState({ ...cartState, cartItems, subtotal, totalQuantity });
-        toast.success('Added product to cart');
-      } catch (error) {
-        if (
-          error instanceof Error &&
-          error.message.startsWith('Please log in')
-        ) {
-          openSignIn();
-        }
-        const message =
-          error instanceof Error ? error.message : 'An error occurred';
-        toast.error(message);
-      }
+      const formData = new FormData(e.currentTarget);
+      await addToCart(formData, cartItemData);
     });
   };
 

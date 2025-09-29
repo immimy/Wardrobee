@@ -1,13 +1,13 @@
 'use client';
 
-import { ChangeEventHandler, startTransition } from 'react';
+import { ChangeEventHandler } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { FaPlus, FaMinus } from 'react-icons/fa6';
 import { toast } from 'sonner';
-import { useCartContext } from '../providers/CartProvider';
 import { cn } from '@/lib/utils';
-import { useOptimisticCartContext } from '../navbar/CartButton';
+import { useAppDispatch, useAppSelector, useSetCartItem } from '@/lib/hooks';
+import { setCartState } from '@/lib/features/cart/cartSlice';
 
 type ParamsType = {
   cartItemId: string;
@@ -15,9 +15,11 @@ type ParamsType = {
 };
 
 function QuantityField({ cartItemId, className }: ParamsType) {
-  const { setCartState } = useCartContext();
-  const { optimisticState: cartState, addOptimistic } =
-    useOptimisticCartContext();
+  const dispatch = useAppDispatch();
+  const setCartItem = useSetCartItem();
+  const cartState = useAppSelector((store) => store.cart);
+
+  // Get cart item data
   const cartItem = cartState.cartItems[cartItemId];
   const { variantId, quantity } = cartItem.state;
   const stock = cartItem.options.find(
@@ -33,11 +35,9 @@ function QuantityField({ cartItemId, className }: ParamsType) {
 
     // Alert item deletion when quantity < 1
     if (mode === 'minus' && oldQty === 1) {
-      setCartState({
-        ...cartState,
-        removeItemOpen: true,
-        removeItemId: cartItemId,
-      });
+      dispatch(
+        setCartState({ removeItemOpen: true, removeItemId: cartItemId })
+      );
       return;
     }
     // Prevent user to add quantity more than the stock
@@ -60,38 +60,21 @@ function QuantityField({ cartItemId, className }: ParamsType) {
         break;
       }
     }
-    startTransition(() => {
-      // Update optimistic state
-      addOptimistic({
-        cartItemId,
-        variantId,
-        quantity: newQty,
-        isReCalc: false,
-      });
-      // Dispatch a quantity change event
-      input.dispatchEvent(new Event(cartItemId, { bubbles: true }));
-    });
+    // Set cart item value
+    setCartItem(cartItemId, { variantId, quantity: newQty });
   };
 
   // Directly type quantity input
   const typeQuantity: ChangeEventHandler<HTMLInputElement> = (e) => {
-    startTransition(() => {
-      // Prevent negative value & over selling
-      const input = Number(e.currentTarget.value);
-      let newQuantity = isNaN(input) ? 1 : input > stock ? stock : input;
-      // Update optimistic state
-      addOptimistic({
-        cartItemId,
-        variantId,
-        quantity: newQuantity,
-        isReCalc: false,
-      });
-      // Dispatch a quantity change event
-      e.stopPropagation();
-      e.currentTarget.dispatchEvent(new Event(cartItemId, { bubbles: true }));
-    });
+    // Prevent negative value & over selling
+    const input = Number(e.currentTarget.value);
+    const isExceedStock = input >= stock;
+    let newQuantity = isNaN(input) ? 1 : isExceedStock ? stock : input;
+    // Set cart item value
+    setCartItem(cartItemId, { variantId, quantity: newQuantity });
+    // Alert maximum stock limit
+    isExceedStock && toast.warning('You have reached the stock limit.');
   };
-
   return (
     <div
       className={cn(

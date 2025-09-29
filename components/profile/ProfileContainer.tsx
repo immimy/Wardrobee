@@ -1,9 +1,11 @@
+'use client';
+
 import Title from '../global/Title';
 import AvatarImage from '../global/AvatarImage';
-import { currentUser } from '@clerk/nextjs/server';
+import { useAppSelector } from '@/lib/hooks';
 
-async function AccountContainer() {
-  const user = await currentUser();
+function AccountContainer() {
+  const { username } = useAppSelector((store) => store.user);
   return (
     <>
       <Title title='profile' />
@@ -11,7 +13,7 @@ async function AccountContainer() {
         <AvatarImage height={128} width={128} className='h-32 w-32' />
         <div className='mt-4 flex items-center gap-x-4'>
           <h6 className='capitalize font-medium'>username :</h6>
-          <p>{user?.username || '-'}</p>
+          <p>{username || '-'}</p>
         </div>
       </div>
     </>

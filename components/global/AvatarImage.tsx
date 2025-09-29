@@ -2,9 +2,9 @@
 
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import LoadingContainer from './LoadingContainer';
 import { LuUserRound } from 'react-icons/lu';
-import { useUserContext } from '../providers/UserProvider';
+import { useAppSelector } from '@/lib/hooks';
+import LoadingContainer from './LoadingContainer';
 
 function AvatarImage({
   width,
@@ -15,13 +15,13 @@ function AvatarImage({
   height: number;
   className: string;
 }) {
-  const { user, isLoaded } = useUserContext();
-  if (!isLoaded) return <LoadingContainer />;
-  if (!user) return <LuUserRound className={className} />;
+  const { isLoading, image } = useAppSelector((state) => state.user);
+  if (isLoading) return <LoadingContainer />;
+  if (!image) return <LuUserRound className={className} />;
 
   return (
     <Image
-      src={user.imageUrl}
+      src={image}
       width={width}
       height={height}
       alt='avatar'

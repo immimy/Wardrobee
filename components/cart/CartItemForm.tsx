@@ -5,20 +5,18 @@ import TextField from './TextField';
 import PriceField from './PriceField';
 import { Badge } from '../ui/badge';
 import QuantityInput from './QuantityInput';
-import { startTransition, useEffect } from 'react';
-import { useDebouncedCallback } from 'use-debounce';
+import { FormEventHandler, startTransition } from 'react';
 import SizeSelect from './SizeSelect';
 import ColorSelect from './ColorSelect';
-import { useOptimisticCartContext } from '../navbar/CartButton';
+import { useAppSelector, useUpdateCartItem } from '@/lib/hooks';
 
 type ParamsType = { cartItemId: string };
 
 function CartItemForm({ cartItemId }: ParamsType) {
-  const {
-    optimisticState: cartState,
-    updateCartItemAction,
-    addOptimistic,
-  } = useOptimisticCartContext();
+  const cartState = useAppSelector((store) => store.cart);
+  const updateCartItem = useUpdateCartItem();
+
+  // Get cart item data
   const cartItem = cartState.cartItems[cartItemId];
   const { name, price, category } = cartItem.data;
   const { variantId, quantity } = cartItem.state;
@@ -28,31 +26,16 @@ function CartItemForm({ cartItemId }: ParamsType) {
   )!;
   const sellingPrice = price * (1 - discount / 100);
 
-  // Debounce function for update quantity
-  const debounce = useDebouncedCallback(() => {
-    startTransition(() => {
-      addOptimistic({
-        cartItemId,
-        variantId,
-        quantity: quantity === 0 ? 1 : quantity,
-        isReCalc: true,
-      });
-      updateCartItemAction(cartItemId);
+  // Handle form submit for updating cart item
+  const onSubmitHandler: FormEventHandler<HTMLFormElement> = (e) => {
+    startTransition(async () => {
+      e.preventDefault();
+      await updateCartItem(new FormData(e.currentTarget));
     });
-  }, 1000);
-
-  // Listen for quantity change event
-  useEffect(() => {
-    const form = document.getElementById(cartItemId);
-    form?.addEventListener(cartItemId, debounce);
-    return () => {
-      // Remove event listener when element is unmounted
-      form?.removeEventListener(cartItemId, () => {});
-    };
-  }, []);
+  };
 
   return (
-    <form id={cartItemId} onChange={() => updateCartItemAction(cartItemId)}>
+    <form id={cartItemId} onSubmit={onSubmitHandler}>
       <input type='hidden' name='id' defaultValue={cartItemId} />
       {/* Product name */}
       <h6 className='font-semibold mb-1.5 text-primary'>

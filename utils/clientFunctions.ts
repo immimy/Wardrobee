@@ -1,4 +1,11 @@
-import { CartItemType, FormState } from './types';
+import { toast } from 'sonner';
+import {
+  CartItemState,
+  CartItemType,
+  FormState,
+  ProductCategory,
+  ProductWithVariants,
+} from './types';
 
 export const renderError = async (error: unknown): Promise<FormState> => {
   console.log(error);
@@ -6,6 +13,11 @@ export const renderError = async (error: unknown): Promise<FormState> => {
     message: error instanceof Error ? error.message : 'An error occurred',
     type: 'error',
   };
+};
+
+export const toastError = (error: unknown) => {
+  const message = error instanceof Error ? error.message : 'An error occurred';
+  toast.error(message);
 };
 
 export function validateAvatar(file: unknown) {
@@ -38,28 +50,24 @@ export const isObjectEmpty = (obj: object): boolean => {
   return Object.keys(obj).length < 1;
 };
 
-export const sumSubtotalAndQuantity = (cartItems: {
-  [cartItemId: string]: CartItemType;
-}): {
-  subtotal: number;
-  totalQuantity: number;
-} => {
-  return Object.values(cartItems).reduce(
-    (acc, cartItem) => {
-      const { data, state, options } = cartItem;
-      const price = data.price;
-      const { variantId, quantity } = state;
-      const { discount } = options.find((option) => option.id === variantId)!;
-      const sellingPrice = price * (1 - discount / 100);
-      return {
-        subtotal: acc.subtotal + sellingPrice * quantity,
-        totalQuantity: acc.totalQuantity + quantity,
-      };
-    },
-    { subtotal: 0, totalQuantity: 0 }
-  );
-};
-
 export const generateNumberList = (length: number) => {
   return Array.from({ length }, (_, i) => i + 1);
+};
+
+export const formatCartItemData = (
+  product: ProductWithVariants
+): Omit<CartItemType, 'state'> => {
+  const { image, name, price, variants } = product;
+  const category = product.category as ProductCategory;
+  const data = { image, name, category, price };
+  return { data, options: variants };
+};
+
+export const isHistoryEqualToState = (
+  obj1: CartItemState,
+  obj2: CartItemState
+) => {
+  const isVariantIdEqual = obj1.variantId === obj2.variantId;
+  const isQuantityEqual = obj1.quantity === obj2.quantity;
+  return isVariantIdEqual && isQuantityEqual;
 };

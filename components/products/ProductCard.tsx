@@ -11,7 +11,6 @@ import { priceFormatter } from '@/utils/format';
 import { ProductWithVariants } from '@/utils/types';
 import ImageContainer from '../global/ImageContainer';
 import AddToCartButton from './AddToCartButton';
-import { fetchAllProducts } from '@/utils/actions';
 
 type ParamsType = {
   product: ProductWithVariants;
@@ -60,7 +59,7 @@ function ProductCard({ product }: ParamsType) {
               out of stock
             </p>
           ) : (
-            <AddToCartButton variantId={variants[0].id} />
+            <AddToCartButton variantId={variants[0].id} product={product} />
           )}
         </CardAction>
       </CardContent>

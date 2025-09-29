@@ -19,7 +19,7 @@ import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 import { convertFormDataByFieldset } from './form';
 import db from './db';
 import { deleteImage, uploadImage } from './supabase';
-import { Cart, ProductVariant } from '@/lib/generated/prisma';
+import { ProductVariant } from '@/lib/generated/prisma';
 
 const client = await clerkClient();
 
@@ -106,7 +106,13 @@ export const fetchAllProducts = async () => {
       variants: {
         where: { stock: { gt: 0 } },
         orderBy: { createdAt: 'asc' },
-        take: 1,
+        select: {
+          id: true,
+          size: true,
+          color: true,
+          discount: true,
+          stock: true,
+        },
       },
     },
     orderBy: [
@@ -121,7 +127,18 @@ export const fetchAllProducts = async () => {
 export const fetchSingleProduct = async (id: string) => {
   const product = await db.product.findUnique({
     where: { id },
-    include: { variants: { orderBy: { createdAt: 'asc' } } },
+    include: {
+      variants: {
+        orderBy: { createdAt: 'asc' },
+        select: {
+          id: true,
+          size: true,
+          color: true,
+          discount: true,
+          stock: true,
+        },
+      },
+    },
   });
   return product;
 };
@@ -533,6 +550,7 @@ const getMyCart = unstable_cache(
                 product: {
                   include: {
                     variants: {
+                      // Only select available products
                       where: { stock: { gt: 0 } },
                       select: {
                         id: true,
@@ -561,7 +579,8 @@ const emptyCart = {
   totalQuantity: 0,
   deletedCartItems: {},
 };
-export const fetchCart = async (): Promise<CartType> => {
+// Validate cart items and provide cart items data
+export const refreshCart = async (): Promise<CartType> => {
   const user = await currentUser();
   if (!user) return emptyCart;
   const cart = await getMyCart(user.id);
@@ -569,12 +588,12 @@ export const fetchCart = async (): Promise<CartType> => {
 
   let returnData: CartType = { ...emptyCart };
 
-  for (let cartItem of cart?.cartItems) {
+  for (let cartItem of cart.cartItems) {
     const variantId = cartItem.productVariantId;
     const options = cartItem.productVariant.product.variants;
     const index = options.findIndex((option) => option.id === variantId);
 
-    // Avoiding stale cart data
+    // Avoiding stale cart items
     // Case 1: Cart item is valid.
     if (index !== -1) {
       const stock = options[index].stock;
@@ -633,6 +652,48 @@ export const fetchCart = async (): Promise<CartType> => {
       };
     }
   }
+  // Clear cart cache;
+  revalidateTag('cart');
+  return returnData;
+};
+
+export const fetchCart = async (): Promise<CartType> => {
+  const user = await currentUser();
+  if (!user) return emptyCart;
+  const cart = await getMyCart(user.id);
+  if (!cart || cart.cartItems.length < 1) return emptyCart;
+
+  let returnData: CartType = { ...emptyCart };
+
+  for (let cartItem of cart.cartItems) {
+    const variantId = cartItem.productVariantId;
+    const options = cartItem.productVariant.product.variants;
+    // Formatting cart items
+    const product = cartItem.productVariant.product;
+    returnData.cartItems = {
+      ...returnData.cartItems,
+      [cartItem.id]: {
+        data: {
+          image: product.image,
+          name: product.name,
+          category: product.category as ProductCategory,
+          price: product.price,
+        },
+        state: {
+          variantId,
+          quantity: cartItem.quantity,
+        },
+        options,
+      },
+    };
+    // Calculating subtotal and total quantity
+    const { quantity } = cartItem;
+    const { discount } = cartItem.productVariant;
+    const { price } = product;
+    const sellingPrice = price * (1 - discount / 100);
+    returnData.subtotal = returnData.subtotal + quantity * sellingPrice;
+    returnData.totalQuantity = returnData.totalQuantity + quantity;
+  }
 
   return returnData;
 };
@@ -647,8 +708,8 @@ export const clearCart = async () => {
   });
   if (!cart) throw new Error('No cart related with the user');
   await db.cartItem.deleteMany({ where: { cartId: cart.id } });
+  // Clear cart cache;
   revalidateTag('cart');
-  return fetchCart();
 };
 
 export const addToCart = async (formData: FormData) => {
@@ -664,53 +725,64 @@ export const addToCart = async (formData: FormData) => {
   // Check if product is still available
   const dbProductVariant = await db.productVariant.findUnique({
     where: { id: data.productVariantId },
+    select: { stock: true },
   });
   if (!dbProductVariant)
     throw new Error(`Invalid product id: "${data.productVariantId}"`);
   const { stock } = dbProductVariant;
   // Ensure there is only one cart per each users
-  let cart: Cart | null;
-  cart = await db.cart.findUnique({ where: { userId: user.id } });
+  let cart: { id: string } | null;
+  cart = await db.cart.findUnique({
+    where: { userId: user.id },
+    select: { id: true },
+  });
   if (!cart) {
-    cart = await db.cart.create({ data: { userId: user.id } });
+    cart = await db.cart.create({
+      data: { userId: user.id },
+      select: { id: true },
+    });
   }
-  // Check if item is already in cart
+  // Check if item is already in the cart
   const dbCartItem = await db.cartItem.findFirst({
     where: {
       cartId: cart.id,
       productVariantId: data.productVariantId,
     },
+    select: { quantity: true },
   });
   // Cart item quantity must not exceed product stock.
-  let isExceedStock: boolean;
-  if (!dbCartItem) {
-    // 1. Create new cart item
-    isExceedStock = data.quantity > stock;
-    const ensuredQuantity = isExceedStock ? stock : data.quantity;
-    await db.cartItem.create({
-      data: {
+  const newQuantity = dbCartItem
+    ? dbCartItem.quantity + data.quantity
+    : data.quantity;
+  const isExceedStock = newQuantity > stock;
+  const ensuredQuantity = isExceedStock ? stock : newQuantity;
+  // Update to the existing cart item or Create new one
+  const {
+    id,
+    productVariantId: variantId,
+    quantity,
+  } = await db.cartItem.upsert({
+    where: {
+      cartId_productVariantId: {
         cartId: cart.id,
         productVariantId: data.productVariantId,
-        quantity: ensuredQuantity,
       },
-    });
-  } else {
-    // 2. Update existing cart item
-    const newQuantity = dbCartItem.quantity + data.quantity;
-    isExceedStock = newQuantity > stock;
-    const ensuredQuantity = isExceedStock ? stock : newQuantity;
-    await db.cartItem.update({
-      where: {
-        id: dbCartItem.id,
-      },
-      data: {
-        quantity: ensuredQuantity,
-      },
-    });
-  }
-  // Revalidate tag
+    },
+    update: { quantity: ensuredQuantity },
+    create: {
+      cartId: cart.id,
+      productVariantId: data.productVariantId,
+      quantity: ensuredQuantity,
+    },
+  });
+  // Return data
+  const returnData = {
+    cartItemId: id,
+    state: { variantId, quantity },
+  };
+  // Clear cart cache;
   revalidateTag('cart');
-  return fetchCart();
+  return { returnData };
 };
 
 export const updateCartItem = async (formData: FormData) => {
@@ -727,6 +799,7 @@ export const updateCartItem = async (formData: FormData) => {
   // Check if product is still available
   const dbProductVariant = await db.productVariant.findUnique({
     where: { id: productVariantId },
+    select: { stock: true },
   });
   if (!dbProductVariant)
     throw new Error(`Invalid product id: "${productVariantId}"`);
@@ -734,63 +807,86 @@ export const updateCartItem = async (formData: FormData) => {
   // Check if cart item is available
   const dbCartItem = await db.cartItem.findUnique({
     where: { id: cartItemId },
+    select: { cartId: true },
   });
   if (!dbCartItem) throw new Error(`No cart item with id: "${cartItemId}"`);
-  // CaseI: Update quantity
-  if (dbCartItem.productVariantId === productVariantId) {
-    const ensuredQuantity = stock < quantity ? stock : quantity;
-    await db.cartItem.update({
-      where: { id: cartItemId },
-      data: { quantity: ensuredQuantity },
-    });
-  } else {
-    // CaseII: Update size/color
-    const dbProductInCart = await db.cartItem.findFirst({
-      where: { cartId: dbCartItem.cartId, productVariantId },
-    });
-    // 1. Product is already in the cart.
-    if (dbProductInCart) {
+
+  let isExceedStock: boolean;
+  let returnData: {
+    cartItemId: string;
+    state: { variantId: string; quantity: number };
+  };
+  const dbProductInCart = await db.cartItem.findFirst({
+    where: {
+      cartId: dbCartItem.cartId,
+      productVariantId,
+      id: { not: cartItemId },
+    },
+    select: { id: true, quantity: true },
+  });
+  // 1. Product is already in the cart.
+  if (dbProductInCart) {
+    const newQuantity = dbProductInCart.quantity + quantity;
+    isExceedStock = newQuantity > stock;
+    const ensuredQuantity = isExceedStock ? stock : newQuantity;
+    // Using transaction to guarantee either succeed or fail as a whole
+    const [cartItem] = await db.$transaction([
       // Update existing cart item
-      const newQuantity = dbProductInCart.quantity + quantity;
-      const ensuredQuantity = stock < newQuantity ? stock : newQuantity;
-      await db.cartItem.update({
+      db.cartItem.update({
         where: { id: dbProductInCart.id },
         data: { quantity: ensuredQuantity },
-      });
+      }),
       // Delete incoming cart item
-      await db.cartItem.delete({ where: { id: cartItemId } });
-    } else {
-      // 2. Product is NOT in the cart.
-      const ensuredQuantity = stock < quantity ? stock : quantity;
-      await db.cartItem.update({
-        where: { id: cartItemId },
-        data: {
-          productVariantId: productVariantId,
-          quantity: ensuredQuantity,
-        },
-      });
-    }
+      db.cartItem.delete({ where: { id: cartItemId } }),
+    ]);
+
+    returnData = {
+      cartItemId: cartItem.id,
+      state: {
+        variantId: cartItem.productVariantId,
+        quantity: cartItem.quantity,
+      },
+    };
+  } else {
+    // 2. Product is NOT in the cart.
+    isExceedStock = quantity > stock;
+    const ensuredQuantity = isExceedStock ? stock : quantity;
+    const cartItem = await db.cartItem.update({
+      where: { id: cartItemId },
+      data: {
+        productVariantId,
+        quantity: ensuredQuantity,
+      },
+    });
+
+    returnData = {
+      cartItemId: cartItem.id,
+      state: {
+        variantId: cartItem.productVariantId,
+        quantity: cartItem.quantity,
+      },
+    };
   }
+
   // Revalidate tag
   revalidateTag('cart');
-  return fetchCart();
+  return {
+    returnData,
+  };
 };
 
-// export const deleteCartItem = async (formData: FormData) => {
 export const deleteCartItem = async (id: string) => {
   // Check if user log in
   const user = await currentUser();
   if (!user)
     throw new Error('Please log in before updating an item in the cart.');
   // Check if cart item is present
-  // const id = formData.get('id') as string;
   const dbCartItem = await db.cartItem.findUnique({ where: { id } });
   if (!dbCartItem) throw new Error(`No cart item with id: "${id}"`);
   // Remove cart item from database
   await db.cartItem.delete({ where: { id } });
-  // Revalidate tag
+  // Clear cart cache;
   revalidateTag('cart');
-  return fetchCart();
 };
 
 // ⚠️⚠️📢 DEV

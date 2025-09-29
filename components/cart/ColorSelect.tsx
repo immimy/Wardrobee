@@ -15,9 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { startTransition } from 'react';
 import { cn } from '@/lib/utils';
-import { useOptimisticCartContext } from '../navbar/CartButton';
+import { useAppSelector, useSetCartItem } from '@/lib/hooks';
 
 type ParamsType = {
   cartItemId: string;
@@ -25,8 +24,9 @@ type ParamsType = {
 };
 
 function SizeSelect({ cartItemId, className }: ParamsType) {
-  const { optimisticState: cartState, addOptimistic } =
-    useOptimisticCartContext();
+  const setCartItem = useSetCartItem();
+  const cartState = useAppSelector((store) => store.cart);
+  // Get cart item data
   const cartItem = cartState.cartItems[cartItemId];
   const { variantId, quantity } = cartItem.state;
   const frameworks = cartItem.options;
@@ -43,17 +43,9 @@ function SizeSelect({ cartItemId, className }: ParamsType) {
       <Select
         name='productVariantId'
         value={variantId}
-        onValueChange={(value) => {
-          startTransition(() => {
-            // Update optimistic state
-            addOptimistic({
-              cartItemId,
-              variantId: value,
-              quantity,
-              isReCalc: true,
-            });
-          });
-        }}
+        onValueChange={(value) =>
+          setCartItem(cartItemId, { variantId: value, quantity })
+        }
       >
         <SelectTrigger
           hideArrow
