@@ -19,7 +19,7 @@ import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
 import { convertFormDataByFieldset } from './form';
 import db from './db';
 import { deleteImage, uploadImage } from './supabase';
-import { ProductVariant } from '@/lib/generated/prisma';
+import { ProductVariant } from '@prisma/client';
 
 const client = await clerkClient();
 

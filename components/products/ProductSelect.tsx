@@ -1,4 +1,4 @@
-import { ProductVariant } from '@/lib/generated/prisma';
+import { ProductVariant } from '@prisma/client';
 import {
   Select,
   SelectContent,

@@ -31,7 +31,7 @@ type ParamsType = { children: React.ReactNode; product: ProductWithVariants };
 function ProductProvider({ children, product }: ParamsType) {
   // Init cart item state
   // 1. Clothes & Bag product
-  let initialState: CurrentProductVariant = {
+  const initialState: CurrentProductVariant = {
     discount: 0,
     stock: undefined,
     stockList: undefined,

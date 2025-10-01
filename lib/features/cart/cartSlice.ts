@@ -121,7 +121,7 @@ const cartSlice = createSlice({
           state.cartItems[cartItemId].state.quantity = ensuredQuantity;
         }
         // Alert if reaching the stock limit
-        isExceedStock && toast.warning('You have reached the stock limit.');
+        if (isExceedStock) toast.warning('You have reached the stock limit.');
       }
       // Re-calculate cart
       cartSlice.caseReducers.calculateCart(state);
@@ -179,7 +179,7 @@ const cartSlice = createSlice({
       // Set cart item state
       cartItem.state = newState;
       // Alert if reaching the stock limit
-      isExceedStock && toast.warning('You have reached the stock limit.');
+      if (isExceedStock) toast.warning('You have reached the stock limit.');
 
       // Clear history if new cart item state is the same as backup
       if (history && isHistoryEqualToState(history, newState)) {
@@ -284,7 +284,7 @@ const cartSlice = createSlice({
           };
           state.cartItems[existingCartItemId].isUpdating = false;
           // Alert if reaching the stock limit
-          isExceedStock && toast.warning('You have reached the stock limit.');
+          if (isExceedStock) toast.warning('You have reached the stock limit.');
 
           // Back up before remove an incoming cart item
           cartSlice.caseReducers.backUpCartItem(state, {

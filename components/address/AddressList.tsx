@@ -1,4 +1,4 @@
-import { ShippingAddress } from '@/lib/generated/prisma';
+import { ShippingAddress } from '@prisma/client';
 import { Badge } from '../ui/badge';
 import { FaLocationDot } from 'react-icons/fa6';
 import UpdateAddressModal from './UpdateAddressModal';

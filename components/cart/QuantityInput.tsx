@@ -69,11 +69,11 @@ function QuantityField({ cartItemId, className }: ParamsType) {
     // Prevent negative value & over selling
     const input = Number(e.currentTarget.value);
     const isExceedStock = input >= stock;
-    let newQuantity = isNaN(input) ? 1 : isExceedStock ? stock : input;
+    const newQuantity = isNaN(input) ? 1 : isExceedStock ? stock : input;
     // Set cart item value
     setCartItem(cartItemId, { variantId, quantity: newQuantity });
     // Alert maximum stock limit
-    isExceedStock && toast.warning('You have reached the stock limit.');
+    if (isExceedStock) toast.warning('You have reached the stock limit.');
   };
   return (
     <div

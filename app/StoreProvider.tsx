@@ -11,7 +11,7 @@ type ParamsType = {
   children: React.ReactNode;
 };
 function StoreProvider({ children }: ParamsType) {
-  const { user, isLoaded } = useUser();
+  const { user } = useUser();
 
   const storeRef = useRef<AppStore | null>(null);
   if (!storeRef.current) {
@@ -22,7 +22,7 @@ function StoreProvider({ children }: ParamsType) {
 
   // Initialize the store with the user information
   useEffect(() => {
-    if (!storeRef.current || !isLoaded) return;
+    if (!storeRef.current) return;
     storeRef.current.dispatch(initializeCart());
     storeRef.current.dispatch(
       setUser({ username: user?.username, image: user?.imageUrl })

@@ -15,7 +15,7 @@ import {
 import { FaPencil } from 'react-icons/fa6';
 import { useState } from 'react';
 import AddressForm from './AddressForm';
-import { ShippingAddress } from '@/lib/generated/prisma';
+import { ShippingAddress } from '@prisma/client';
 import FormContainer from '../form/FormContainer';
 import { toast } from 'sonner';
 

@@ -1,4 +1,4 @@
-import { IoSunny, IoMoon } from 'react-icons/io5';
+import { IoSunny } from 'react-icons/io5';
 import { Button } from '../ui/button';
 
 function ToggleTheme() {

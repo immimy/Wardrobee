@@ -1,4 +1,4 @@
-import { Prisma } from '@/lib/generated/prisma';
+import { Prisma } from '@prisma/client';
 import { IconType } from 'react-icons/lib';
 import { Roles } from '@/types/globals';
 

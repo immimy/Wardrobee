@@ -10,7 +10,8 @@ function page() {
             Wardrobee
           </h1>
           <h4 className='mt-1 font-medium text-2xl tracking-wide leading-6 italic text-primary'>
-            "Dress to mirror your mood and elevate every moment with style."
+            &quot;Dress to mirror your mood and elevate every moment with
+            style.&quot;
           </h4>
           <p className='mt-6 font-light text-xl tracking-wider leading-8 text-muted-foreground'>
             Lorem ipsum, dolor sit amet consectetur adipisicing elit. Laudantium

@@ -94,7 +94,7 @@ export function FormSelect({
                       onSelect={(currentValue) => {
                         setValue(currentValue);
                         setOpen(false);
-                        onChange && onChange(String(currentValue));
+                        if (onChange) onChange(String(currentValue));
                       }}
                     >
                       {uppercase

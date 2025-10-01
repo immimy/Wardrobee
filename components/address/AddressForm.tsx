@@ -2,7 +2,7 @@ import FormInput from '../form/FormInput';
 import FormCheckbox from '../form/FormCheckbox';
 import AddressTextarea from './AddressTextarea';
 import MapContainer from './MapContainer';
-import { ShippingAddress } from '@/lib/generated/prisma';
+import { ShippingAddress } from '@prisma/client';
 
 type ParamsType = {
   defaultValue?: ShippingAddress;

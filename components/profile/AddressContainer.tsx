@@ -1,4 +1,4 @@
-import { ShippingAddress } from '@/lib/generated/prisma';
+import { ShippingAddress } from '@prisma/client';
 import CreateAddressModal from '../address/CreateAddressModal';
 import Title from '../global/Title';
 import AddressList from '../address/AddressList';
