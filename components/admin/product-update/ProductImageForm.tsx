@@ -18,7 +18,7 @@ function ProductImageForm() {
   const [isUpdated, setIsUpdated] = useState(false);
 
   const updateProductImageAction = async (
-    prevState: any,
+    formState: FormState,
     formData: FormData
   ): Promise<FormState> => {
     try {

@@ -17,11 +17,15 @@ import { useState } from 'react';
 import AddressForm from './AddressForm';
 import { toast } from 'sonner';
 import FormContainer from '../form/FormContainer';
+import { FormState } from '@/utils/types';
 
 function CreateAddressModal() {
   const [open, setOpen] = useState(false);
 
-  const createAddressAction = async (formState: any, formData: FormData) => {
+  const createAddressAction = async (
+    formState: FormState,
+    formData: FormData
+  ) => {
     try {
       await createAddress(formData);
       toast.success('Shipping address is added.');
@@ -50,7 +54,7 @@ function CreateAddressModal() {
         <FormContainer action={createAddressAction}>
           {/* Content */}
           <div className='overflow-y-scroll max-h-[450px]'>
-            <AddressForm  />
+            <AddressForm />
           </div>
           {/* Footer */}
           <DialogFooter>

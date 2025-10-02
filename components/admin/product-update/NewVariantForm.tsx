@@ -19,7 +19,7 @@ function NewVariantForm({ setIsCreate }: ParamsType) {
   const { product } = useUpdateProductContext()!;
 
   const createProductVariantAction = async (
-    prevState: any,
+    formState: FormState,
     formData: FormData
   ): Promise<FormState> => {
     try {

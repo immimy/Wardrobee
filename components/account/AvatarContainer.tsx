@@ -16,7 +16,7 @@ function AvatarContainer() {
   if (!user) return redirect('/');
 
   const updateAvatarAction = async (
-    prevState: any,
+    formState: FormState,
     formData: FormData
   ): Promise<FormState> => {
     try {

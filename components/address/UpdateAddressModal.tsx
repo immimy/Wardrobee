@@ -18,13 +18,17 @@ import AddressForm from './AddressForm';
 import { ShippingAddress } from '@prisma/client';
 import FormContainer from '../form/FormContainer';
 import { toast } from 'sonner';
+import { FormState } from '@/utils/types';
 
 type ParamsType = { shippingAddress: ShippingAddress };
 
 function UpdateAddressModal({ shippingAddress }: ParamsType) {
   const [open, setOpen] = useState(false);
 
-  const updateAddressAction = async (formState: any, formData: FormData) => {
+  const updateAddressAction = async (
+    formState: FormState,
+    formData: FormData
+  ) => {
     try {
       await updateAddress(formData);
       toast.success('Shipping address is updated.');

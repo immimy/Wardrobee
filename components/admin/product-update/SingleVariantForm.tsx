@@ -14,7 +14,7 @@ function SingleVariantForm() {
 
   const cancelUpdateMode = () => setIsUpdate(false);
   const updateSingleVariantAction = async (
-    formState: any,
+    formState: FormState,
     formData: FormData
   ): Promise<FormState> => {
     try {
