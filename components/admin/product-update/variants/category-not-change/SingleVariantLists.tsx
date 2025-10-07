@@ -9,7 +9,14 @@ type ContextType = {
   setIsUpdate: Dispatch<SetStateAction<boolean>>;
 } & ParamsType;
 const SingleVariantContext = createContext<undefined | ContextType>(undefined);
-export const useSingleVariantContext = () => useContext(SingleVariantContext);
+export const useSingleVariantContext = () => {
+  const state = useContext(SingleVariantContext);
+  if (!state)
+    throw new Error(
+      'useSingleVariantContext must be used in SingleVariantProvider'
+    );
+  return state;
+};
 
 type ParamsType = {
   id: string;
@@ -22,12 +29,12 @@ type ParamsType = {
 function SingleVariantList({ id, size, color, stock, discount }: ParamsType) {
   const [isUpdate, setIsUpdate] = useState(false);
   return (
-    <SingleVariantContext.Provider
+    <SingleVariantContext
       key={id}
       value={{ id, size, color, stock, discount, setIsUpdate }}
     >
       {isUpdate ? <SingleVariantForm /> : <SingleVariantData />}
-    </SingleVariantContext.Provider>
+    </SingleVariantContext>
   );
 }
 export default SingleVariantList;

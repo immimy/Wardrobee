@@ -1,20 +1,21 @@
 'use client';
 
 import ImageContainer from '@/components/global/ImageContainer';
-import FormInput from '@/components/form-control/FormInput';
-import FormCheckbox from '@/components/form-control/FormCheckbox';
-import FormSelect from '@/components/form-control/FormSelect';
-import FormTextarea from '@/components/form-control/FormTextarea';
+import FormInput from '@/components/form/FormInput';
+import FormCheckbox from '@/components/form/FormCheckbox';
+import FormSelect from '@/components/form/FormSelect';
+import FormTextarea from '@/components/form/FormTextarea';
 import ImageInput from '@/components/form/ImageInput';
 import { PRODUCT_BRAND } from '@/utils/constants';
 import { BsCardImage } from 'react-icons/bs';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent } from 'react';
 import { toast } from 'sonner';
+import { useProductCreateContext } from './ProductProvider';
 
 function ProductFieldset() {
   // Image preview state
-  const [image, setImage] = useState<string>('');
-  const handleFileInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const { product, setProductState } = useProductCreateContext();
+  const fileInputChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.currentTarget.files?.[0];
     if (!file) return;
     // File size must not exceed 0.5 MB.
@@ -24,17 +25,17 @@ function ProductFieldset() {
       return;
     }
     // Preview image before uploading
-    setImage(URL.createObjectURL(file));
+    setProductState({ image: URL.createObjectURL(file) });
   };
 
   return (
     <fieldset>
       {/* IMAGE */}
       <div className='md:mb-4 grid md:grid-cols-[auto_1fr] gap-y-2 gap-x-8 items-center'>
-        {image ? (
+        {product.image ? (
           <ImageContainer
             alt='product image'
-            src={image}
+            src={product.image}
             className='h-52 w-52 md:w-64 md:h-64 transition-all place-self-center'
           />
         ) : (
@@ -49,7 +50,7 @@ function ProductFieldset() {
           <ImageInput
             name='product[image]'
             labelText='product image'
-            onChange={handleFileInputChange}
+            onChange={fileInputChangeHandler}
           />
         </div>
       </div>
@@ -57,7 +58,6 @@ function ProductFieldset() {
       <FormInput type='text' name='product[name]' labelText='product name' />
       {/* BRAND */}
       <FormSelect
-        isLabel
         name='product[brand]'
         labelText='brand'
         placeholder='choose brand'

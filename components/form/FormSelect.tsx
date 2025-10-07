@@ -18,20 +18,22 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { capitalizeFirstLetter, lowerCaseString } from '@/utils/format';
+import { Label } from '../ui/label';
+import { capitalizeFirstLetter } from '@/utils/format';
+import { coerceFormValue } from '@/utils/clientFunctions';
 
 type ParamsType = {
   name: string;
-  value?: string;
+  value?: string | number;
   onChange?: (value: string) => void;
   defaultValue?: string | number;
   placeholder: string;
-  labelText: string;
+  labelText?: string;
   frameworks: string[] | number[];
   className?: string;
   disabled?: boolean;
-  required?: boolean;
   uppercase?: boolean;
+  hideLabel?: boolean;
 };
 
 function FormSelect({
@@ -44,28 +46,38 @@ function FormSelect({
   frameworks,
   className,
   disabled,
-  required,
   uppercase,
+  hideLabel,
 }: ParamsType) {
   return (
     <div className={cn('mb-4', className)}>
+      {!hideLabel && (
+        <Label
+          htmlFor={name}
+          className='mb-1 capitalize tracking-tight text-base'
+        >
+          {labelText || name}
+        </Label>
+      )}
       <Select
         name={name}
-        value={value}
+        value={coerceFormValue(value)}
         onValueChange={onChange}
-        defaultValue={defaultValue ? lowerCaseString(defaultValue) : undefined}
+        defaultValue={coerceFormValue(defaultValue)}
         disabled={disabled}
-        required={required}
+        required
       >
         <SelectTrigger className='w-full'>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            <SelectLabel>{labelText}</SelectLabel>
+            <SelectLabel className='capitalize'>
+              {labelText || name}
+            </SelectLabel>
             {frameworks.map((framework, index) => {
               return (
-                <SelectItem key={index} value={String(framework)}>
+                <SelectItem key={index} value={String(framework).toLowerCase()}>
                   {uppercase
                     ? String(framework).toUpperCase()
                     : capitalizeFirstLetter(framework)}

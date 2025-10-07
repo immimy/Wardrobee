@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import NewVariantForm from './NewVariantForm';
 import AddOptionButton from '@/components/single-variant/AddOptionButton';
-import { useCategoryFormContext } from './CategoryForm';
+import { useProductUpdateContext } from '@/components/admin/product-update/ProductProvider';
 
 function NewVariantContainer() {
-  const { category } = useCategoryFormContext()!;
+  const { category } = useProductUpdateContext();
   const [isCreate, setIsCreate] = useState(false);
   const handleAddOption = () => setIsCreate(true);
   return (

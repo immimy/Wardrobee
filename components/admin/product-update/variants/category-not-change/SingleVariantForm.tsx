@@ -1,37 +1,36 @@
-import FormContainer from '@/components/form/FormContainer';
 import { updateProductVariant } from '@/utils/actions';
 import { FaCheck, FaXmark } from 'react-icons/fa6';
 import { Button } from '@/components/ui/button';
-import { FormState } from '@/utils/types';
-import { renderError } from '@/utils/clientFunctions';
-import SingleVariantInput from './SingleVariantInput';
+import { toastError } from '@/utils/clientFunctions';
+import VariantInputs from '@/components/admin/product-update/VariantInputs';
 import { useSingleVariantContext } from './SingleVariantLists';
 import SubmitButton from '@/components/form/SubmitButton';
+import { FormEventHandler } from 'react';
+import { toast } from 'sonner';
 
 function SingleVariantForm() {
   const { id, size, color, stock, discount, setIsUpdate } =
-    useSingleVariantContext()!;
+    useSingleVariantContext();
 
   const cancelUpdateMode = () => setIsUpdate(false);
-  const updateSingleVariantAction = async (
-    formState: FormState,
-    formData: FormData
-  ): Promise<FormState> => {
+  const updateVariantHandler: FormEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
     try {
+      const formData = new FormData(e.currentTarget);
       await updateProductVariant(formData);
       setIsUpdate(false);
-      return { message: 'Product option updated', type: 'success' };
+      toast.success('Product option updated');
     } catch (error) {
-      return renderError(error);
+      return toastError(error);
     }
   };
 
   return (
     <li className='py-3 border-b last:border-b-0 lg:border-b-0'>
       {/* Update single variant form */}
-      <FormContainer action={updateSingleVariantAction}>
+      <form onSubmit={updateVariantHandler}>
         <div className='md:flex justify-center items-center gap-x-8'>
-          <SingleVariantInput
+          <VariantInputs
             id={id}
             size={size}
             color={color}
@@ -58,7 +57,7 @@ function SingleVariantForm() {
             </Button>
           </div>
         </div>
-      </FormContainer>
+      </form>
     </li>
   );
 }

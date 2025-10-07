@@ -30,11 +30,11 @@ function QuantitySelect() {
       )}
       {/* Quantity Select */}
       <FormSelect
+        hideLabel
         name='quantity'
         placeholder='Select Quantity'
         labelText='Quantity'
         frameworks={stockList || quantityList}
-        required
       />
     </div>
   );

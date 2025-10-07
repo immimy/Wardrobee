@@ -5,15 +5,15 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../ui/card';
+} from '../../ui/card';
 import Link from 'next/link';
 import { priceFormatter } from '@/utils/format';
 import { HiMiniPencilSquare, HiMiniTrash } from 'react-icons/hi2';
 import { ProductWithVariants } from '@/utils/types';
-import { Button } from '../ui/button';
-import ImageContainer from '../global/ImageContainer';
-import SubmitButton from '../form/SubmitButton';
-import FormContainer from '../form/FormContainer';
+import { Button } from '../../ui/button';
+import ImageContainer from '../../global/ImageContainer';
+import SubmitButton from '../../form/SubmitButton';
+import FormContainer from '../../form/FormContainer';
 import { deleteProduct } from '@/utils/actions';
 
 function ProductCard(props: ProductWithVariants) {

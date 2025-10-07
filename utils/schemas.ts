@@ -65,9 +65,20 @@ function validateProductVariant({
         return input;
       })
       // NOTED:
-      // Validated product variant data from Zod must be removed "isOnSale" field before performing an operation to prisma.
+      // "isOnSale" field must be removed before performing an operation to prisma.
       .transform((input) => {
         const { isOnSale, ...data } = input;
+
+        // Field cleaning
+        if (sizeRequired) {
+          delete data.color;
+        } else if (colorRequired) {
+          delete data.size;
+        } else {
+          delete data.color;
+          delete data.size;
+        }
+
         return data;
       })
   );

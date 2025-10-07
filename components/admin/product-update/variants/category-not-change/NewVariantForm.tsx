@@ -1,66 +1,80 @@
-import FormSelect from '@/components/form-control/FormSelect';
-import ColorInput from '@/components/form-control/ColorInput';
-import FormInput from '@/components/form-control/FormInput';
-import FormContainer from '@/components/form/FormContainer';
-import OnSaleContainer from '@/components/form-custom/OnSaleAndDiscountInput';
+import FormSelect from '@/components/form/FormSelect';
+import ColorInput from '@/components/form/ColorInput';
+import FormInput from '@/components/form/FormInput';
 import SubmitButton from '@/components/form/SubmitButton';
 import { Button } from '@/components/ui/button';
-import { useUpdateProductContext } from './UpdateProductLayout';
 import { CLOTHES_SIZE } from '@/utils/constants';
-import { FormState } from '@/utils/types';
 import { createProductVariant } from '@/utils/actions';
-import { renderError } from '@/utils/clientFunctions';
+import { toastError } from '@/utils/clientFunctions';
 import { FaCheck, FaXmark } from 'react-icons/fa6';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, FormEventHandler, SetStateAction, useState } from 'react';
+import { useProductUpdateContext } from '@/components/admin/product-update/ProductProvider';
+import { toast } from 'sonner';
+import SwitchToggle from '@/components/form/SwitchToggle';
 
 type ParamsType = { setIsCreate: Dispatch<SetStateAction<boolean>> };
 
 function NewVariantForm({ setIsCreate }: ParamsType) {
-  const { product } = useUpdateProductContext()!;
+  const { product } = useProductUpdateContext();
+  const [isOnSale, setIsOnSale] = useState<boolean>(false);
 
-  const createProductVariantAction = async (
-    formState: FormState,
-    formData: FormData
-  ): Promise<FormState> => {
+  const createNewVariantHandler: FormEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
     try {
+      const formData = new FormData(e.currentTarget);
       await createProductVariant(formData);
       setIsCreate(false);
-      return { message: 'Created product option', type: 'success' };
+      toast.success('Created product option');
     } catch (error) {
-      return renderError(error);
+      return toastError(error);
     }
   };
 
   return (
     <div className='py-3 border-t lg:border-t-0 grid justify-center'>
       {/* New single variant form */}
-      <FormContainer action={createProductVariantAction}>
+      <form onSubmit={createNewVariantHandler}>
         <div className='md:flex justify-center items-center gap-x-8'>
-          {/* Hidden input */}
+          {/* PRODUCT ID */}
           <input type='hidden' name='productId' defaultValue={product.id} />
+          {/* CATEGORY */}
           <input
             type='hidden'
             name='category'
             defaultValue={product.category}
           />
-          {/* Clothes */}
+          {/* Clothes - SIZE */}
           {product.category === 'clothes' && (
             <FormSelect
               name='size'
               labelText='size'
-              isLabel
               frameworks={CLOTHES_SIZE}
               placeholder='choose size'
             />
           )}
-          {/* Bag */}
+          {/* Bag - COLOR */}
           {product.category === 'bag' && (
             <ColorInput name='color' labelText='color' />
           )}
-          {/* Stock */}
+          {/* STOCK */}
           <FormInput type='text' name='stock' labelText='stock' />
-          {/* OnSale and Discount */}
-          <OnSaleContainer />
+          {/* IS ON SALE */}
+          <SwitchToggle
+            name='isOnSale'
+            labelText='on sale'
+            labelPosition='top'
+            checked={isOnSale}
+            onChange={(checked: boolean) => setIsOnSale(checked)}
+          />
+          {/* DISCOUNT */}
+          {isOnSale && (
+            <FormInput
+              type='text'
+              name='discount'
+              labelText='discount (%)'
+              className='max-w-[200px]'
+            />
+          )}
           {/* Buttons */}
           <div className='flex items-center gap-x-2 justify-self-center'>
             <>
@@ -82,7 +96,7 @@ function NewVariantForm({ setIsCreate }: ParamsType) {
             </>
           </div>
         </div>
-      </FormContainer>
+      </form>
     </div>
   );
 }

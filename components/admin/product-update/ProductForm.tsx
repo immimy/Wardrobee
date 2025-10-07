@@ -1,19 +1,33 @@
 'use client';
 
-import FormInput from '@/components/form-control/FormInput';
-import FormCheckbox from '@/components/form-control/FormCheckbox';
-import FormSelect from '@/components/form-control/FormSelect';
-import FormTextarea from '@/components/form-control/FormTextarea';
-import { useUpdateProductContext } from './UpdateProductLayout';
+import FormInput from '@/components/form/FormInput';
+import FormCheckbox from '@/components/form/FormCheckbox';
+import FormSelect from '@/components/form/FormSelect';
+import FormTextarea from '@/components/form/FormTextarea';
 import SubmitButton from '@/components/form/SubmitButton';
-import FormContainer from '@/components/form/FormContainer';
-import { updateProductAction } from '@/utils/actions';
+import { updateProduct } from '@/utils/actions';
 import { PRODUCT_BRAND } from '@/utils/constants';
+import { useProductUpdateContext } from './ProductProvider';
+import { FormEventHandler } from 'react';
+import { toastError } from '@/utils/clientFunctions';
+import { toast } from 'sonner';
 
 function ProductForm() {
-  const { product } = useUpdateProductContext()!;
+  const { product } = useProductUpdateContext();
+
+  const updateProductHandler: FormEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
+    try {
+      const formData = new FormData(e.currentTarget);
+      await updateProduct(formData);
+      toast.success('Product updated');
+    } catch (error) {
+      return toastError(error);
+    }
+  };
+
   return (
-    <FormContainer action={updateProductAction}>
+    <form onSubmit={updateProductHandler}>
       <div className='mt-4 flex flex-col gap-y-6'>
         {/* Form Input */}
         <fieldset>
@@ -27,9 +41,7 @@ function ProductForm() {
           />
           {/* BRAND */}
           <FormSelect
-            isLabel
             name='brand'
-            labelText='brand'
             placeholder='choose brand'
             frameworks={PRODUCT_BRAND}
             defaultValue={product.brand}
@@ -58,7 +70,7 @@ function ProductForm() {
         {/* Submit Button */}
         <SubmitButton text='update product' />
       </div>
-    </FormContainer>
+    </form>
   );
 }
 export default ProductForm;

@@ -4,6 +4,7 @@ import './globals.css';
 import Navbar from '@/components/navbar/Navbar';
 import { ClerkProvider } from '@clerk/nextjs';
 import StoreProvider from './StoreProvider';
+import { Toaster } from 'sonner';
 
 const exo = Exo_2({
   subsets: ['latin'],
@@ -29,6 +30,7 @@ export default function RootLayout({
             <Navbar />
             <main>{children}</main>
           </StoreProvider>
+          <Toaster />
         </body>
       </html>
     </ClerkProvider>

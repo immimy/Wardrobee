@@ -1,9 +1,10 @@
-import FormSelect from '@/components/form-control/FormSelect';
-import ColorInput from '@/components/form-control/ColorInput';
-import FormInput from '@/components/form-control/FormInput';
-import OnSaleAndDiscountInput from '@/components/form-custom/OnSaleAndDiscountInput';
-import { useCategoryFormContext } from './CategoryForm';
+import FormSelect from '@/components/form/FormSelect';
+import ColorInput from '@/components/form/ColorInput';
+import FormInput from '@/components/form/FormInput';
 import { CLOTHES_SIZE } from '@/utils/constants';
+import { useProductUpdateContext } from './ProductProvider';
+import SwitchToggle from '@/components/form/SwitchToggle';
+import { useState } from 'react';
 
 type ParamsType = {
   index?: number;
@@ -14,7 +15,7 @@ type ParamsType = {
   discount?: number;
 };
 
-function SingleVariantInput({
+function VariantInputs({
   index,
   id,
   size,
@@ -22,10 +23,12 @@ function SingleVariantInput({
   stock,
   discount,
 }: ParamsType) {
-  const { category } = useCategoryFormContext()!;
+  const { category } = useProductUpdateContext();
+  const [isOnSale, setIsOnSale] = useState<boolean>(Boolean(discount));
+
   return (
     <div className='mb-2 md:mb-0 text-center grid justify-center md:flex flex-wrap  gap-x-6'>
-      {/* Variant Id */}
+      {/* (optional) VARIANT ID */}
       {id && (
         <input
           type='hidden'
@@ -37,18 +40,18 @@ function SingleVariantInput({
       {!index && (
         <input type='hidden' name='category' defaultValue={category} />
       )}
-      {/* Clothes */}
+      {/* Clothes - SIZE */}
       {category === 'clothes' && (
         <FormSelect
           name={index ? `variant${index}[size]` : 'size'}
           labelText='size'
-          isLabel
           frameworks={CLOTHES_SIZE}
           placeholder='choose size'
           defaultValue={size}
+          className='min-w-[200px]'
         />
       )}
-      {/* Bag */}
+      {/* Bag - COLOR */}
       {category === 'bag' && (
         <ColorInput
           name={index ? `variant${index}[color]` : 'color'}
@@ -56,17 +59,33 @@ function SingleVariantInput({
           defaultValue={color}
         />
       )}
-      {/* Stock */}
+      {/* STOCK */}
       <FormInput
         type='text'
         name={index ? `variant${index}[stock]` : 'stock'}
         labelText='stock'
         defaultValue={stock}
-        className='max-w-[200px]'
+        className='min-w-[200px]'
       />
-      {/* On sale And Discount */}
-      <OnSaleAndDiscountInput index={index} discount={discount} />
+      {/* IS ON SALE */}
+      <SwitchToggle
+        name={index ? `variant${index}[isOnSale]` : 'isOnSale'}
+        labelText='on sale'
+        labelPosition='top'
+        checked={isOnSale}
+        onChange={(checked: boolean) => setIsOnSale(checked)}
+      />
+      {/* DISCOUNT */}
+      {isOnSale && (
+        <FormInput
+          type='text'
+          name={index ? `variant${index}[discount]` : 'discount'}
+          labelText='discount (%)'
+          defaultValue={discount || 0}
+          className='min-w-[200px]'
+        />
+      )}
     </div>
   );
 }
-export default SingleVariantInput;
+export default VariantInputs;

@@ -143,58 +143,52 @@ export const fetchSingleProduct = async (id: string) => {
   return product;
 };
 
-export const createProductAction = async (
-  formState: any,
-  formData: FormData
-): Promise<FormState> => {
-  try {
-    const user = await getAuthUser();
-    // Only allow admin or moderator to perform an action.
-    await authorizeRoles(['admin', 'moderator'], user);
+export const createProduct = async (formData: FormData) => {
+  const user = await getAuthUser();
+  // Only allow admin or moderator to perform an action.
+  await authorizeRoles(['admin', 'moderator'], user);
 
-    // Collect input data by fieldset
-    const { nestedFormData } = convertFormDataByFieldset(formData);
-    const { product } = nestedFormData;
-    delete nestedFormData['product'];
+  // Collect input data by fieldset
+  const { nestedFormData } = convertFormDataByFieldset(formData);
+  const { product } = nestedFormData;
+  delete nestedFormData['product'];
 
-    // Input validation
-    // 1. Product validation
-    // 1.1) Image
-    const rawFile = product.image as File;
-    const file = validateWithZodSchema(imageSchema, rawFile);
-    const imageUrl = await uploadImage(file);
-    // 1.2) Data
-    const validatedProduct = validateWithZodSchema(productSchema, {
-      ...product,
-      image: imageUrl,
-    });
-    const { category } = validatedProduct;
-    // 2. Product variant validation
-    const validatedVariants = validateWithZodSchema(
-      allProductVariantsSchema(category),
-      Object.values(nestedFormData)
-    );
+  // Input validation
+  // 1. Product validation
+  // 1.1) Image
+  const rawFile = product.image as File;
+  const file = validateWithZodSchema(imageSchema, rawFile);
+  const imageUrl = await uploadImage(file);
+  // 1.2) Data
+  const validatedProduct = validateWithZodSchema(productSchema, {
+    ...product,
+    image: imageUrl,
+  });
+  const { category } = validatedProduct;
+  // 2. Product variant validation
+  const validatedVariants = validateWithZodSchema(
+    allProductVariantsSchema(category),
+    Object.values(nestedFormData)
+  );
+  // Calculate total stock
+  const totalStock = validatedVariants.reduce(
+    (total, variant) => total + variant.stock,
+    0
+  );
 
-    // Create product
-    const { id: productId } = await db.product.create({
-      data: { creatorId: user.userId, ...validatedProduct },
+  await db.$transaction(async (tx) => {
+    // Create product with total product stock
+    const { id: productId } = await tx.product.create({
+      data: { creatorId: user.userId, ...validatedProduct, totalStock },
+      select: { id: true },
     });
     // Create product variant one by one to ensure ordering
     for (const variant of validatedVariants) {
-      await db.productVariant.create({
+      await tx.productVariant.create({
         data: { productId, creatorId: user.userId, ...variant },
       });
     }
-    // Update total product stock
-    const totalStock = validatedVariants.reduce(
-      (total, variant) => total + variant.stock,
-      0
-    );
-    await db.product.update({ where: { id: productId }, data: { totalStock } });
-  } catch (error) {
-    return renderError(error);
-  }
-  return redirect('/admin/products');
+  });
 };
 
 export const createProductVariant = async (formData: FormData) => {
@@ -211,14 +205,13 @@ export const createProductVariant = async (formData: FormData) => {
     singleProductVariantSchema(category),
     Object.fromEntries(formData)
   );
-  // Create product variant
-  await db.productVariant.create({
-    data: { productId, creatorId: user.userId, ...data },
-  });
-  // Update total product stock
+  // Update total product stock together with create new product variant
   await db.product.update({
     where: { id: productId },
-    data: { totalStock: { increment: data.stock } },
+    data: {
+      totalStock: { increment: data.stock },
+      variants: { create: { creatorId: user.userId, ...data } },
+    },
   });
   // Revalidate current path
   revalidatePath(`${productId}`);
@@ -250,32 +243,24 @@ export const updateProductImage = async (
   return newUrl;
 };
 
-export const updateProductAction = async (
-  formState: any,
-  formData: FormData
-): Promise<FormState> => {
-  try {
-    const user = await getAuthUser();
-    // Check if product is present.
-    const productId = formData.get('id') as string;
-    const dbProduct = await db.product.findUnique({ where: { id: productId } });
-    if (!dbProduct) throw new Error(`No product with id: "${productId}"`);
-    // Only allow admin or creator who own the asset to perform an action.
-    await authorizeOwnerOrAdmin(dbProduct.creatorId, user);
-    // Input validation
-    const product = validateWithZodSchema(
-      productUpdateSchema,
-      Object.fromEntries(formData)
-    );
-    // Update product
-    await db.product.update({
-      where: { id: productId },
-      data: product,
-    });
-    return { message: 'Product updated.', type: 'success' };
-  } catch (error) {
-    return renderError(error);
-  }
+export const updateProduct = async (formData: FormData) => {
+  const user = await getAuthUser();
+  // Check if product is present.
+  const productId = formData.get('id') as string;
+  const dbProduct = await db.product.findUnique({ where: { id: productId } });
+  if (!dbProduct) throw new Error(`No product with id: "${productId}"`);
+  // Only allow admin or creator who own the asset to perform an action.
+  await authorizeOwnerOrAdmin(dbProduct.creatorId, user);
+  // Input validation
+  const product = validateWithZodSchema(
+    productUpdateSchema,
+    Object.fromEntries(formData)
+  );
+  // Update product
+  await db.product.update({
+    where: { id: productId },
+    data: product,
+  });
 };
 
 export const updateProductVariant = async (formData: FormData) => {
@@ -284,6 +269,7 @@ export const updateProductVariant = async (formData: FormData) => {
   const variantId = formData.get('id') as string;
   const dbVariant = await db.productVariant.findUnique({
     where: { id: variantId },
+    select: { productId: true, creatorId: true, stock: true },
   });
   if (!dbVariant) throw new Error(`No product option with id: "${variantId}"`);
   // Only allow admin or creator who own the asset to perform an action
@@ -294,86 +280,78 @@ export const updateProductVariant = async (formData: FormData) => {
     singleProductVariantSchema(category),
     Object.fromEntries(formData)
   );
-  // Update product variant
-  const { productId } = await db.productVariant.update({
-    where: { id: variantId },
-    data: variant,
-  });
-  // Update total product stock
+  // Update product variant together with total product stock
   await db.product.update({
-    where: { id: productId },
+    where: { id: dbVariant.productId },
     data: {
       totalStock: { increment: variant.stock - dbVariant.stock },
+      variants: { update: { where: { id: variantId }, data: { ...variant } } },
     },
   });
   // Revalidate current path
-  revalidatePath(`${productId}`);
+  revalidatePath(`${dbVariant.productId}`);
 };
 
-export const updateCategoryAndVariantsAction = async (
-  formState: any,
-  formData: FormData
-): Promise<FormState> => {
-  try {
-    const user = await getAuthUser();
-    // Check if product is present.
-    const productId = formData.get('productId') as string;
-    formData.delete('productId');
-    const dbProduct = await db.product.findUnique({ where: { id: productId } });
-    if (!dbProduct) throw new Error(`No product with id: "${productId}"`);
-    // Only allow admin or creator who own the asset to perform an action.
-    await authorizeOwnerOrAdmin(dbProduct.creatorId, user);
+export const updateCategoryAndVariants = async (formData: FormData) => {
+  const user = await getAuthUser();
+  // Check if product is present.
+  const productId = formData.get('productId') as string;
+  formData.delete('productId');
+  const dbProduct = await db.product.findUnique({ where: { id: productId } });
+  if (!dbProduct) throw new Error(`No product with id: "${productId}"`);
+  // Only allow admin or creator who own the asset to perform an action.
+  await authorizeOwnerOrAdmin(dbProduct.creatorId, user);
 
-    const category = formData.get('category') as ProductCategory;
-    formData.delete('category');
-    let newTotalStock: number;
-    // 🧦 ACCESSORY Product
-    if (category === 'accessory') {
-      // Input validation
-      const data = validateWithZodSchema(
-        singleProductVariantSchema(category),
-        Object.fromEntries(formData)
-      );
-      // Ensure accessory product has only one option
-      await db.productVariant.deleteMany({ where: { productId } });
-      // Create new variant
-      await db.productVariant.create({
-        data: { productId, creatorId: dbProduct.creatorId, ...data },
-      });
-      // Calculate new total stock
-      newTotalStock = data.stock;
-    } else {
-      // 👕 CLOTHES & 👜 BAG Product
-      // Input validation
-      const { nestedFormData } = convertFormDataByFieldset(formData);
-      const data = validateWithZodSchema(
-        allProductVariantsSchema(category),
-        Object.values(nestedFormData)
-      );
-      // Update all variants
-      data.map(async (item) => {
-        const { id } = item!;
-        delete item['id'];
-        await db.productVariant.update({ where: { id }, data: item });
-      });
-      // Calculate new total stock
-      newTotalStock = data.reduce((acc, item) => acc + item.stock, 0);
-    }
-    // Update product category and total stock
+  const category = formData.get('category') as ProductCategory;
+  formData.delete('category');
+  // 🧦 ACCESSORY Product
+  if (category === 'accessory') {
+    // Input validation
+    const variant = validateWithZodSchema(
+      singleProductVariantSchema(category),
+      Object.fromEntries(formData)
+    );
+    // Update product category and total stock together with create new variant
     await db.product.update({
       where: { id: productId },
-      data: { category, totalStock: newTotalStock },
+      data: {
+        category,
+        totalStock: variant.stock,
+        variants: {
+          // Ensure accessory product has only one option
+          deleteMany: {},
+          // Create new variant
+          create: { creatorId: dbProduct.creatorId, ...variant },
+        },
+      },
     });
+  } else {
+    // 👕 CLOTHES & 👜 BAG Product
+    // Input validation
+    const { nestedFormData } = convertFormDataByFieldset(formData);
+    const variants = validateWithZodSchema(
+      allProductVariantsSchema(category),
+      Object.values(nestedFormData)
+    );
+    // Calculate new total stock
+    const newTotalStock = variants.reduce((acc, item) => acc + item.stock, 0);
 
-    // Revalidate path
-    revalidatePath(`${productId}`);
-    return {
-      message: 'Updated category and options',
-      type: 'success',
-    };
-  } catch (error) {
-    return renderError(error);
+    await db.$transaction(async (tx) => {
+      // Update all variants
+      for (const item of variants) {
+        const { id, ...variant } = item!;
+        await tx.productVariant.update({ where: { id }, data: variant });
+      }
+      // Update product category and total stock
+      await tx.product.update({
+        where: { id: productId },
+        data: { category, totalStock: newTotalStock },
+      });
+    });
   }
+
+  // Revalidate path
+  revalidatePath(`${productId}`);
 };
 
 export const deleteProduct = async (productId: string): Promise<FormState> => {
@@ -402,26 +380,24 @@ export const deleteProductVariant = async (
     // Check if product variant is present.
     const dbVariant = await db.productVariant.findUnique({
       where: { id: variantId },
+      select: { productId: true, stock: true, creatorId: true },
     });
     if (!dbVariant)
       throw new Error(`No product details with id: "${variantId}"`);
     // Only allow admin or creator who own the asset to perform an action.
     await authorizeOwnerOrAdmin(dbVariant.creatorId, user);
-
-    const productId = dbVariant.productId;
-    // Delete product variant
-    await db.productVariant.delete({ where: { id: variantId } });
-    // Update total product stock
+    // Update total product stock together with delete product variant
     await db.product.update({
-      where: { id: productId },
+      where: { id: dbVariant.productId },
       data: {
         totalStock: {
           decrement: dbVariant.stock,
         },
+        variants: { deleteMany: [{ id: variantId }] },
       },
     });
     // Revalidate current path
-    revalidatePath(`${productId}`);
+    revalidatePath(`${dbVariant.productId}`);
     return { message: 'Product option deleted', type: 'success' };
   } catch (error) {
     return renderError(error);

@@ -1,15 +1,13 @@
-import { useCategoryFormContext } from './CategoryForm';
-import SingleVariantInput from './SingleVariantInput';
-import { useUpdateProductContext } from './UpdateProductLayout';
+import VariantInputs from '@/components/admin/product-update/VariantInputs';
+import { useProductUpdateContext } from '@/components/admin/product-update/ProductProvider';
 
 function AllVariantsContainer() {
-  const { product } = useUpdateProductContext()!;
-  const { category } = useCategoryFormContext()!;
+  const { product, category } = useProductUpdateContext();
   return (
     <ul className='mb-4 md:grid justify-center'>
       {category === 'accessory' ? (
         <li className='py-3 lg:py-1.5 border-b last:border-b-0 lg:border-b-0'>
-          <SingleVariantInput />
+          <VariantInputs />
         </li>
       ) : (
         product.variants.map((variant, index) => {
@@ -19,7 +17,7 @@ function AllVariantsContainer() {
               key={variant.id}
               className='py-3 lg:py-1.5 border-b last:border-b-0 lg:border-b-0'
             >
-              <SingleVariantInput
+              <VariantInputs
                 index={index + 1}
                 id={id}
                 size={size || undefined}

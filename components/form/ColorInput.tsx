@@ -1,9 +1,12 @@
+import { ChangeEventHandler } from 'react';
 import { Label } from '../ui/label';
 
 type ParamsType = {
   name: string;
   labelText?: string;
   defaultValue?: string;
+  value?: string;
+  onChange?: ChangeEventHandler<HTMLInputElement>;
   placeholder?: string;
   disabled?: boolean;
 };
@@ -12,6 +15,8 @@ function ColorInput({
   name,
   labelText,
   defaultValue,
+  value,
+  onChange,
   placeholder,
   disabled,
 }: ParamsType) {
@@ -28,6 +33,8 @@ function ColorInput({
         id={name}
         name={name}
         defaultValue={defaultValue}
+        value={value}
+        onChange={onChange}
         placeholder={placeholder}
         required
         disabled={disabled}

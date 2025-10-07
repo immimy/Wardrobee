@@ -1,15 +1,18 @@
 import { cn } from '@/lib/utils';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { ChangeEventHandler } from 'react';
 
 type ParamsType = {
   type: string;
   name: string;
   labelText?: string;
   defaultValue?: string | number;
+  value?: string | number;
+  onChange?: ChangeEventHandler<HTMLInputElement>;
   placeholder?: string;
   className?: string;
-  readOnly?:boolean
+  readOnly?: boolean;
 };
 
 function FormInput({
@@ -17,8 +20,11 @@ function FormInput({
   name,
   labelText,
   defaultValue,
+  value,
+  onChange,
   placeholder,
-  className,readOnly
+  className,
+  readOnly,
 }: ParamsType) {
   return (
     <div className={cn('mb-4', className)}>
@@ -33,6 +39,8 @@ function FormInput({
         id={name}
         name={name}
         defaultValue={defaultValue && String(defaultValue)}
+        value={value}
+        onChange={onChange}
         placeholder={placeholder}
         required
         readOnly={readOnly}

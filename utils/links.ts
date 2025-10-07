@@ -24,7 +24,7 @@ const adminLinks: Array<NavLink> = [
     icon: TbShoppingBagEdit,
   },
   {
-    url: '/admin/product-create',
+    url: '/admin/product',
     title: 'create product',
     icon: TbShoppingBagPlus,
   },

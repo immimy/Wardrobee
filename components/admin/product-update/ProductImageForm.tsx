@@ -2,20 +2,16 @@
 
 import ImageContainer from '@/components/global/ImageContainer';
 import ImageInput from '@/components/form/ImageInput';
-import { useState } from 'react';
-import { useUpdateProductContext } from './UpdateProductLayout';
 import { Button } from '@/components/ui/button';
 import SubmitButton from '@/components/form/SubmitButton';
 import FormContainer from '@/components/form/FormContainer';
 import { updateProductImage } from '@/utils/actions';
 import { FormState } from '@/utils/types';
 import { renderError } from '@/utils/clientFunctions';
+import { useProductUpdateContext } from './ProductProvider';
 
 function ProductImageForm() {
-  const { product } = useUpdateProductContext()!;
-
-  const [image, setImage] = useState<string>(product.image);
-  const [isUpdated, setIsUpdated] = useState(false);
+  const { product, image, setImageState } = useProductUpdateContext();
 
   const updateProductImageAction = async (
     formState: FormState,
@@ -29,8 +25,8 @@ function ProductImageForm() {
       }
       // Update product image
       const url = await updateProductImage(formData);
-      setImage(url);
-      setIsUpdated(false);
+      // Update image state
+      setImageState({ url, isUpdating: false });
       return { message: 'Update image successfully', type: 'success' };
     } catch (error) {
       return renderError(error);
@@ -42,12 +38,12 @@ function ProductImageForm() {
       <div className='md:mb-4 grid md:grid-cols-[auto_1fr] gap-y-2 gap-x-8 items-center'>
         <ImageContainer
           alt='product image'
-          src={image}
+          src={image.url}
           className='h-52 w-52 md:w-64 md:h-64 transition-all place-self-center'
         />
         <div className='md:max-w-88'>
           <input type='hidden' name='productId' value={product.id} />
-          {isUpdated ? (
+          {image.isUpdating ? (
             <>
               <ImageInput name='image' labelText='product image' />
               <SubmitButton text='update product image' className='w-full' />
@@ -55,7 +51,7 @@ function ProductImageForm() {
                 type='button'
                 variant='link'
                 className='text-destructive w-full capitalize font-medium tracking-wide'
-                onClick={() => setIsUpdated(false)}
+                onClick={() => setImageState({ isUpdating: false })}
               >
                 cancel image update
               </Button>
@@ -63,7 +59,7 @@ function ProductImageForm() {
           ) : (
             <Button
               type='button'
-              onClick={() => setIsUpdated(true)}
+              onClick={() => setImageState({ isUpdating: true })}
               className='w-full capitalize font-medium tracking-wide'
             >
               change product image

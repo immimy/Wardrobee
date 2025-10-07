@@ -1,8 +1,8 @@
-import { useUpdateProductContext } from './UpdateProductLayout';
+import { useProductUpdateContext } from '@/components/admin/product-update/ProductProvider';
 import SingleVariantLists from './SingleVariantLists';
 
 function SingleVariantContainer() {
-  const { product } = useUpdateProductContext()!;
+  const { product } = useProductUpdateContext();
   return (
     <ul className='md:grid justify-center'>
       {product.variants.map((variant) => {

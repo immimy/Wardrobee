@@ -1,3 +1,8 @@
+// WARNING:
+// Regardless of controlled input, this checkbox will always reset to its default value after form submission.
+
+'use client';
+
 import { cn } from '@/lib/utils';
 import { Label } from '../ui/label';
 import { Checkbox } from '../ui/checkbox';
@@ -5,6 +10,8 @@ import { Checkbox } from '../ui/checkbox';
 type ParamsType = {
   name: string;
   defaultChecked?: boolean;
+  checked?: boolean;
+  onChange?: (checked: boolean) => void;
   labelText: string;
   className?: string;
   disabled?: boolean;
@@ -13,6 +20,8 @@ type ParamsType = {
 function FormCheckbox({
   name,
   defaultChecked,
+  checked,
+  onChange,
   labelText,
   className,
   disabled,
@@ -23,6 +32,8 @@ function FormCheckbox({
         id={name}
         name={name}
         defaultChecked={defaultChecked}
+        checked={checked}
+        onCheckedChange={onChange}
         disabled={disabled}
       />
       <Label htmlFor={name} className='text-sm font-normal'>

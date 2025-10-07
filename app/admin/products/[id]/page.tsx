@@ -1,19 +1,19 @@
-import UpdateProductLayout from '@/components/admin/product-update/UpdateProductLayout';
-import LoadingContainer from '@/components/global/LoadingContainer';
+import ProductProvider from '@/components/admin/product-update/ProductProvider';
 import { Button } from '@/components/ui/button';
 import { fetchSingleProduct } from '@/utils/actions';
-import { getRole } from '@/utils/clerk';
 import Link from 'next/link';
-import { Suspense } from 'react';
+import { redirect } from 'next/navigation';
 import { HiOutlineChevronDoubleLeft } from 'react-icons/hi';
+import ProductImageForm from '@/components/admin/product-update/ProductImageForm';
+import ProductForm from '@/components/admin/product-update/ProductForm';
+import VariantsContainer from '@/components/admin/product-update/VariantsContainer';
 
 type AdminProductParams = { params: Promise<{ id: string }> };
 
 async function AdminProductPage({ params }: AdminProductParams) {
-  const role = await getRole();
   const { id } = await params;
-  const product = fetchSingleProduct(id);
-
+  const product = await fetchSingleProduct(id);
+  if (!product) return redirect('/dashboard/admin/products');
   return (
     <section className='pt-4 pb-16 px-8'>
       {/* Back to previous page */}
@@ -29,9 +29,16 @@ async function AdminProductPage({ params }: AdminProductParams) {
         </Link>
       </Button>
       {/* Update product form */}
-      <Suspense fallback={<LoadingContainer />}>
-        <UpdateProductLayout product={product} role={role} />
-      </Suspense>
+      <ProductProvider product={product}>
+        <div className='grid gap-y-6'>
+          {/* Product Image */}
+          <ProductImageForm />
+          {/* Product */}
+          <ProductForm />
+          {/* Variants */}
+          <VariantsContainer />
+        </div>
+      </ProductProvider>
     </section>
   );
 }

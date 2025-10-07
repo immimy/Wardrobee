@@ -1,3 +1,4 @@
+import { ChangeEventHandler } from 'react';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 
@@ -5,9 +6,17 @@ type ParamsType = {
   name: string;
   labelText?: string;
   defaultValue?: string;
+  value?: string;
+  onChange?: ChangeEventHandler<HTMLTextAreaElement>;
 };
 
-function FormTextarea({ name, labelText, defaultValue }: ParamsType) {
+function FormTextarea({
+  name,
+  labelText,
+  defaultValue,
+  value,
+  onChange,
+}: ParamsType) {
   return (
     <div className='mb-4'>
       <Label
@@ -16,7 +25,13 @@ function FormTextarea({ name, labelText, defaultValue }: ParamsType) {
       >
         {labelText ?? name}
       </Label>
-      <Textarea id={name} name={name} defaultValue={defaultValue} />
+      <Textarea
+        id={name}
+        name={name}
+        defaultValue={defaultValue}
+        value={value}
+        onChange={onChange}
+      />
     </div>
   );
 }

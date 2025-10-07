@@ -71,3 +71,13 @@ export const isHistoryEqualToState = (
   const isQuantityEqual = obj1.quantity === obj2.quantity;
   return isVariantIdEqual && isQuantityEqual;
 };
+
+const isNumber = (input: any) => typeof input === 'number';
+const isString = (input: any) => typeof input === 'string';
+export const coerceFormValue = (input: string | number | undefined) => {
+  return isNumber(input)
+    ? String(input)
+    : isString(input)
+    ? input.toLowerCase()
+    : input;
+};
