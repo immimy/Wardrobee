@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Collapsible,
   CollapsibleTrigger,
@@ -18,12 +20,13 @@ import { ChevronDown } from 'lucide-react';
 import { MdSpaceDashboard } from 'react-icons/md';
 import { FaUserLock } from 'react-icons/fa6';
 import Link from 'next/link';
-import { getRole } from '@/utils/clerk';
+import { useAppSelector } from '@/lib/hooks';
 
-async function AppSidebar() {
-  const role = (await getRole()) || 'user';
+function AppSidebar() {
+  const { role, isLoading } = useAppSelector((store) => store.user);
+  if (isLoading) return null;
   const adminRoles = ['admin', 'moderator'];
-  const isAuthorized = adminRoles.includes(role);
+  const isAuthorized = adminRoles.includes(role!);
 
   return (
     <Sidebar className='z-50'>

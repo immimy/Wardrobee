@@ -3,7 +3,8 @@
 import { initializeCart } from '@/lib/features/cart/cartSlice';
 import { loadingUser, setUser } from '@/lib/features/user/userSlice';
 import { AppStore, makeStore } from '@/lib/store';
-import { useUser } from '@clerk/nextjs';
+import { isHookLoaded } from '@/utils/clientFunctions';
+import { useAuth, useUser } from '@clerk/nextjs';
 import { useEffect, useRef } from 'react';
 import { Provider } from 'react-redux';
 
@@ -12,6 +13,7 @@ type ParamsType = {
 };
 function StoreProvider({ children }: ParamsType) {
   const { user } = useUser();
+  const { sessionClaims } = useAuth();
 
   const storeRef = useRef<AppStore | null>(null);
   if (!storeRef.current) {
@@ -23,11 +25,17 @@ function StoreProvider({ children }: ParamsType) {
   // Initialize the store with the user information
   useEffect(() => {
     if (!storeRef.current) return;
-    storeRef.current.dispatch(initializeCart());
-    storeRef.current.dispatch(
-      setUser({ username: user?.username, image: user?.imageUrl })
-    );
-  }, [user]);
+    if (isHookLoaded(user) && isHookLoaded(sessionClaims)) {
+      storeRef.current.dispatch(initializeCart());
+      storeRef.current.dispatch(
+        setUser({
+          username: user?.username,
+          image: user?.imageUrl,
+          role: sessionClaims?.metadata?.role || 'user',
+        })
+      );
+    }
+  }, [user, sessionClaims]);
 
   return <Provider store={storeRef.current}>{children}</Provider>;
 }

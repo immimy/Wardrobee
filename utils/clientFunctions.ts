@@ -81,3 +81,5 @@ export const coerceFormValue = (input: string | number | undefined) => {
     ? input.toLowerCase()
     : input;
 };
+
+export const isHookLoaded = (input: any) => input !== undefined;

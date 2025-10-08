@@ -7,7 +7,6 @@ import { useSingleVariantContext } from './SingleVariantLists';
 import { deleteProductVariant } from '@/utils/actions';
 import { FaTrashCan, FaPencil } from 'react-icons/fa6';
 import { useProductUpdateContext } from '../../ProductProvider';
-import SwitchToggle from '@/components/form/SwitchToggle';
 import OnSaleDisplay from '@/components/single-variant/OnSaleDisplay';
 
 function SingleVariantDisplay() {

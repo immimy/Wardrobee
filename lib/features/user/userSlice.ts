@@ -1,14 +1,17 @@
+import { Roles } from '@/types/globals';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 type StateType = {
   isLoading: boolean;
   username: string | null | undefined;
   image: string | null | undefined;
+  role: (Roles | 'user') | undefined;
 };
 const initialState: StateType = {
   isLoading: true,
   username: undefined,
   image: undefined,
+  role: undefined,
 };
 
 const userSlice = createSlice({
@@ -19,9 +22,10 @@ const userSlice = createSlice({
       state.isLoading = true;
     },
     setUser: (state, action: PayloadAction<Partial<StateType>>) => {
-      const { username, image } = action.payload;
+      const { username, image, role } = action.payload;
       state.username = username;
       state.image = image;
+      state.role = role;
       state.isLoading = false;
     },
   },

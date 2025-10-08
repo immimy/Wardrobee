@@ -1,3 +1,5 @@
+'use client';
+
 import { links } from '@/utils/links';
 import { Button } from '../ui/button';
 import {
@@ -15,12 +17,10 @@ import {
   SignOutButton,
 } from '@clerk/nextjs';
 import AvatarImage from '../global/AvatarImage';
-import { auth } from '@clerk/nextjs/server';
+import { useAppSelector } from '@/lib/hooks';
 
-async function LinksDropdown() {
-  const { userId, sessionClaims } = await auth();
-  const userRole = sessionClaims?.metadata.role;
-
+function LinksDropdown() {
+  const { username, role } = useAppSelector((store) => store.user);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -35,8 +35,8 @@ async function LinksDropdown() {
       <DropdownMenuContent align='end'>
         {links.map((link) => {
           const { url, title } = link;
-          if (url === '/dashboard' && !userId) return null;
-          if (url === '/admin' && (!userId || !userRole)) return null;
+          if (url === '/dashboard' && !username) return null;
+          if (url === '/admin' && (!username || role === 'user')) return null;
           return (
             <DropdownMenuItem asChild key={url}>
               <Link href={url} className='capitalize hover:cursor-pointer'>

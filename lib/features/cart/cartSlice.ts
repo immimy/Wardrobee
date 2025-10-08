@@ -26,7 +26,9 @@ export const initializeCart = createAsyncThunk(
       const cart = await refreshCart();
       return cart;
     } catch (error) {
-      return thunkAPI.rejectWithValue('Failed to initialize cart');
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to initialize cart';
+      return thunkAPI.rejectWithValue(errorMessage);
     }
   }
 );

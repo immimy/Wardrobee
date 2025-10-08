@@ -15,7 +15,7 @@ import {
   userSchema,
   validateWithZodSchema,
 } from './schemas';
-import { revalidatePath, revalidateTag, unstable_cache } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { convertFormDataByFieldset } from './form';
 import db from './db';
 import { deleteImage, uploadImage } from './supabase';
@@ -60,11 +60,6 @@ const renderError = async (error: unknown): Promise<FormState> => {
     message: error instanceof Error ? error.message : 'An error occurred.',
     type: 'error',
   };
-};
-
-export const clearUnstableCache = async () => {
-  revalidateTag('cart');
-  revalidateTag('addresses');
 };
 
 /////////////////////// Actions ///////////////////////
@@ -404,21 +399,12 @@ export const deleteProductVariant = async (
   }
 };
 
-const getAllAddresses = unstable_cache(
-  async (userId) => {
-    return db.shippingAddress.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'asc' },
-    });
-  },
-  ['addresses'],
-  {
-    tags: ['addresses'],
-  }
-);
 export const fetchAllAddresses = async () => {
   const { userId } = await getAuthUser();
-  const addresses = await getAllAddresses(userId);
+  const addresses = await db.shippingAddress.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'asc' },
+  });
   return addresses;
 };
 
@@ -513,30 +499,28 @@ export const deleteAddress = async (addressId: string): Promise<FormState> => {
   }
 };
 
-const getMyCart = unstable_cache(
-  async (userId) => {
-    return db.cart.findUnique({
-      where: { userId },
-      include: {
-        cartItems: {
-          orderBy: { createdAt: 'asc' },
-          include: {
-            productVariant: {
-              include: {
-                product: {
-                  include: {
-                    variants: {
-                      // Only select available products
-                      where: { stock: { gt: 0 } },
-                      select: {
-                        id: true,
-                        size: true,
-                        color: true,
-                        discount: true,
-                        stock: true,
-                      },
-                      orderBy: { createdAt: 'asc' },
+const getMyCart = (userId: string) => {
+  return db.cart.findUnique({
+    where: { userId },
+    include: {
+      cartItems: {
+        orderBy: { createdAt: 'asc' },
+        include: {
+          productVariant: {
+            include: {
+              product: {
+                include: {
+                  variants: {
+                    // Only select available products
+                    where: { stock: { gt: 0 } },
+                    select: {
+                      id: true,
+                      size: true,
+                      color: true,
+                      discount: true,
+                      stock: true,
                     },
+                    orderBy: { createdAt: 'asc' },
                   },
                 },
               },
@@ -544,11 +528,9 @@ const getMyCart = unstable_cache(
           },
         },
       },
-    });
-  },
-  ['cart'],
-  { tags: ['cart'] }
-);
+    },
+  });
+};
 const emptyCart = {
   cartItems: {},
   subtotal: 0,

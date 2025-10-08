@@ -1,15 +1,11 @@
 import AppSidebar from '@/components/dashboard/AppSidebar';
 import DashboardBreadcrumb from '@/components/dashboard/DashboardBreadcrumb';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { cookies } from 'next/headers';
 import Container from '../global/Container';
 
-async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = await cookies();
-  const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true';
-
+function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <SidebarProvider defaultOpen={defaultOpen}>
+    <SidebarProvider defaultOpen={false}>
       <AppSidebar />
       <section className='w-full'>
         {/* BREADCRUMB */}
