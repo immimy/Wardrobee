@@ -5,6 +5,7 @@ import {
   FormState,
   ProductCategory,
   ProductWithVariants,
+  Themes,
 } from './types';
 
 export const renderError = async (error: unknown): Promise<FormState> => {
@@ -83,3 +84,5 @@ export const coerceFormValue = (input: string | number | undefined) => {
 };
 
 export const isHookLoaded = (input: any) => input !== undefined;
+
+export const isDarkTheme = (theme: Themes) => theme === 'dark';

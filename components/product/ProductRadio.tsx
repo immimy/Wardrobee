@@ -60,9 +60,9 @@ function ProductRadio({
             type='radio'
             id={gradientColor!}
             name='productVariantId'
-            className={`appearance-none m-0 size-8 border border-border rounded-full shadow shadow-ring/50 relative before:absolute before:inset-0 before:size-8 checked:before:border-2 checked:before:border-ring checked:before:rounded-full ${
+            className={`appearance-none m-0 size-8 border border-border rounded-full shadow shadow-ring/50 relative before:absolute before:inset-0 checked:before:border-2 checked:before:border-ring checked:before:rounded-full ${
               isOutOfStock
-                ? 'hover:cursor-default before:bg-muted/80 before:rounded-full'
+                ? 'hover:cursor-not-allowed before:bg-muted/80 before:rounded-full'
                 : 'hover:cursor-pointer'
             }`}
             style={{ backgroundColor: gradientColor! }}

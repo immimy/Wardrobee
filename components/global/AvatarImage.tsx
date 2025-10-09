@@ -25,7 +25,7 @@ function AvatarImage({
       width={width}
       height={height}
       alt='avatar'
-      className={cn('object-cover rounded-full', className)}
+      className={cn('object-cover rounded-full dark:opacity-90', className)}
       priority
     />
   );

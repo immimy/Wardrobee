@@ -5,7 +5,7 @@ function MenuCard({ url, title, icon }: NavLink) {
   const Icon = icon!;
   return (
     <Link href={url}>
-      <div className='py-8 border drop-shadow-xl shadow-accent bg-primary/30 text-primary-foreground rounded-2xl hover:bg-secondary hover:text-secondary-foreground grid place-items-center'>
+      <div className='py-8 border drop-shadow-xl shadow-accent bg-primary/30 text-primary-foreground rounded-2xl hover:bg-secondary hover:text-secondary-foreground grid place-items-center dark:bg-muted dark:text-muted-foreground'>
         <Icon className='mb-4 text-9xl' />
         <h6 className='capitalize text-center text-xl font-bold tracking-widest'>
           {title}

@@ -10,7 +10,7 @@ import {
 function HeroCarousel() {
   return (
     <Carousel className='w-full max-w-9/12' opts={{ loop: true }}>
-      <CarouselContent>
+      <CarouselContent className='dark:*:opacity-90'>
         {Array.from({ length: 5 }, (_, index) => {
           const path = `/images/hero${index + 1}.jpg`;
           return (

@@ -35,7 +35,7 @@ function ProductCard(props: ProductWithVariants) {
             <p className='text-sm font-normal capitalize'>{brand}</p>
           </CardTitle>
           <CardDescription className='self-start'>
-            <p className='font-bold tracking-wider text-primary-foreground'>
+            <p className='font-bold tracking-wider text-primary-foreground dark:text-muted-foreground'>
               {priceFormatter(price)}
             </p>
           </CardDescription>
@@ -46,11 +46,15 @@ function ProductCard(props: ProductWithVariants) {
             <SubmitButton
               icon={<HiMiniTrash />}
               size='icon'
-              className='rounded-full w-9'
+              className='rounded-full w-9 dark:bg-muted dark:text-muted-foreground'
             />
           </FormContainer>
           {/* Navigate to product update page */}
-          <Button asChild size='icon' className='rounded-full w-9'>
+          <Button
+            asChild
+            size='icon'
+            className='rounded-full w-9 dark:bg-muted dark:text-muted-foreground'
+          >
             <Link href={`products/${id}`}>
               <HiMiniPencilSquare />
             </Link>

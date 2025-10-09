@@ -43,7 +43,7 @@ function ProductCard({ product }: ParamsType) {
             </CardTitle>
           </Link>
           <CardDescription className='self-start'>
-            <p className='font-bold tracking-wider text-primary-foreground'>
+            <p className='font-bold tracking-wider text-primary-foreground dark:text-muted-foreground'>
               {priceFormatter(price)}
             </p>
           </CardDescription>

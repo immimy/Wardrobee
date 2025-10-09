@@ -33,7 +33,7 @@ function AddToCartButton({ variantId, product }: ParamsType) {
       <div className='max-w-10 ml-auto'>
         <Button
           size='icon'
-          className='inset-shadow-2xs shadow-muted-foreground/50'
+          className='inset-shadow-2xs shadow-muted-foreground/50 dark:bg-muted dark:text-muted-foreground hover:cursor-pointer'
           disabled={isPending}
         >
           {isPending ? <LoadingContainer /> : <TbShoppingCartPlus />}

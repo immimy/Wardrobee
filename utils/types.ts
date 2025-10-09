@@ -2,6 +2,8 @@ import { Prisma } from '@prisma/client';
 import { IconType } from 'react-icons/lib';
 import { Roles } from '@/types/globals';
 
+export type Themes = 'light' | 'dark';
+
 export type AllRoles = 'user' | Roles;
 
 export type NavLink = {

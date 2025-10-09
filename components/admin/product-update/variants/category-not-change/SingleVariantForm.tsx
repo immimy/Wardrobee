@@ -42,7 +42,7 @@ function SingleVariantForm() {
             {/* Submit button */}
             <SubmitButton
               size='icon'
-              className='md:rounded-full text-input bg-successful hover:bg-successful hover:scale-120 hover:cursor-pointer'
+              className='md:rounded-full text-input bg-successful hover:bg-successful hover:scale-120 hover:cursor-pointer dark:text-foreground/90'
               icon={<FaCheck />}
             />
             {/* Cancel update mode */}
