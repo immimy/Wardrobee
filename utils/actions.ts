@@ -95,8 +95,17 @@ export const deleteAccount = async () => {
   }
 };
 
-export const fetchAllProducts = async () => {
+export const fetchAllProducts = async (searchParams?: {
+  [key: string]: string | undefined;
+}) => {
+  const search = searchParams?.search || '';
   const products = await db.product.findMany({
+    where: {
+      OR: [
+        { name: { contains: search, mode: 'insensitive' } },
+        { brand: { contains: search, mode: 'insensitive' } },
+      ],
+    },
     include: {
       variants: {
         where: { stock: { gt: 0 } },

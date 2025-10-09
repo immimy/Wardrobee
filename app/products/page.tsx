@@ -1,11 +1,15 @@
 import Container from '@/components/global/Container';
 import ProductsContainer from '@/components/products/ProductsContainer';
 
-function ProductsPage() {
+type ParamsType = {
+  searchParams: Promise<{ [key: string]: string | undefined }>;
+};
+async function ProductsPage({ searchParams }: ParamsType) {
+  const { search } = await searchParams;
   return (
     <section className='py-8'>
       <Container>
-        <ProductsContainer />
+        <ProductsContainer search={search} />
       </Container>
     </section>
   );

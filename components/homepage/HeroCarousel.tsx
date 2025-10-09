@@ -12,18 +12,17 @@ function HeroCarousel() {
     <Carousel className='w-full max-w-9/12' opts={{ loop: true }}>
       <CarouselContent>
         {Array.from({ length: 5 }, (_, index) => {
-          const order = index + 1;
-          const path = `/images/hero${order}.jpg`;
+          const path = `/images/hero${index + 1}.jpg`;
           return (
             <CarouselItem key={index}>
-              <figure className='relative h-96 overflow-hidden -skew-y-4 shadow-xl'>
+              <figure className='relative h-96 overflow-hidden -skew-y-4 shadow-xl rounded-2xl'>
                 <Image
                   src={path}
-                  alt={`hero${order}`}
+                  alt={`hero${index + 1}`}
                   fill
                   sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
-                  className='object-cover -skew-y-4'
-                  priority={order === 1}
+                  className='object-cover'
+                  priority
                 />
               </figure>
             </CarouselItem>

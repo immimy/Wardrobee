@@ -2,8 +2,9 @@ import { fetchAllProducts } from '@/utils/actions';
 import ProductCard from './ProductCard';
 import NotFoundContainer from '../global/NotFoundContainer';
 
-async function ProductsContainer() {
-  const products = await fetchAllProducts();
+type ParamsType = { search: string | undefined };
+async function ProductsContainer({ search }: ParamsType) {
+  const products = await fetchAllProducts({ search });
 
   if (products.length < 1) {
     return <NotFoundContainer />;
