@@ -1,4 +1,4 @@
-import { deleteAddress } from '@/utils/actions';
+import { deleteAddressAction } from '@/utils/actions';
 import { FaTrashCan } from 'react-icons/fa6';
 import FormContainer from '../form/FormContainer';
 import SubmitButton from '../form/SubmitButton';
@@ -6,9 +6,9 @@ import SubmitButton from '../form/SubmitButton';
 type ParamsType = { id: string };
 
 function DeleteAddressButton({ id }: ParamsType) {
-  const deleteAddressAction = deleteAddress.bind(null, id);
+  const deleteAddressBind = deleteAddressAction.bind(null, id);
   return (
-    <FormContainer action={deleteAddressAction}>
+    <FormContainer action={deleteAddressBind}>
       <SubmitButton variant='ghost' size='icon' icon={<FaTrashCan />} />
     </FormContainer>
   );

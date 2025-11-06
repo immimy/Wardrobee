@@ -5,17 +5,17 @@ import ThemeProvider from '@/components/providers/ThemeProvider';
 type ParamsType = { children: React.ReactNode };
 function Providers({ children }: ParamsType) {
   return (
-    <ThemeProvider
-      attribute='class'
-      defaultTheme='system'
-      enableSystem
-      disableTransitionOnChange
-    >
-      <StoreProvider>
+    <StoreProvider>
+      <ThemeProvider
+        attribute='class'
+        defaultTheme='system'
+        enableSystem
+        disableTransitionOnChange
+      >
         {children}
-        <Toaster />
-      </StoreProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+      <Toaster />
+    </StoreProvider>
   );
 }
 export default Providers;

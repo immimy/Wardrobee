@@ -75,9 +75,12 @@ function FormSelect({
             <SelectLabel className='capitalize'>
               {labelText || name}
             </SelectLabel>
-            {frameworks.map((framework, index) => {
+            {frameworks.map((framework) => {
               return (
-                <SelectItem key={index} value={String(framework).toLowerCase()}>
+                <SelectItem
+                  key={`${name}:${framework}`}
+                  value={String(framework).toLowerCase()}
+                >
                   {uppercase
                     ? String(framework).toUpperCase()
                     : capitalizeFirstLetter(framework)}

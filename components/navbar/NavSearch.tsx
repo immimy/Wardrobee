@@ -5,12 +5,15 @@ import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
+import { ChangeEventHandler } from 'react';
 
 function NavSearch() {
   const { replace } = useRouter();
-  const debounce = useDebouncedCallback((search: string) => {
-    replace(`/products?search=${search}`);
-  }, 1000);
+
+  const searchHandler: ChangeEventHandler<HTMLInputElement> = (e) =>
+    replace(`/products?search=${e.target.value}`);
+  const debouncedSearch = useDebouncedCallback(searchHandler, 500);
+
   return (
     <div className='hidden md:flex md:items-center bg-secondary rounded'>
       <Label htmlFor='search'>
@@ -20,7 +23,7 @@ function NavSearch() {
         type='search'
         id='search'
         name='search'
-        onChange={(e) => debounce(e.currentTarget.value)}
+        onChange={debouncedSearch}
       />
     </div>
   );

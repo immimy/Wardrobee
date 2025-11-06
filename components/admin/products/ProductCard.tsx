@@ -14,11 +14,14 @@ import { Button } from '../../ui/button';
 import ImageContainer from '../../global/ImageContainer';
 import SubmitButton from '../../form/SubmitButton';
 import FormContainer from '../../form/FormContainer';
-import { deleteProduct } from '@/utils/actions';
+import { deleteProductAction } from '@/utils/actions';
 
-function ProductCard(props: ProductWithVariants) {
-  const { id, image, name, brand, price } = props;
-  const deleteProductAction = deleteProduct.bind(null, id);
+type ParamsType = {
+  product: ProductWithVariants;
+};
+function ProductCard({ product }: ParamsType) {
+  const { id, image, name, brand, price } = product;
+  const deleteProductBind = deleteProductAction.bind(null, id);
   return (
     <Card className='relative pt-0 pb-4 gap-2 bg-card text-card-foreground'>
       <CardHeader className='px-0'>
@@ -42,7 +45,7 @@ function ProductCard(props: ProductWithVariants) {
         </div>
         <CardAction className='mt-1.5 flex justify-end gap-x-1.5'>
           {/* Delete product button */}
-          <FormContainer action={deleteProductAction}>
+          <FormContainer action={deleteProductBind}>
             <SubmitButton
               icon={<HiMiniTrash />}
               size='icon'

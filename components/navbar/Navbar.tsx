@@ -1,9 +1,11 @@
 import Container from '../global/Container';
 import HomeButton from './HomeButton';
 import NavSearch from './NavSearch';
-import ToggleTheme from './ToggleTheme';
-import LinksDropdown from './LinksDropdown';
-import CartContainer from './CartContainer';
+import {
+  CartContainerLazyLoading,
+  LinksDropdownLazyLoading,
+  ToggleThemeLazyLoading,
+} from './LazyLoading';
 
 async function Navbar() {
   return (
@@ -12,9 +14,9 @@ async function Navbar() {
         <HomeButton />
         <NavSearch />
         <div className='flex items-center gap-x-2 dark:*:bg-muted dark:*:text-muted-foreground dark:*:shadow-foreground/50'>
-          <ToggleTheme />
-          <CartContainer />
-          <LinksDropdown />
+          <ToggleThemeLazyLoading />
+          <CartContainerLazyLoading />
+          <LinksDropdownLazyLoading />
         </div>
       </Container>
     </nav>

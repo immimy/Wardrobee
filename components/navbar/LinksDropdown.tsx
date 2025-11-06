@@ -1,6 +1,4 @@
-'use client';
-
-import { links } from '@/utils/links';
+import { publicLinks } from '@/utils/links';
 import { Button } from '../ui/button';
 import {
   DropdownMenu,
@@ -17,12 +15,12 @@ import {
   SignOutButton,
 } from '@clerk/nextjs';
 import AvatarImage from '../global/AvatarImage';
-import { useAppSelector } from '@/lib/hooks';
+import ProtectedLinkItems from './ProtectedLinkItems';
 
 function LinksDropdown() {
-  const { username, role } = useAppSelector((store) => store.user);
   return (
     <DropdownMenu>
+      {/* TRIGGER BUTTON */}
       <DropdownMenuTrigger asChild>
         <Button
           variant='secondary'
@@ -32,11 +30,11 @@ function LinksDropdown() {
           <AvatarImage height={36} width={36} className='w-9 h-9' />
         </Button>
       </DropdownMenuTrigger>
+      {/* CONTENT */}
       <DropdownMenuContent align='end'>
-        {links.map((link) => {
+        {/* Public links */}
+        {publicLinks.map((link) => {
           const { url, title } = link;
-          if (url === '/dashboard' && !username) return null;
-          if (url === '/admin' && (!username || role === 'user')) return null;
           return (
             <DropdownMenuItem asChild key={url}>
               <Link href={url} className='capitalize hover:cursor-pointer'>
@@ -45,13 +43,17 @@ function LinksDropdown() {
             </DropdownMenuItem>
           );
         })}
+        {/* Protected links */}
+        <ProtectedLinkItems />
         <DropdownMenuSeparator />
         <DropdownMenuItem>
+          {/* Sign in */}
           <SignedIn>
             <SignOutButton>
               <span className='w-full hover:cursor-pointer'>Sign out</span>
             </SignOutButton>
           </SignedIn>
+          {/* Sign out */}
           <SignedOut>
             <SignInButton mode='modal'>
               <span className='w-full hover:cursor-pointer'>Sign in</span>

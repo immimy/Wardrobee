@@ -4,7 +4,7 @@ import TextDisplay from '@/components/single-variant/TextDisplay';
 import ColorDisplay from '@/components/single-variant/ColorDisplay';
 import { Button } from '@/components/ui/button';
 import { useSingleVariantContext } from './SingleVariantLists';
-import { deleteProductVariant } from '@/utils/actions';
+import { deleteProductVariantAction } from '@/utils/actions';
 import { FaTrashCan, FaPencil } from 'react-icons/fa6';
 import { useProductUpdateContext } from '../../ProductProvider';
 import OnSaleDisplay from '@/components/single-variant/OnSaleDisplay';
@@ -15,7 +15,7 @@ function SingleVariantDisplay() {
     useSingleVariantContext();
 
   const enterUpdateMode = () => setIsUpdate(true);
-  const deleteVariantAction = deleteProductVariant.bind(null, id);
+  const deleteVariantBind = deleteProductVariantAction.bind(null, id);
 
   return (
     <li className='py-5 md:py-3 flex flex-wrap justify-center gap-x-8 gap-y-2 border-b last:border-b-0 lg:border-b-0'>
@@ -36,7 +36,7 @@ function SingleVariantDisplay() {
       <div className='grid grid-cols-2 items-center gap-x-2 transition-all'>
         {/* Delete product option */}
         {product.category !== 'accessory' && (
-          <FormContainer action={deleteVariantAction}>
+          <FormContainer action={deleteVariantBind}>
             <SubmitButton
               icon={<FaTrashCan />}
               size='icon'

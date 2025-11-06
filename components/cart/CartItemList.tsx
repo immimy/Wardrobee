@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import CartItemForm from './CartItemForm';
-import { FaXmark } from 'react-icons/fa6';
+import { FaTrashCan } from 'react-icons/fa6';
 import { Button } from '../ui/button';
 import { useTransition } from 'react';
 import LoadingContainer from '../global/LoadingContainer';
@@ -41,7 +41,7 @@ function CartItemList({ cartItemId }: ParamsType) {
             });
           }}
         >
-          {isPending ? <LoadingContainer /> : <FaXmark />}
+          {isPending ? <LoadingContainer /> : <FaTrashCan />}
         </Button>
         {/* Product image */}
         <figure className='size-20 md:size-16 overflow-hidden rounded'>

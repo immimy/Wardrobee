@@ -95,17 +95,49 @@ export const deleteAccount = async () => {
   }
 };
 
-export const fetchAllProducts = async (searchParams?: {
+export const fetchAllProducts = async (searchParams: {
   [key: string]: string | undefined;
 }) => {
-  const search = searchParams?.search || '';
-  const products = await db.product.findMany({
-    where: {
+  const { search, cursor, promotion, bestseller } = searchParams;
+  const limit = Number(searchParams.limit) || 9;
+  let orderBy: { [key: string]: string }[] = [
+    { createdAt: 'desc' },
+    { id: 'desc' },
+  ];
+
+  // Filter conditions
+  let whereConditions = {};
+  if (search) {
+    whereConditions = {
+      ...whereConditions,
       OR: [
         { name: { contains: search, mode: 'insensitive' } },
-        { brand: { contains: search, mode: 'insensitive' } },
+        {
+          brand: { contains: search, mode: 'insensitive' },
+        },
       ],
-    },
+    };
+  }
+  if (promotion) {
+    whereConditions = {
+      ...whereConditions,
+      variants: { some: { discount: { gt: 0 } } },
+    };
+  }
+  if (bestseller) {
+    orderBy = [{ totalSales: 'desc' }];
+  }
+  // Cursor-based pagination
+  const pagination = {
+    skip: cursor ? 1 : undefined, // Skip the cursor
+    take: limit + 1,
+    cursor: cursor ? { id: cursor } : undefined,
+  };
+
+  // Data query
+  const products = await db.product.findMany({
+    ...pagination,
+    where: whereConditions,
     include: {
       variants: {
         where: { stock: { gt: 0 } },
@@ -119,13 +151,17 @@ export const fetchAllProducts = async (searchParams?: {
         },
       },
     },
-    orderBy: [
-      { totalSales: 'desc' },
-      { totalStock: 'desc' },
-      { updatedAt: 'desc' },
-    ],
+    orderBy,
   });
-  return products;
+
+  // Data response
+  const resp = {
+    data: products.length > limit ? products.slice(0, -1) : products,
+    // `nextCursor` is null when reaching the end
+    nextCursor:
+      products.length > limit ? products[products.length - 2].id : null,
+  };
+  return resp;
 };
 
 export const fetchSingleProduct = async (id: string) => {
@@ -193,6 +229,9 @@ export const createProduct = async (formData: FormData) => {
       });
     }
   });
+
+  // Revalidate products tag
+  revalidateTag('products');
 };
 
 export const createProductVariant = async (formData: FormData) => {
@@ -358,7 +397,9 @@ export const updateCategoryAndVariants = async (formData: FormData) => {
   revalidatePath(`${productId}`);
 };
 
-export const deleteProduct = async (productId: string): Promise<FormState> => {
+export const deleteProductAction = async (
+  productId: string
+): Promise<FormState> => {
   try {
     const user = await getAuthUser();
     // Check if product is present.
@@ -376,7 +417,7 @@ export const deleteProduct = async (productId: string): Promise<FormState> => {
   }
 };
 
-export const deleteProductVariant = async (
+export const deleteProductVariantAction = async (
   variantId: string
 ): Promise<FormState> => {
   try {
@@ -447,8 +488,7 @@ export const createAddress = async (formData: FormData): Promise<void> => {
   }
   // Crete shipping address
   await db.shippingAddress.create({ data: { userId, ...data } });
-  // Revalidate tag
-  revalidateTag('addresses');
+  // ⚠️ Revalidate tag
 };
 
 export const updateAddress = async (formData: FormData): Promise<void> => {
@@ -483,11 +523,12 @@ export const updateAddress = async (formData: FormData): Promise<void> => {
     where: { id: addressId },
     data: { ...data },
   });
-  // Revalidate tag
-  revalidateTag('addresses');
+  // ⚠️ Revalidate tag
 };
 
-export const deleteAddress = async (addressId: string): Promise<FormState> => {
+export const deleteAddressAction = async (
+  addressId: string
+): Promise<FormState> => {
   try {
     const user = await getAuthUser();
     // Check if address is present
@@ -500,8 +541,7 @@ export const deleteAddress = async (addressId: string): Promise<FormState> => {
     await authorizeOwner(dbAddress.userId, user);
     // Remove address from database
     await db.shippingAddress.delete({ where: { id: addressId } });
-    // Revalidate tag
-    revalidateTag('addresses');
+    // ⚠️ Revalidate tag
     return { message: 'Deleted shipping address', type: 'success' };
   } catch (error) {
     return renderError(error);
@@ -619,8 +659,7 @@ export const refreshCart = async (): Promise<CartType> => {
       };
     }
   }
-  // Clear cart cache;
-  revalidateTag('cart');
+  // ⚠️ Clear cart cache;
   return returnData;
 };
 
@@ -675,8 +714,7 @@ export const clearCart = async () => {
   });
   if (!cart) throw new Error('No cart related with the user');
   await db.cartItem.deleteMany({ where: { cartId: cart.id } });
-  // Clear cart cache;
-  revalidateTag('cart');
+  // ⚠️ Clear cart cache;
 };
 
 export const addToCart = async (formData: FormData) => {
@@ -747,8 +785,7 @@ export const addToCart = async (formData: FormData) => {
     cartItemId: id,
     state: { variantId, quantity },
   };
-  // Clear cart cache;
-  revalidateTag('cart');
+  // ⚠️ Clear cart cache;
   return { returnData };
 };
 
@@ -835,8 +872,7 @@ export const updateCartItem = async (formData: FormData) => {
     };
   }
 
-  // Revalidate tag
-  revalidateTag('cart');
+  // ⚠️ Revalidate tag
   return {
     returnData,
   };
@@ -852,8 +888,7 @@ export const deleteCartItem = async (id: string) => {
   if (!dbCartItem) throw new Error(`No cart item with id: "${id}"`);
   // Remove cart item from database
   await db.cartItem.delete({ where: { id } });
-  // Clear cart cache;
-  revalidateTag('cart');
+  // ⚠️ Clear cart cache;
 };
 
 // ⚠️⚠️📢 DEV
@@ -882,15 +917,15 @@ export const checkoutAction = async (userId: string) => {
 
     // BEGIN
     // Lock product variant until
-    const check = db.$transaction(async (prisma) => {
-      const dbProductVariant = (await prisma.$queryRaw`
+    const check = db.$transaction(async (tx) => {
+      const dbProductVariant = (await tx.$queryRaw`
         SELECT * FROM ProductVariant
         WHERE id = ${productVariantId}
         FOR UPDATE`) as ProductVariant;
       if (!dbProductVariant) throw new Error(`Invalid product`);
       if (dbProductVariant.stock < quantity) return;
       // Create order item
-      await prisma.orderItem.create({
+      await tx.orderItem.create({
         data: {
           orderId: order.id,
           productId: dbProductVariant.productId,
@@ -906,7 +941,7 @@ export const checkoutAction = async (userId: string) => {
         },
       });
       // Update product variant stock
-      await prisma.productVariant.update({
+      await tx.productVariant.update({
         where: { id: dbProductVariant.id },
         data: { stock: { decrement: quantity } },
       });

@@ -4,9 +4,11 @@ import { PiShoppingBagLight } from 'react-icons/pi';
 import { TbShoppingBagEdit, TbShoppingBagPlus } from 'react-icons/tb';
 import { IoMdHeart } from 'react-icons/io';
 
-export const links: Array<NavLink> = [
+export const publicLinks: Array<NavLink> = [
   { url: '/promotion', title: 'promotion' },
   { url: '/products', title: 'products' },
+];
+export const protectedLinks: Array<NavLink> = [
   { url: '/dashboard', title: 'dashboard' },
   { url: '/admin', title: 'admin' },
 ];

@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { LuUserRound } from 'react-icons/lu';
 import { useAppSelector } from '@/lib/hooks';
-import LoadingContainer from './LoadingContainer';
+import { Skeleton } from '../ui/skeleton';
 
 function AvatarImage({
   width,
@@ -16,7 +16,13 @@ function AvatarImage({
   className: string;
 }) {
   const { isLoading, image } = useAppSelector((state) => state.user);
-  if (isLoading) return <LoadingContainer />;
+  if (isLoading)
+    return (
+      <Skeleton
+        className='rounded-full'
+        style={{ width: `${width}px`, height: `${height}px` }}
+      />
+    );
   if (!image) return <LuUserRound className={className} />;
 
   return (
