@@ -82,6 +82,4 @@ export const coerceFormValue = (input: string | number | undefined) => {
     : input;
 };
 
-export const isHookLoaded = (input: any) => input !== undefined;
-
 export const isDarkTheme = (theme: string | undefined) => theme === 'dark';
