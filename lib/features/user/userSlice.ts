@@ -22,11 +22,8 @@ const userSlice = createSlice({
       state.isLoading = true;
     },
     setUser: (state, action: PayloadAction<Partial<StateType>>) => {
-      const { username, image, role } = action.payload;
-      state.username = username;
-      state.image = image;
-      state.role = role;
-      state.isLoading = false;
+      const data = action.payload;
+      return { ...state, ...data, isLoading: false };
     },
   },
 });

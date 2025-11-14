@@ -64,25 +64,17 @@ const renderError = async (error: unknown): Promise<FormState> => {
 
 /////////////////////// Actions ///////////////////////
 
-export const updateProfileAction = async (
-  formState: any,
-  formData: FormData
-): Promise<FormState> => {
+export const updateProfile = async (formData: FormData): Promise<void> => {
   try {
     const { userId } = await getAuthUser();
     const rawData = Object.fromEntries(formData);
     const data = validateWithZodSchema(userSchema, rawData);
     await client.users.updateUser(userId, { ...data });
-    revalidatePath('/dashboard/profile');
-    return { message: 'Profile is updated.', type: 'success' };
   } catch (error) {
     if (isClerkAPIResponseError(error) && error.status === 422) {
-      return {
-        message: 'Duplicate username, please try other values.',
-        type: 'error',
-      };
+      throw new Error('Duplicate username, please try other values.');
     }
-    return renderError(error);
+    throw error;
   }
 };
 

@@ -27,10 +27,15 @@ function StoreProvider({ children }: ParamsType) {
   useEffect(() => {
     // Guard: Return if the user info is not loaded
     if (user === undefined || sessionClaims === undefined) return;
-    // Guard: If this is not the first render, ensure the user info is already updated to the latest after logging out or logging out
+    // Guard: Return if the user doesn't perform login or logout
+    // If this is not the first render, ensure the user info is already updated to the latest after logging out or logging out
     // (Avoid unnecessarily triggering logic below twice)
     const store = storeRef.current!.getState();
-    if (isMounted.current && store.user.username === user?.username) return;
+    if (
+      isMounted.current &&
+      Boolean(store.user.username) === Boolean(user?.username)
+    )
+      return;
 
     // Refresh cart
     // Ensure that each of products in the cart is not stale

@@ -6,12 +6,16 @@ import SubmitButton from '../form/SubmitButton';
 import { useClerk } from '@clerk/nextjs';
 import { deleteAccount } from '@/utils/actions';
 import { renderError } from '@/utils/clientFunctions';
+import { useAppDispatch } from '@/lib/hooks';
+import { loadingUser } from '@/lib/features/user/userSlice';
 
 function DeleteUserButton() {
+  const dispatch = useAppDispatch();
   const { signOut } = useClerk();
   const deleteUserAction = async (): Promise<FormState> => {
     try {
       deleteAccount();
+      dispatch(loadingUser());
       signOut({ redirectUrl: '/' });
       return { message: 'Account is closed.', type: 'success' };
     } catch (error) {

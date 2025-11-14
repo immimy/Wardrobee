@@ -16,6 +16,7 @@ import {
 } from '@clerk/nextjs';
 import AvatarImage from '../global/AvatarImage';
 import ProtectedLinkItems from './ProtectedLinkItems';
+import LoadingUserButton from './LoadingUserButton';
 
 function LinksDropdown() {
   return (
@@ -49,15 +50,19 @@ function LinksDropdown() {
         <DropdownMenuItem>
           {/* Sign in */}
           <SignedIn>
-            <SignOutButton>
-              <span className='w-full hover:cursor-pointer'>Sign out</span>
-            </SignOutButton>
+            <LoadingUserButton>
+              <SignOutButton>
+                <span className='w-full hover:cursor-pointer'>Sign out</span>
+              </SignOutButton>
+            </LoadingUserButton>
           </SignedIn>
           {/* Sign out */}
           <SignedOut>
-            <SignInButton mode='modal'>
-              <span className='w-full hover:cursor-pointer'>Sign in</span>
-            </SignInButton>
+            <LoadingUserButton>
+              <SignInButton mode='modal'>
+                <span className='w-full hover:cursor-pointer'>Sign in</span>
+              </SignInButton>
+            </LoadingUserButton>
           </SignedOut>
         </DropdownMenuItem>
       </DropdownMenuContent>
