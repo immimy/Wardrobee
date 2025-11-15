@@ -6,8 +6,7 @@ import LoadingContainer from './LoadingContainer';
 import ProductCard from '@/components/products/ProductCard';
 import AdminProductCard from '@/components/admin/products/ProductCard';
 import { FetchAllProductsType } from '@/utils/types';
-
-const fetcher = (url: string) => fetch(url).then((resp) => resp.json());
+import { fetcher, toastError } from '@/utils/clientFunctions';
 
 type ParamsType = {
   search: string;
@@ -35,6 +34,7 @@ function InfiniteScroll({ search, limit, products, isAdmin }: ParamsType) {
     revalidateOnMount: false,
     revalidateOnFocus: false,
     fallbackData: [products],
+    onError: (error) => toastError(error),
   });
   const isReachingEnd = data && data[data.length - 1].nextCursor === null;
 
