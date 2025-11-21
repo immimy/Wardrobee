@@ -1,40 +1,21 @@
 'use client';
 
-import useSWRInfinite from 'swr/infinite';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import LoadingContainer from './LoadingContainer';
 import ProductCard from '@/components/products/ProductCard';
 import AdminProductCard from '@/components/admin/products/ProductCard';
 import { FetchAllProductsType } from '@/utils/types';
-import { fetcher, toastError } from '@/utils/clientFunctions';
+import { useAllProductsSWRInfinite } from '@/utils/swr';
 
 type ParamsType = {
-  search: string;
-  limit: string;
   products: FetchAllProductsType;
   isAdmin?: boolean;
 };
 
-function InfiniteScroll({ search, limit, products, isAdmin }: ParamsType) {
-  const getKey = useCallback(
-    (pageIndex: number, previousPageData: FetchAllProductsType) => {
-      // Reached the end
-      if (previousPageData && !previousPageData.nextCursor) return null;
-      // First page, we don't have `previousPageData`
-      if (pageIndex === 0)
-        return `/api/products?search=${search}&limit=${limit}`;
-      // Add the cursor to the API endpoint
-      return `/api/products?search=${search}&cursor=${previousPageData.nextCursor}&limit=${limit}`;
-    },
-    [search, limit]
-  );
+function InfiniteScroll({ products, isAdmin }: ParamsType) {
   // SWR Infinite scrolling with cursor-based pagination
-  const { data, setSize, isLoading } = useSWRInfinite(getKey, fetcher, {
-    revalidateFirstPage: false,
-    revalidateOnMount: false,
-    revalidateOnFocus: false,
-    fallbackData: [products],
-    onError: (error) => toastError(error),
+  const { data, setSize, isLoading } = useAllProductsSWRInfinite({
+    initialData: [products],
   });
   const isReachingEnd = data && data[data.length - 1].nextCursor === null;
 

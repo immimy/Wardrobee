@@ -1,20 +1,16 @@
 'use client';
 import { ProductCategory, ProductWithVariants } from '@/utils/types';
-import {
-  createContext,
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useState,
-} from 'react';
+import { createContext, useContext, useState } from 'react';
 
 // Context
 type ContextType = {
+  productForm: ProductFormType;
+  setImage: (image: string) => void;
+  setProductData: (
+    field: keyof ProductFormType,
+    value: string | boolean
+  ) => void;
   product: ProductWithVariants;
-  image: ProductImageType;
-  setImageState: (input: Partial<ProductImageType>) => void;
-  category: ProductCategory;
-  setCategory: Dispatch<SetStateAction<ProductCategory>>;
 };
 const ProductUpdateContext = createContext<undefined | ContextType>(undefined);
 export const useProductUpdateContext = () => {
@@ -26,10 +22,15 @@ export const useProductUpdateContext = () => {
   return state;
 };
 
-// State type
-type ProductImageType = {
-  url: string;
-  isUpdating: boolean;
+// Form state type
+type ProductFormType = {
+  image: string;
+  name: string;
+  brand: string;
+  description: string;
+  price: string;
+  featured: boolean;
+  category: ProductCategory;
 };
 
 type ParamsType = {
@@ -37,29 +38,38 @@ type ParamsType = {
   product: ProductWithVariants;
 };
 function ProductProvider({ children, product }: ParamsType) {
-  // Product image state
-  const [image, setImage] = useState<ProductImageType>({
-    url: product.image,
-    isUpdating: false,
+  // Update product form state
+  const [productForm, setProductForm] = useState<ProductFormType>({
+    image: product.image,
+    name: product.name,
+    brand: product.brand,
+    description: product.description || '',
+    price: String(product.price),
+    featured: product.featured,
+    category: product.category as ProductCategory,
   });
-  // Product category state
-  const [category, setCategory] = useState<ProductCategory>(
-    product.category as ProductCategory
-  );
-  // Product image function
-  const setImageState = (input: Partial<ProductImageType>) =>
-    setImage((state) => {
-      return { ...state, ...input };
+  // Image
+  const setImage = (image: string) => {
+    setProductForm((state) => {
+      if (!image) return { ...state, image: product.image };
+      return { ...state, image };
     });
+  };
+  // Product data
+  const setProductData = (
+    field: keyof ProductFormType,
+    value: string | boolean
+  ) => {
+    setProductForm((state) => ({ ...state, [field]: value }));
+  };
 
   return (
     <ProductUpdateContext
       value={{
+        productForm,
+        setImage,
+        setProductData,
         product,
-        image,
-        setImageState,
-        category,
-        setCategory,
       }}
     >
       {children}

@@ -3,6 +3,10 @@
 import LoadingContainer from '@/components/global/LoadingContainer';
 
 function loading() {
-  return <LoadingContainer />;
+  return (
+    <div className='py-16'>
+      <LoadingContainer />;
+    </div>
+  );
 }
 export default loading;

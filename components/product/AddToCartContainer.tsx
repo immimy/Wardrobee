@@ -67,26 +67,32 @@ function AddToCartContainer() {
         ) : (
           // Clothes & Bag
           <div className='flex flex-wrap gap-2'>
-            {variants.map((variant) => {
-              const { id, size, color, stock, discount } = variant;
-              let quantityList: number[] | undefined = undefined;
-              if (stock < 10) {
-                quantityList = generateNumberList(stock);
-              }
-              return (
-                <div key={variant.id}>
-                  <ProductRadio
-                    category={category as ProductCategory}
-                    label={size}
-                    gradientColor={color}
-                    value={id}
-                    discount={discount}
-                    stock={stock}
-                    quantityList={quantityList}
-                  />
-                </div>
-              );
-            })}
+            {!variants.length ? (
+              <p className='italic tracking-wider capitalize'>
+                no options available
+              </p>
+            ) : (
+              variants.map((variant) => {
+                const { id, size, color, stock, discount } = variant;
+                let quantityList: number[] | undefined = undefined;
+                if (stock < 10) {
+                  quantityList = generateNumberList(stock);
+                }
+                return (
+                  <div key={variant.id}>
+                    <ProductRadio
+                      category={category as ProductCategory}
+                      label={size}
+                      gradientColor={color}
+                      value={id}
+                      discount={discount}
+                      stock={stock}
+                      quantityList={quantityList}
+                    />
+                  </div>
+                );
+              })
+            )}
           </div>
         )}
         {/* Quantity Select */}

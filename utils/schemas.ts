@@ -13,17 +13,24 @@ export function validateWithZodSchema<T>(schema: ZodType<T>, data: unknown): T {
   return result.data;
 }
 
-function validateImageFile(
-  maxUploadSize: number = 1024 * 1024 * 0.5,
-  maxUploadSizeText: string = '0.5MB'
-) {
+function validateImageFile({
+  maxUploadSize = 1024 * 1024 * 0.5,
+  maxUploadSizeText = '0.5MB',
+  optional = false,
+}: {
+  maxUploadSize?: number;
+  maxUploadSizeText?: string;
+  optional?: boolean;
+}) {
   const acceptedFileTypes = 'image/';
   return z
     .instanceof(File)
     .refine((file) => {
+      if (optional) return true;
       return file && file.size <= maxUploadSize;
     }, `File size must be less than ${maxUploadSizeText}`)
     .refine((file) => {
+      if (optional) return true;
       return file && file.type.startsWith(acceptedFileTypes);
     }, 'File must be an image');
 }
@@ -31,9 +38,11 @@ function validateImageFile(
 function validateProductVariant({
   sizeRequired,
   colorRequired,
+  requiredId,
 }: {
   sizeRequired: boolean;
   colorRequired: boolean;
+  requiredId: boolean;
 }) {
   return (
     z
@@ -53,6 +62,9 @@ function validateProductVariant({
           .optional(),
       })
       .refine((input) => {
+        return !(requiredId && !input.id);
+      }, 'Product id is required.')
+      .refine((input) => {
         return !(sizeRequired && !input.size);
       }, 'Product size is required.')
       .refine((input) => {
@@ -71,22 +83,20 @@ function validateProductVariant({
 
         // Field cleaning
         if (sizeRequired) {
-          delete data.color;
+          return { ...data, color: null };
         } else if (colorRequired) {
-          delete data.size;
+          return { ...data, size: null };
         } else {
-          delete data.color;
-          delete data.size;
+          return { ...data, size: null, color: null };
         }
-
-        return data;
       })
   );
 }
 
 ///////////////////// Schemas /////////////////////
 
-export const imageSchema = validateImageFile();
+export const imageSchema = validateImageFile({});
+export const optionalImageSchema = validateImageFile({ optional: true });
 
 export const userSchema = z.object({
   username: z
@@ -125,41 +135,50 @@ export const productSchema = z.object({
     .nonnegative('Price must not less than 0.'),
   featured: z.coerce.boolean(),
 });
-export const productUpdateSchema = productSchema.omit({
-  category: true,
-  image: true,
-});
+export const productUpdateSchema = productSchema
+  .extend({
+    id: z.string().nonempty('Please provide product id.'),
+    image: z.string(),
+  })
+  // Cleaning image input if user did not pass an image.
+  .transform((input) => {
+    const { image, ...data } = input;
+    if (!image) return data;
+    return input;
+  });
 
-const clothesVariantSchema = validateProductVariant({
-  sizeRequired: true,
-  colorRequired: false,
-});
-const bagVariantSchema = validateProductVariant({
-  sizeRequired: false,
-  colorRequired: true,
-});
-const accessoryVariantSchema = validateProductVariant({
-  sizeRequired: false,
-  colorRequired: false,
-});
-export const singleProductVariantSchema = (category: ProductCategory) => {
+const clothesVariantSchema = (requiredId: boolean) =>
+  validateProductVariant({
+    sizeRequired: true,
+    colorRequired: false,
+    requiredId,
+  });
+const bagVariantSchema = (requiredId: boolean) =>
+  validateProductVariant({
+    sizeRequired: false,
+    colorRequired: true,
+    requiredId,
+  });
+const accessoryVariantSchema = (requiredId: boolean) =>
+  validateProductVariant({
+    sizeRequired: false,
+    colorRequired: false,
+    requiredId,
+  });
+export const allProductVariantsSchema = ({
+  category,
+  requiredId,
+}: {
+  category: ProductCategory;
+  requiredId?: boolean;
+}) => {
   switch (category) {
     case 'clothes':
-      return clothesVariantSchema;
+      return z.array(clothesVariantSchema(requiredId || false));
     case 'bag':
-      return bagVariantSchema;
+      return z.array(bagVariantSchema(requiredId || false));
     case 'accessory':
-      return accessoryVariantSchema;
-  }
-};
-export const allProductVariantsSchema = (category: ProductCategory) => {
-  switch (category) {
-    case 'clothes':
-      return z.array(clothesVariantSchema);
-    case 'bag':
-      return z.array(bagVariantSchema);
-    case 'accessory':
-      return z.array(accessoryVariantSchema);
+      return z.array(accessoryVariantSchema(requiredId || false));
   }
 };
 

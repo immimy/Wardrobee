@@ -4,6 +4,7 @@ import NotFoundContainer from '@/components/global/NotFoundContainer';
 import ProductProvider from '@/components/product/ProductProvider';
 import Container from '@/components/global/Container';
 
+// To statically render all paths the first time they're visited
 export const dynamic = 'force-static';
 
 type ProductParams = { params: Promise<{ id: string }> };

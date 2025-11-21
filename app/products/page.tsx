@@ -24,12 +24,7 @@ async function ProductsPage({ searchParams }: ParamsType) {
           <NotFoundContainer />
         ) : (
           <Suspense fallback={<CardsSkeleton number={9} />}>
-            <InfiniteScroll
-              key={search}
-              search={search}
-              limit={limit}
-              products={products}
-            />
+            <InfiniteScroll key={search} products={products} />
           </Suspense>
         )}
       </Container>

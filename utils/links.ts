@@ -5,7 +5,6 @@ import { TbShoppingBagEdit, TbShoppingBagPlus } from 'react-icons/tb';
 import { IoMdHeart } from 'react-icons/io';
 
 export const publicLinks: Array<NavLink> = [
-  { url: '/promotion', title: 'promotion' },
   { url: '/products', title: 'products' },
 ];
 export const protectedLinks: Array<NavLink> = [

@@ -5,19 +5,34 @@ import { Label } from '../ui/label';
 type ImageInputParams = {
   name: string;
   labelText?: string;
-  onChange?: (e:ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  id?: string;
+  required?: boolean;
 };
 
-function ImageInput({ name, labelText ,onChange}: ImageInputParams) {
+function ImageInput({
+  name,
+  labelText,
+  onChange,
+  id,
+  required = true,
+}: ImageInputParams) {
   return (
     <div className='mb-4'>
       <Label
-        htmlFor={name}
+        htmlFor={id || name}
         className='mb-1 capitalize tracking-tight text-base'
       >
         {labelText || name}
       </Label>
-      <Input id={name} name={name} type='file' accept='image/*' required onChange={onChange} />
+      <Input
+        id={id || name}
+        name={name}
+        type='file'
+        accept='image/*'
+        required={required}
+        onChange={onChange}
+      />
     </div>
   );
 }

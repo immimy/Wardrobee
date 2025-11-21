@@ -4,9 +4,7 @@ import { fetchSingleProduct } from '@/utils/actions';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { HiOutlineChevronDoubleLeft } from 'react-icons/hi';
-import ProductImageForm from '@/components/admin/product-update/ProductImageForm';
 import ProductForm from '@/components/admin/product-update/ProductForm';
-import VariantsContainer from '@/components/admin/product-update/VariantsContainer';
 
 type AdminProductParams = { params: Promise<{ id: string }> };
 
@@ -31,12 +29,7 @@ async function AdminProductPage({ params }: AdminProductParams) {
       {/* Update product form */}
       <ProductProvider product={product}>
         <div className='grid gap-y-6'>
-          {/* Product Image */}
-          <ProductImageForm />
-          {/* Product */}
           <ProductForm />
-          {/* Variants */}
-          <VariantsContainer />
         </div>
       </ProductProvider>
     </section>

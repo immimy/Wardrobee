@@ -22,13 +22,7 @@ async function AdminProductsPage({ searchParams }: ParamsType) {
   return (
     <section className='mt-4 md:mt-8'>
       <Suspense fallback={<CardsSkeleton number={9} />}>
-        <InfiniteScroll
-          key={search}
-          search={search}
-          limit={limit}
-          products={products}
-          isAdmin
-        />
+        <InfiniteScroll key={search} products={products} isAdmin />
       </Suspense>
     </section>
   );
