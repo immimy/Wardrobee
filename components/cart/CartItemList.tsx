@@ -32,6 +32,7 @@ function CartItemList({ cartItemId }: ParamsType) {
       <div className='py-6 md:py-4 flex flex-wrap gap-x-4 md:gap-x-10 items-center relative'>
         {/* Remove cart item button */}
         <Button
+          variant='secondary'
           size='icon'
           className='absolute top-3 right-2 z-10 size-6 hover:cursor-pointer'
           disabled={isPending}

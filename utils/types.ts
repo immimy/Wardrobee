@@ -38,6 +38,7 @@ export type ProductSelect = {
   stock: number;
 };
 type CartItemData = {
+  productId: string;
   image: string;
   name: string;
   category: ProductCategory;

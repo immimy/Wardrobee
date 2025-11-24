@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import {
   Carousel,
   CarouselContent,
@@ -6,32 +5,30 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '../ui/carousel';
+import ImageContainer from '../global/ImageContainer';
 
 function HeroCarousel() {
   return (
-    <Carousel className='w-full max-w-9/12' opts={{ loop: true }}>
-      <CarouselContent className='dark:*:opacity-90'>
-        {Array.from({ length: 5 }, (_, index) => {
-          const path = `/images/hero${index + 1}.jpg`;
-          return (
-            <CarouselItem key={index}>
-              <figure className='relative h-96 overflow-hidden -skew-y-4 shadow-xl rounded-2xl'>
-                <Image
+    <div className='max-w-9/12 mx-auto'>
+      <Carousel opts={{ loop: true }}>
+        <CarouselContent className='dark:*:opacity-90'>
+          {Array.from({ length: 5 }, (_, index) => {
+            const path = `/images/hero${index + 1}.jpg`;
+            return (
+              <CarouselItem key={index}>
+                <ImageContainer
                   src={path}
                   alt={`hero${index + 1}`}
-                  fill
-                  sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
-                  className='object-cover'
-                  priority
+                  className='-skew-y-4 shadow-xl rounded-2xl h-96'
                 />
-              </figure>
-            </CarouselItem>
-          );
-        })}
-      </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
-    </Carousel>
+              </CarouselItem>
+            );
+          })}
+        </CarouselContent>
+        <CarouselPrevious />
+        <CarouselNext />
+      </Carousel>
+    </div>
   );
 }
 export default HeroCarousel;

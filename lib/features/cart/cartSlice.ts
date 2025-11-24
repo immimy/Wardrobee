@@ -19,8 +19,8 @@ const initialState: CartStateType = {
   _removedCartItem: {},
 };
 
-export const initializeCart = createAsyncThunk(
-  'cart/initializeCart',
+export const getFreshCart = createAsyncThunk(
+  'cart/getFreshCart',
   async (_, thunkAPI) => {
     try {
       const cart = await refreshCart();
@@ -547,13 +547,13 @@ const cartSlice = createSlice({
   },
   extraReducers(builder) {
     builder
-      .addCase(initializeCart.pending, (state) => {
+      .addCase(getFreshCart.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(initializeCart.fulfilled, (state, action) => {
+      .addCase(getFreshCart.fulfilled, (state, action) => {
         return { ...state, ...action.payload, isLoading: false };
       })
-      .addCase(initializeCart.rejected, (state, action) => {
+      .addCase(getFreshCart.rejected, (state, action) => {
         state.isLoading = false;
         toast.error(action.error.message);
       });

@@ -1,6 +1,6 @@
 'use client';
 
-import { initializeCart } from '@/lib/features/cart/cartSlice';
+import { getFreshCart } from '@/lib/features/cart/cartSlice';
 import { loadingUser, setUser } from '@/lib/features/user/userSlice';
 import { AppStore, makeStore } from '@/lib/store';
 import { useAuth, useUser } from '@clerk/nextjs';
@@ -39,7 +39,7 @@ function StoreProvider({ children }: ParamsType) {
 
     // Refresh cart
     // Ensure that each of products in the cart is not stale
-    storeRef.current!.dispatch(initializeCart());
+    storeRef.current!.dispatch(getFreshCart());
     // Set user info state
     storeRef.current!.dispatch(
       setUser({

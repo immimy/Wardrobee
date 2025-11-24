@@ -91,7 +91,7 @@ export const deleteAccount = async () => {
 export const fetchAllProducts = async (searchParams: {
   [key: string]: string | undefined;
 }) => {
-  const { search, cursor, promotion, bestseller } = searchParams;
+  const { search, cursor, promotion, bestseller, featured } = searchParams;
   const limit = Number(searchParams.limit) || 9;
   let orderBy: { [key: string]: string }[] = [
     { createdAt: 'desc' },
@@ -119,6 +119,9 @@ export const fetchAllProducts = async (searchParams: {
   }
   if (bestseller) {
     orderBy = [{ totalSales: 'desc' }];
+  }
+  if (featured) {
+    whereConditions = { ...whereConditions, featured: true };
   }
   // Cursor-based pagination
   const pagination:
@@ -239,6 +242,8 @@ export const createProduct = async (formData: FormData) => {
     }
     return newProduct;
   });
+  // Revalidate homepage
+  if (newProduct.featured) revalidatePath('/');
   // Return new created product
   return newProduct;
 };
@@ -341,7 +346,10 @@ export const updateProduct = async (formData: FormData) => {
     dbDeleteVariants,
   ]);
   // Revalidate path
+  // 1. Single product page
   revalidatePath(`/products/${productId}`);
+  // 2. Homepage
+  if (product.featured) revalidatePath('/');
 };
 
 export const deleteProductAction = async (
@@ -534,6 +542,7 @@ export const refreshCart = async (): Promise<CartType> => {
         ...returnData.cartItems,
         [cartItem.id]: {
           data: {
+            productId: product.id,
             image: product.image,
             name: product.name,
             category: product.category as ProductCategory,
@@ -596,6 +605,7 @@ export const fetchCart = async (): Promise<CartType> => {
       ...returnData.cartItems,
       [cartItem.id]: {
         data: {
+          productId: product.id,
           image: product.image,
           name: product.name,
           category: product.category as ProductCategory,

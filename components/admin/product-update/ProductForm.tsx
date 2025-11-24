@@ -11,13 +11,20 @@ import SubmitButton from '@/components/form/SubmitButton';
 import { useAllProductsSWRInfinite } from '@/utils/swr';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { getFreshCart } from '@/lib/features/cart/cartSlice';
 
 function ProductForm() {
+  const dispatch = useAppDispatch();
+  const { cartItems } = useAppSelector((store) => store.cart);
+  const currentProductInCart = Object.values(cartItems).map(
+    (item) => item.data.productId
+  );
   const router = useRouter();
   const { mutate } = useAllProductsSWRInfinite();
   const {
     setImage,
-    product: { id },
+    product: { id: productId },
     productForm: { category },
   } = useProductUpdateContext();
 
@@ -30,6 +37,11 @@ function ProductForm() {
       toast.success('Updated product successfully!');
       // Clear all products cache on SWR without revalidation
       mutate(undefined, { revalidate: false });
+      // Ensure that the cart is always fresh
+      const isProductInCart = currentProductInCart.some(
+        (item) => item === productId
+      );
+      if (isProductInCart) dispatch(getFreshCart());
       return router.push('/admin/products');
     } catch (error) {
       // Clear image preview
@@ -40,7 +52,7 @@ function ProductForm() {
 
   return (
     <form onSubmit={updateProductHandler}>
-      <input type='hidden' name='product[id]' value={id} />
+      <input type='hidden' name='product[id]' value={productId} />
       {/* Product Image */}
       <ImageFieldset />
       {/* Product */}

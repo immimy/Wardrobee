@@ -25,6 +25,13 @@ function ProductCard({ product }: ParamsType) {
         isOutOfStock && 'opacity-50'
       }`}
     >
+      {/* ON SALE BADGE */}
+      {variants.some((item) => item.discount > 0) && (
+        <span className='absolute right-0 top-3 z-4 px-2.5 bg-destructive drop-shadow-md drop-shadow-accent text-shadow-destructive tracking-widest text-sm'>
+          ON SALE
+        </span>
+      )}
+      {/* PRODUCT IMAGE */}
       <Link href={`/products/${id}`}>
         <CardHeader className='px-0'>
           <ImageContainer
@@ -34,25 +41,30 @@ function ProductCard({ product }: ParamsType) {
           />
         </CardHeader>
       </Link>
+      {/* PRODUCT CONTENT */}
       <CardContent>
         <div className='flex flex-wrap justify-between items-center'>
+          {/* NAME & BRAND */}
           <Link href={`/products/${id}`}>
             <CardTitle>
               <h6 className='text-primary'>{name}</h6>
               <p className='text-sm font-normal capitalize'>{brand}</p>
             </CardTitle>
           </Link>
+          {/* PRICE */}
           <CardDescription className='self-start'>
             <p className='font-bold tracking-wider text-primary-foreground dark:text-muted-foreground'>
               {priceFormatter(price)}
             </p>
           </CardDescription>
         </div>
+        {/* TOTAL SALES */}
         <CardDescription>
           <span className='uppercase text-xs tracking-wide font-semibold'>
-            sales : {totalSales}
+            total sales : {totalSales}
           </span>
         </CardDescription>
+        {/* ADD TO CART BUTTON */}
         <CardAction className='w-full mt-1.5'>
           {isOutOfStock ? (
             <p className=' uppercase text-center tracking-wide text-destructive'>

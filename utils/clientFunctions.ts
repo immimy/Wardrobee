@@ -57,9 +57,9 @@ export const generateNumberList = (length: number) => {
 export const formatCartItemData = (
   product: ProductWithVariants
 ): Omit<CartItemType, 'state'> => {
-  const { image, name, price, variants } = product;
+  const { image, name, price, variants, id } = product;
   const category = product.category as ProductCategory;
-  const data = { image, name, category, price };
+  const data = { productId: id, image, name, category, price };
   return { data, options: variants };
 };
 
