@@ -352,25 +352,29 @@ export const updateProduct = async (formData: FormData) => {
   if (product.featured) revalidatePath('/');
 };
 
-export const deleteProductAction = async (
-  productId: string
-): Promise<FormState> => {
-  try {
-    const user = await getAuthUser();
-    // Check if product is present.
-    const dbProduct = await db.product.findUnique({ where: { id: productId } });
-    if (!dbProduct) throw new Error(`No product with id: "${productId}"`);
-    // Only allow admin or creator who own the asset to perform an action.
-    await authorizeOwnerOrAdmin(dbProduct.creatorId, user);
-    // Remove product from database
-    await deleteImage(dbProduct.image);
-    await db.product.delete({ where: { id: productId } });
-    // Revalidate path
-    revalidatePath(`/products/${productId}`);
-    return { message: 'Product deleted', type: 'success' };
-  } catch (error) {
-    return renderError(error);
-  }
+export const deleteProducts = async (formData: FormData) => {
+  const productIds = formData.getAll('productId') as string[];
+  const user = await getAuthUser();
+  // Check if product is present.
+  const dbProducts = await db.product.findMany({
+    where: { id: { in: productIds } },
+    select: { id: true, creatorId: true, image: true },
+  });
+  if (!dbProducts.length)
+    throw new Error(`No product with id: "${productIds.concat(', ')}"`);
+  // Only allow admin or creator who own the asset to perform an action.
+  const creator = new Set(dbProducts.map((item) => item.creatorId));
+  if (creator.size > 1 && user.role !== 'admin')
+    throw new Error('Unauthorized to perform this action.');
+  await authorizeOwnerOrAdmin(dbProducts[0].creatorId, user);
+  // Remove product from database
+  await deleteImage(dbProducts.map((item) => item.image));
+  await db.product.deleteMany({ where: { id: { in: productIds } } });
+  // Revalidate paths
+  // 1. Single product page
+  dbProducts.forEach((item) => revalidatePath(`/products/${item.id}`));
+  // 2. Homepage
+  revalidatePath('/');
 };
 
 export const fetchAllAddresses = async () => {

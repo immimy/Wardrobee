@@ -6,13 +6,28 @@ import ProductCard from '@/components/products/ProductCard';
 import AdminProductCard from '@/components/admin/products/ProductCard';
 import { FetchAllProductsType } from '@/utils/types';
 import { useAllProductsSWRInfinite } from '@/utils/swr';
+import { cn } from '@/lib/utils';
+import { usePathname } from 'next/navigation';
+import { Button } from '../ui/button';
+import { FaTrashCan } from 'react-icons/fa6';
 
 type ParamsType = {
   products: FetchAllProductsType;
   isAdmin?: boolean;
+  stickyClassName?: string;
+  isDeleteMode?: boolean;
+  toggleDeleteMode?: () => void;
 };
 
-function InfiniteScroll({ products, isAdmin }: ParamsType) {
+function InfiniteScroll({
+  products,
+  isAdmin,
+  stickyClassName,
+  isDeleteMode,
+  toggleDeleteMode,
+}: ParamsType) {
+  const pathname = usePathname();
+
   // SWR Infinite scrolling with cursor-based pagination
   const { data, setSize, isLoading } = useAllProductsSWRInfinite({
     initialData: [products],
@@ -47,12 +62,36 @@ function InfiniteScroll({ products, isAdmin }: ParamsType) {
 
   return (
     <>
-      {/* Total products */}
-      <div className='py-4 text-end capitalize font-medium tracking-wider bg-background sticky top-15 z-1'>
-        {data.length} pages of {totalProducts} products
+      <div
+        className={cn(
+          'py-4 text-end capitalize font-medium tracking-wider bg-background sticky top-30 md:top-15 z-50',
+          stickyClassName
+        )}
+      >
+        {/* Delete mode */}
+        {/* (OPTIONAL) ADMIN ONLY */}
+        {pathname === '/admin/products' && (
+          <Button
+            type='button'
+            variant='secondary'
+            className={`uppercase tracking-wider font-semibold hover:cursor-pointer ${
+              isDeleteMode && 'drop-shadow-md drop-shadow-destructive'
+            }`}
+            onClick={toggleDeleteMode}
+          >
+            <span>
+              <FaTrashCan />
+            </span>
+            delete mode
+          </Button>
+        )}
+        {/* Total products */}
+        <span className='ml-6'>
+          {data.length} pages of {totalProducts} products
+        </span>
       </div>
       {/* Product cards */}
-      <div className='grid sm:grid-cols-2 md:grid-cols-3 gap-4'>
+      <div className='grid sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-[98%] mx-auto'>
         {data.map((products: FetchAllProductsType) => {
           return products.data.map((product) => {
             if (isAdmin)

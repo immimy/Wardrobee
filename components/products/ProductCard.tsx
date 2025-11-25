@@ -27,7 +27,7 @@ function ProductCard({ product }: ParamsType) {
     >
       {/* ON SALE BADGE */}
       {variants.some((item) => item.discount > 0) && (
-        <span className='absolute right-0 top-3 z-4 px-2.5 bg-destructive drop-shadow-md drop-shadow-accent text-shadow-destructive tracking-widest text-sm'>
+        <span className='absolute right-0 top-3 z-1 px-2.5 bg-destructive drop-shadow-md drop-shadow-accent text-shadow-destructive tracking-widest text-sm'>
           ON SALE
         </span>
       )}

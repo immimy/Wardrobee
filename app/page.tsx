@@ -7,7 +7,7 @@ import { fetchAllProducts } from '@/utils/actions';
 
 // Time-based revalidation
 // So the products data will be refreshed once a week.
-export const revalidate = 60 * 60 * 24 * 7; // once a week
+export const revalidate = 604800; // once a week
 
 async function page() {
   const limit = '30';

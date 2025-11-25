@@ -18,10 +18,15 @@ export const uploadImage = async (image: File | Buffer, name?: string) => {
   return supabase.storage.from(bucket).getPublicUrl(data.path).data.publicUrl;
 };
 
-export const deleteImage = async (url: string) => {
-  const imageName = url.split('/').pop();
-  if (!imageName) throw new Error('Invalid url');
-  return supabase.storage.from(bucket).remove([imageName]);
+export const deleteImage = async (url: string | string[]) => {
+  let imageNames: string[] = [];
+  if (typeof url === 'string') {
+    imageNames.push(url.split('/').pop()!);
+  } else {
+    url.forEach((image) => imageNames.push(image.split('/').pop()!));
+  }
+  if (!imageNames.length) throw new Error('Invalid url');
+  return supabase.storage.from(bucket).remove(imageNames);
 };
 
 export const clearAllImages = async () => {

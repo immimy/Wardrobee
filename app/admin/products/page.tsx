@@ -2,7 +2,8 @@ import { fetchAllProducts } from '@/utils/actions';
 import NotFoundContainer from '@/components/global/NotFoundContainer';
 import { Suspense } from 'react';
 import CardsSkeleton from '@/components/skeleton/CardsSkeleton';
-import InfiniteScroll from '@/components/global/InfiniteScroll';
+import AdminProductsContainer from '@/components/admin/products/AdminProductsContainer';
+import AdminProductsProvider from '@/components/admin/products/AdminProductsProvider';
 
 type ParamsType = {
   searchParams: Promise<{ [key: string]: string | undefined }>;
@@ -20,11 +21,11 @@ async function AdminProductsPage({ searchParams }: ParamsType) {
     return <NotFoundContainer />;
   }
   return (
-    <section className='mt-4 md:mt-8'>
-      <Suspense fallback={<CardsSkeleton number={9} />}>
-        <InfiniteScroll key={search} products={products} isAdmin />
-      </Suspense>
-    </section>
+    <Suspense fallback={<CardsSkeleton number={9} />}>
+      <AdminProductsProvider search={search} products={products}>
+        <AdminProductsContainer />
+      </AdminProductsProvider>
+    </Suspense>
   );
 }
 export default AdminProductsPage;
