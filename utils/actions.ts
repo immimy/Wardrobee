@@ -93,10 +93,7 @@ export const fetchAllProducts = async (searchParams: {
   const { search, cursor, promotion, bestseller, featured, creatorId } =
     searchParams;
   const limit = Number(searchParams.limit) || 9;
-  let orderBy: { [key: string]: string }[] = [
-    { createdAt: 'desc' },
-    { id: 'desc' },
-  ];
+  let orderBy: { [key: string]: string }[] = [{ id: 'desc' }];
 
   // Filter conditions
   let whereConditions = {};
@@ -121,7 +118,7 @@ export const fetchAllProducts = async (searchParams: {
     };
   }
   if (bestseller) {
-    orderBy = [{ totalSales: 'desc' }];
+    orderBy = [{ totalSales: 'desc' }, ...orderBy];
   }
   if (featured) {
     whereConditions = { ...whereConditions, featured: true };

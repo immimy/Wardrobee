@@ -10,7 +10,7 @@ datasource db {
 }
 
 model Product {
-  id          String           @id @default(uuid())
+  id          String           @id @default(uuid(7))
   name        String
   category    String
   brand       String
@@ -18,23 +18,24 @@ model Product {
   description String?
   price       Int
   featured    Boolean          @default(false)
-  creatorId     String
+  creatorId   String
   totalSales  Int              @default(0)
   totalStock  Int              @default(0)
   variants    ProductVariant[]
+  favorites   Favorite[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 }
 
 model ProductVariant {
-  id        String   @id @default(uuid())
+  id        String   @id @default(uuid(7))
   productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   color     String?
   size      String?
   stock     Int
   discount  Int      @default(0) // as percent (%)
-  creatorId   String
+  creatorId String
   sales     Int      @default(0)
   cartItems CartItem[]
   createdAt DateTime @default(now())
@@ -42,7 +43,7 @@ model ProductVariant {
 }
 
 model ShippingAddress {
-  id          String   @id @default(uuid())
+  id          String   @id @default(uuid(7))
   userId      String
   receiver    String
   address     String
@@ -54,7 +55,7 @@ model ShippingAddress {
 
 // Display the latest product details
 model CartItem{
-  id String @id @default(uuid())
+  id String @id @default(uuid(7))
   cartId String
   cart Cart @relation(fields: [cartId],references: [id],onDelete: Cascade)
   productVariantId String
@@ -66,7 +67,7 @@ model CartItem{
   @@unique([cartId,productVariantId])
 }
 model Cart{
-  id String @id @default(uuid())
+  id String @id @default(uuid(7))
   userId String @unique
   cartItems CartItem[]
   createdAt   DateTime @default(now())
@@ -75,7 +76,7 @@ model Cart{
 
 // Capture product details when user places an order
 model OrderItem{
-  id String @id @default(uuid())
+  id String @id @default(uuid(7))
   orderId String
   order Order @relation(fields: [orderId],references: [id],onDelete: Cascade)
   productId String
@@ -92,7 +93,7 @@ model OrderItem{
   updatedAt   DateTime @updatedAt
 }
 model Order{
-  id String @id @default(uuid())
+  id String @id @default(uuid(7))
   userId String
   OrderItems OrderItem[]
   status String @default("PENDING") // PENDING, PAID, SHIPPED, CANCELLED
@@ -104,4 +105,13 @@ model Order{
   paymentIntentId String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Favorite{
+  id String @id @default(uuid(7))
+  productId String
+  product Product @relation(fields: [productId],references: [id],onDelete: Cascade)
+  userId String
+  
+  @@unique([productId,userId])
 }

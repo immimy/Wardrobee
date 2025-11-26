@@ -7,11 +7,14 @@ import SubmitButton from '../../form/SubmitButton';
 import { toastError } from '@/utils/clientFunctions';
 import { FormEventHandler } from 'react';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 import { useAllProductsMutate } from '@/utils/swr';
+import { useProductCreateContext } from './ProductProvider';
 
 function ProductForm() {
-  const router = useRouter();
+  const {
+    resetContext,
+    product: { key },
+  } = useProductCreateContext();
   const allProductsMutate = useAllProductsMutate();
 
   const createProductHandler: FormEventHandler<HTMLFormElement> = async (e) => {
@@ -24,7 +27,8 @@ function ProductForm() {
       // By adding the new one at the front without revalidation
       allProductsMutate(newProduct);
       toast.success('Product created');
-      return router.push('/admin/products');
+      // Reset create product context
+      resetContext();
     } catch (error) {
       return toastError(error);
     }
@@ -33,8 +37,8 @@ function ProductForm() {
   return (
     <form onSubmit={createProductHandler}>
       <div className='grid gap-y-4'>
-        <ProductFieldset />
-        <VariantFieldset />
+        <ProductFieldset key={`product-${key}`} />
+        <VariantFieldset key={`variants-${key}`} />
       </div>
       <SubmitButton text='create product' className='w-full' />
     </form>
