@@ -11,7 +11,10 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
         {/* BREADCRUMB */}
         <div className='py-4 bg-background text-foreground sticky top-[60px] z-50'>
           <Container className='flex items-center md:gap-x-8'>
-            <SidebarTrigger variant='default' className='rounded-full' />
+            <SidebarTrigger
+              variant='default'
+              className='rounded-full hover:cursor-pointer'
+            />
             <div className='mx-auto md:ml-0'>
               <DashboardBreadcrumb />
             </div>

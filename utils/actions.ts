@@ -20,11 +20,10 @@ import { collectProductUpdate, collectProductCreate } from './form';
 import db from './db';
 import { deleteImage, uploadImage } from './supabase';
 import { ProductVariant } from '@prisma/client';
-import { undefined } from 'zod/v4';
 
 const client = await clerkClient();
 
-const getAuthUser = async () => {
+export const getAuthUser = async () => {
   const { userId, sessionClaims } = await auth();
   if (!userId) return redirect('/');
   return { userId, role: (sessionClaims?.metadata.role || 'user') as AllRoles };
@@ -91,7 +90,8 @@ export const deleteAccount = async () => {
 export const fetchAllProducts = async (searchParams: {
   [key: string]: string | undefined;
 }) => {
-  const { search, cursor, promotion, bestseller, featured } = searchParams;
+  const { search, cursor, promotion, bestseller, featured, creatorId } =
+    searchParams;
   const limit = Number(searchParams.limit) || 9;
   let orderBy: { [key: string]: string }[] = [
     { createdAt: 'desc' },
@@ -100,6 +100,9 @@ export const fetchAllProducts = async (searchParams: {
 
   // Filter conditions
   let whereConditions = {};
+  if (creatorId) {
+    whereConditions = { ...whereConditions, creatorId };
+  }
   if (search) {
     whereConditions = {
       ...whereConditions,
@@ -216,32 +219,36 @@ export const createProduct = async (formData: FormData) => {
     0
   );
 
-  const newProduct = await db.$transaction(async (tx) => {
-    // Create product with total product stock
-    const newProduct = await tx.product.create({
-      data: { creatorId: user.userId, ...validatedProduct, totalStock },
-      include: {
-        variants: {
-          where: { stock: { gt: 0 } },
-          orderBy: { createdAt: 'asc' },
-          select: {
-            id: true,
-            size: true,
-            color: true,
-            discount: true,
-            stock: true,
-          },
+  // Create product with total product stock
+  const newProduct = await db.product.create({
+    data: {
+      creatorId: user.userId,
+      ...validatedProduct,
+      totalStock,
+      variants: {
+        createMany: {
+          data: validatedVariants.map((item) => ({
+            ...item,
+            creatorId: user.userId,
+          })),
         },
       },
-    });
-    // Create product variant one by one to ensure ordering
-    for (const variant of validatedVariants) {
-      await tx.productVariant.create({
-        data: { productId: newProduct.id, creatorId: user.userId, ...variant },
-      });
-    }
-    return newProduct;
+    },
+    include: {
+      variants: {
+        where: { stock: { gt: 0 } },
+        orderBy: { createdAt: 'asc' },
+        select: {
+          id: true,
+          size: true,
+          color: true,
+          discount: true,
+          stock: true,
+        },
+      },
+    },
   });
+
   // Revalidate homepage
   if (newProduct.featured) revalidatePath('/');
   // Return new created product

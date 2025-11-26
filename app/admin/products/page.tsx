@@ -1,4 +1,4 @@
-import { fetchAllProducts } from '@/utils/actions';
+import { fetchAllProducts, getAuthUser } from '@/utils/actions';
 import NotFoundContainer from '@/components/global/NotFoundContainer';
 import { Suspense } from 'react';
 import CardsSkeleton from '@/components/skeleton/CardsSkeleton';
@@ -15,7 +15,8 @@ async function AdminProductsPage({ searchParams }: ParamsType) {
   const search = queryParams.search || '';
   const limit = queryParams.limit || '9';
   // Pre-fetch products data
-  const products = await fetchAllProducts({ limit });
+  const { userId } = await getAuthUser();
+  const products = await fetchAllProducts({ limit, creatorId: userId });
 
   if (products.data.length < 1) {
     return <NotFoundContainer />;

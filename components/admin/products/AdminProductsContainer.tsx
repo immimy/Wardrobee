@@ -9,16 +9,17 @@ import { deleteProducts } from '@/utils/actions';
 import { FaCheck, FaX } from 'react-icons/fa6';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { getFreshCart } from '@/lib/features/cart/cartSlice';
-import { useAllProductsSWRInfinite } from '@/utils/swr';
+import { useAllProductsMutate } from '@/utils/swr';
 import { toast } from 'sonner';
 
 function AdminProductsContainer() {
   const dispatch = useAppDispatch();
+  // Get current cart from store
   const { cartItems } = useAppSelector((store) => store.cart);
   const currentProductInCart = Object.values(cartItems).map(
     (item) => item.data.productId
   );
-  const { mutate } = useAllProductsSWRInfinite();
+  // Admin products context
   const {
     isDeleteMode,
     toggleDeleteMode,
@@ -27,6 +28,8 @@ function AdminProductsContainer() {
     search,
     products,
   } = useAdminProductsProviderContext();
+  // SWR cache mutation and revalidation
+  const allProductsMutate = useAllProductsMutate();
 
   const deleteProductsHandler: FormEventHandler<HTMLFormElement> = async (
     e
@@ -38,7 +41,7 @@ function AdminProductsContainer() {
       await deleteProducts(formData);
       toast.success('Deleted products');
       // Clear all products cache on SWR without revalidation
-      mutate(undefined, { revalidate: false });
+      allProductsMutate();
       // Ensure that the cart is always fresh
       const isProductInCart = currentProductInCart.some((item) =>
         selectedProducts.includes(item)
@@ -55,7 +58,6 @@ function AdminProductsContainer() {
         key={search}
         products={products}
         isAdmin
-        stickyClassName='md:bg-transparent'
         isDeleteMode={isDeleteMode}
         toggleDeleteMode={toggleDeleteMode}
       />

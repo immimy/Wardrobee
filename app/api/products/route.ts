@@ -1,19 +1,17 @@
-import { fetchAllProducts } from '@/utils/actions';
+import { fetchAllProducts, getAuthUser } from '@/utils/actions';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const GET = async (req: NextRequest) => {
   const searchParams = req.nextUrl.searchParams;
-  const { search, cursor, limit, promotion, bestseller } = Object.fromEntries(
-    searchParams.entries()
-  );
+  const queryParams = Object.fromEntries(searchParams.entries());
   try {
-    const resp = await fetchAllProducts({
-      search,
-      cursor,
-      limit,
-      promotion,
-      bestseller,
-    });
+    if (queryParams.admin) {
+      const { userId, role } = await getAuthUser();
+      if (role !== 'admin') {
+        queryParams.creatorId = userId;
+      }
+    }
+    const resp = await fetchAllProducts(queryParams);
     return NextResponse.json(resp, { status: 200 });
   } catch (error) {
     const message =

@@ -8,11 +8,11 @@ import { toastError } from '@/utils/clientFunctions';
 import { FormEventHandler } from 'react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { useAllProductsSWRInfinite } from '@/utils/swr';
+import { useAllProductsMutate } from '@/utils/swr';
 
 function ProductForm() {
   const router = useRouter();
-  const { data, mutate } = useAllProductsSWRInfinite();
+  const allProductsMutate = useAllProductsMutate();
 
   const createProductHandler: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -22,11 +22,7 @@ function ProductForm() {
       const newProduct = await createProduct(formData);
       // Mutate all products data (SWR)
       // By adding the new one at the front without revalidation
-      if (data) {
-        const firstPage = data[0];
-        firstPage.data.unshift(newProduct);
-        mutate([firstPage, ...data.slice(1)]);
-      }
+      allProductsMutate(newProduct);
       toast.success('Product created');
       return router.push('/admin/products');
     } catch (error) {

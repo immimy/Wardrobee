@@ -6,7 +6,6 @@ import ProductCard from '@/components/products/ProductCard';
 import AdminProductCard from '@/components/admin/products/ProductCard';
 import { FetchAllProductsType } from '@/utils/types';
 import { useAllProductsSWRInfinite } from '@/utils/swr';
-import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import { Button } from '../ui/button';
 import { FaTrashCan } from 'react-icons/fa6';
@@ -14,7 +13,6 @@ import { FaTrashCan } from 'react-icons/fa6';
 type ParamsType = {
   products: FetchAllProductsType;
   isAdmin?: boolean;
-  stickyClassName?: string;
   isDeleteMode?: boolean;
   toggleDeleteMode?: () => void;
 };
@@ -22,7 +20,6 @@ type ParamsType = {
 function InfiniteScroll({
   products,
   isAdmin,
-  stickyClassName,
   isDeleteMode,
   toggleDeleteMode,
 }: ParamsType) {
@@ -31,6 +28,7 @@ function InfiniteScroll({
   // SWR Infinite scrolling with cursor-based pagination
   const { data, setSize, isLoading } = useAllProductsSWRInfinite({
     initialData: [products],
+    isAdmin,
   });
   const isReachingEnd = data && data[data.length - 1].nextCursor === null;
 
@@ -63,10 +61,14 @@ function InfiniteScroll({
   return (
     <>
       <div
-        className={cn(
-          'py-4 text-end capitalize font-medium tracking-wider bg-background sticky top-30 md:top-15 z-50',
-          stickyClassName
-        )}
+        className={`text-end capitalize font-medium tracking-wider bg-background ${
+          isAdmin
+            ? 'pb-4 md:my-auto md:bg-transparent top-30 md:top-18 md:w-fit md:ml-auto'
+            : 'py-4 top-15'
+        } sticky z-50`}
+        // className={`pb-4 md:pt-4 text-end capitalize font-medium tracking-wider bg-background ${
+        //   isAdmin && 'md:bg-transparent'
+        // } sticky top-30 md:top-15 md:w-fit md:ml-auto z-50`}
       >
         {/* Delete mode */}
         {/* (OPTIONAL) ADMIN ONLY */}
