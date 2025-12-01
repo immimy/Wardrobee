@@ -17,10 +17,17 @@ import {
   addToCart,
   clearCart as clearCartAction,
   deleteCartItem,
+  toggleFavorite,
   updateCartItem as updateCartItemAction,
 } from '@/utils/actions';
 import { useClerk } from '@clerk/nextjs';
 import { CartItemState } from '@/utils/types';
+import {
+  addFavorite,
+  removeFavorite,
+  rollbackAddFavorite,
+  rollbackRemoveFavorite,
+} from './features/user/favoriteSlice';
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
@@ -148,6 +155,44 @@ export const useClearCart = () => {
       // Rollback in case of failure
       dispatch(rollbackClearCart());
       // Alert an error
+      toastError(error);
+    }
+  };
+};
+
+export const useToggleFavorite = () => {
+  const dispatch = useAppDispatch();
+  return async ({
+    productId,
+    favoriteId,
+    pathname,
+  }: {
+    productId: string;
+    favoriteId?: string;
+    pathname?: string;
+  }) => {
+    try {
+      if (!favoriteId) {
+        // Optimistic response
+        dispatch(addFavorite({ productId }));
+        // Toggle favorite in the database
+        const resp = await toggleFavorite({ favoriteId, productId, pathname });
+        // Persist success result
+        dispatch(addFavorite({ productId, favoriteId: resp?.id }));
+      } else {
+        // Optimistic response
+        dispatch(removeFavorite({ favoriteId }));
+        // Toggle favorite in the database
+        await toggleFavorite({ favoriteId, productId, pathname });
+      }
+    } catch (error) {
+      if (!favoriteId) {
+        // Rollback in case of failure
+        dispatch(rollbackAddFavorite({ productId }));
+      } else {
+        // Rollback in case of failure
+        dispatch(rollbackRemoveFavorite({ productId, favoriteId }));
+      }
       toastError(error);
     }
   };

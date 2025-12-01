@@ -1,6 +1,6 @@
 'use server';
 
-import { clerkClient, auth, currentUser } from '@clerk/nextjs/server';
+import { clerkClient, auth, currentUser, getAuth } from '@clerk/nextjs/server';
 import { isClerkAPIResponseError } from '@clerk/nextjs/errors';
 import { AllRoles, CartType, FormState, ProductCategory } from './types';
 import { redirect } from 'next/navigation';
@@ -897,5 +897,89 @@ export const checkoutAction = async (userId: string) => {
   if (!confirmOrder?.OrderItems || confirmOrder.OrderItems.length < 1) {
     db.order.delete({ where: { id: order.id } });
     throw new Error('Failed to place an order');
+  }
+};
+
+export const fetchAllFavorites = async (searchParams: {
+  [key: string]: string | undefined;
+}) => {
+  const { userId } = await getAuthUser();
+
+  const page = Number(searchParams.page) || 1;
+  const limit = Number(searchParams.limit) || 9;
+  const skip = Number(page - 1) * limit;
+
+  const [products, totalFavorites] = await Promise.all([
+    db.favorite.findMany({
+      skip,
+      take: limit,
+      where: { userId },
+      omit: { userId: true },
+      include: {
+        product: {
+          include: {
+            variants: {
+              where: { stock: { gt: 0 } },
+              orderBy: { createdAt: 'asc' },
+              select: {
+                id: true,
+                size: true,
+                color: true,
+                discount: true,
+                stock: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { id: 'desc' },
+    }),
+    db.product.count({
+      where: { favorites: { some: { userId } } },
+    }),
+  ]);
+
+  return {
+    data: products,
+    meta: {
+      page: 1,
+      totalPage: Math.ceil(totalFavorites / limit),
+      totalCount: totalFavorites,
+    },
+  };
+};
+
+export const fetchMyFavoriteIds = async () => {
+  const { userId } = await getAuthUser();
+  const favorites = await db.favorite.findMany({
+    where: { userId },
+    omit: { userId: true },
+    orderBy: { productId: 'asc' }, // For binary search
+  });
+  return favorites;
+};
+
+export const toggleFavorite = async ({
+  favoriteId,
+  productId,
+  pathname,
+}: {
+  favoriteId?: string;
+  productId: string;
+  pathname?: string;
+}) => {
+  const { userId } = await getAuthUser();
+  if (favoriteId) {
+    // Delete favorite
+    await db.favorite.delete({ where: { id: favoriteId } });
+    // Revalidate favorite page
+    if (pathname) revalidatePath(pathname);
+  } else {
+    // Create favorite
+    const resp = await db.favorite.create({
+      data: { userId, productId },
+      omit: { userId: true },
+    });
+    return resp;
   }
 };

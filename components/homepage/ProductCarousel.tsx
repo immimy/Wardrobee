@@ -11,6 +11,7 @@ import {
 import ProductCard from '../products/ProductCard';
 import Autoplay from 'embla-carousel-autoplay';
 import { useRef } from 'react';
+import StoreFavoriteButton from '../favorite/StoreFavoriteButton';
 
 type ParamsType = { products: FetchAllProductsType };
 
@@ -23,8 +24,17 @@ function ProductCarousel({ products }: ParamsType) {
         <CarouselContent>
           {products.data.map((item) => {
             return (
-              <CarouselItem key={item.id} className='md:basis-1/2 lg:basis-1/3'>
+              <CarouselItem
+                key={item.id}
+                className='md:basis-1/2 lg:basis-1/3 relative'
+              >
+                {/* Product Card */}
                 <ProductCard product={item} />
+                {/* Favorite Button */}
+                <StoreFavoriteButton
+                  productId={item.id}
+                  className='absolute top-5 left-10'
+                />
               </CarouselItem>
             );
           })}

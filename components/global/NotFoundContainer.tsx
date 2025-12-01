@@ -12,7 +12,7 @@ function NoProductFound({ className }: ParamsType) {
         className='w-44 h-40 md:w-52 md:h-60'
       />
       <h4 className='text-xl md:text-2xl tracking-tight text-primary'>
-        No product found...
+        No products found...
       </h4>
     </div>
   );

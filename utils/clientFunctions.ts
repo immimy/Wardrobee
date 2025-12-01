@@ -2,6 +2,7 @@ import { toast } from 'sonner';
 import {
   CartItemState,
   CartItemType,
+  FetchMyFavoriteIdsType,
   FormState,
   ProductCategory,
   ProductWithVariants,
@@ -83,3 +84,48 @@ export const coerceFormValue = (input: string | number | undefined) => {
 };
 
 export const isDarkTheme = (theme: string | undefined) => theme === 'dark';
+
+export const favoriteIndexSearch = (
+  arr: FetchMyFavoriteIdsType,
+  target: string, // productId or id (favoriteId)
+  field?: string
+): number => binarySearch(arr, 0, arr.length - 1, target, field || 'productId');
+
+// Array input must be sorted in ascending order.
+function binarySearch(
+  arr: any[],
+  low: number,
+  high: number,
+  x: any,
+  field?: string
+): number {
+  if (high >= low) {
+    const mid = low + Math.floor((high - low) / 2);
+    const ref = field ? arr[mid][field] : arr[mid];
+    // If the target is present at the middle
+    if (ref === x) return mid;
+    // If the target is smaller than mid, then
+    // it can only be present in left subarray
+    if (ref > x) return binarySearch(arr, low, mid - 1, x, field);
+    // Else the target can only be present
+    // in right subarray
+    return binarySearch(arr, mid + 1, high, x, field);
+  }
+  // Reach here when target is not present in array
+  return -1;
+}
+
+export function removeItemFromArray<T>(arr: T[], index: number): T[] {
+  return [...arr.slice(0, index), ...arr.slice(index + 1)];
+}
+
+export function sortByProductId<T extends { productId: string }>(
+  arr: T[]
+): T[] {
+  // Sort string in ascending order
+  return arr.sort((a, b) => {
+    if (a.productId < b.productId) return -1; // a before b
+    if (a.productId > b.productId) return 1; // a after b
+    return 0; // a = b
+  });
+}

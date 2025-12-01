@@ -2,6 +2,7 @@ import DescriptionContent from '@/components/product/DescriptionContent';
 import { ProductWithVariants } from '@/utils/types';
 import Image from 'next/image';
 import AddToCartContainer from './AddToCartContainer';
+import StoreFavoriteButton from '../favorite/StoreFavoriteButton';
 
 type ParamsType = { product: ProductWithVariants };
 function ProductContainer({ product }: ParamsType) {
@@ -22,11 +23,15 @@ function ProductContainer({ product }: ParamsType) {
       {/* Product Details */}
       <article className='flex flex-col gap-y-4'>
         {/* Name & Brand */}
-        <header>
-          <h4 className='text-xl md:text-2xl font-semibold text-primary tracking-wider'>
-            {name}
-          </h4>
-          <p className='text-lg md:text-xl font-medium uppercase'>{brand}</p>
+        <header className='flex justify-between'>
+          <div>
+            <h4 className='text-xl md:text-2xl font-semibold text-primary tracking-wider'>
+              {name}
+            </h4>
+            <p className='text-lg md:text-xl font-medium uppercase'>{brand}</p>
+          </div>
+          {/* Favorite Button */}
+          <StoreFavoriteButton productId={product.id} text='favorite' />
         </header>
         {/* Description */}
         <DescriptionContent description={description} />

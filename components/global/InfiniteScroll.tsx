@@ -9,6 +9,8 @@ import { useAllProductsSWRInfinite } from '@/utils/swr';
 import { usePathname } from 'next/navigation';
 import { Button } from '../ui/button';
 import { FaTrashCan } from 'react-icons/fa6';
+import StoreFavoriteButton from '../favorite/StoreFavoriteButton';
+import ProductGrid from '../product/ProductGrid';
 
 type ParamsType = {
   products: FetchAllProductsType;
@@ -66,9 +68,6 @@ function InfiniteScroll({
             ? 'pb-4 md:my-auto md:bg-transparent top-30 md:top-18 md:w-fit md:ml-auto'
             : 'py-4 top-15'
         } sticky z-50`}
-        // className={`pb-4 md:pt-4 text-end capitalize font-medium tracking-wider bg-background ${
-        //   isAdmin && 'md:bg-transparent'
-        // } sticky top-30 md:top-15 md:w-fit md:ml-auto z-50`}
       >
         {/* Delete mode */}
         {/* (OPTIONAL) ADMIN ONLY */}
@@ -93,15 +92,23 @@ function InfiniteScroll({
         </span>
       </div>
       {/* Product cards */}
-      <div className='grid sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-[98%] mx-auto'>
+      <ProductGrid>
         {data.map((products: FetchAllProductsType) => {
           return products.data.map((product) => {
             if (isAdmin)
               return <AdminProductCard key={product.id} product={product} />;
-            return <ProductCard key={product.id} product={product} />;
+            return (
+              <article className='relative' key={product.id}>
+                <ProductCard product={product} />
+                <StoreFavoriteButton
+                  productId={product.id}
+                  className='absolute top-5 left-6'
+                />
+              </article>
+            );
           });
         })}
-      </div>
+      </ProductGrid>
       {/* Loading edge */}
       <div
         id='loading-more'

@@ -23,8 +23,7 @@ export const getFreshCart = createAsyncThunk(
   'cart/getFreshCart',
   async (_, thunkAPI) => {
     try {
-      const cart = await refreshCart();
-      return cart;
+      return refreshCart();
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Failed to initialize cart';

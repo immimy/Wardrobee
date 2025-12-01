@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { IconType } from 'react-icons/lib';
 import { Roles } from '@/types/globals';
-import { createProduct, fetchAllProducts } from './actions';
+import { createProduct, fetchAllProducts, fetchMyFavoriteIds } from './actions';
 
 export type AllRoles = 'user' | Roles;
 
@@ -120,4 +120,8 @@ export type ProductWithVariants = Prisma.ProductGetPayload<
 export type FetchAllProductsType = Awaited<ReturnType<typeof fetchAllProducts>>;
 export type AllProductsType = FetchAllProductsType['data'];
 
-export type CreateProductType=Awaited<ReturnType<typeof createProduct>>
+export type CreateProductType = Awaited<ReturnType<typeof createProduct>>;
+
+export type FetchMyFavoriteIdsType = Awaited<
+  ReturnType<typeof fetchMyFavoriteIds>
+>;

@@ -1,6 +1,7 @@
 'use client';
 
 import { getFreshCart } from '@/lib/features/cart/cartSlice';
+import { getFavorites } from '@/lib/features/user/favoriteSlice';
 import { loadingUser, setUser } from '@/lib/features/user/userSlice';
 import { AppStore, makeStore } from '@/lib/store';
 import { useAuth, useUser } from '@clerk/nextjs';
@@ -40,6 +41,8 @@ function StoreProvider({ children }: ParamsType) {
     // Refresh cart
     // Ensure that each of products in the cart is not stale
     storeRef.current!.dispatch(getFreshCart());
+    // Fetch all favorite product ids
+    storeRef.current!.dispatch(getFavorites());
     // Set user info state
     storeRef.current!.dispatch(
       setUser({
