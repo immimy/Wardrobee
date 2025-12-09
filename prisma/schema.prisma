@@ -74,7 +74,7 @@ model Cart{
   updatedAt   DateTime @updatedAt
 }
 
-// Capture product details when user places an order
+// Snapshot of product details when user placed an order
 model OrderItem{
   id String @id @default(uuid(7))
   orderId String
@@ -85,8 +85,8 @@ model OrderItem{
   productName String
   productSize String?
   productColor String?
-  unitPrice Int
-  discountAmount Decimal @db.Decimal(8,2)
+  price Int
+  discount Int // as percent (%)
   quantity Int
   total Decimal @db.Decimal(8,2)
   createdAt   DateTime @default(now())
@@ -95,11 +95,9 @@ model OrderItem{
 model Order{
   id String @id @default(uuid(7))
   userId String
-  OrderItems OrderItem[]
+  orderItems OrderItem[]
   status String @default("PENDING") // PENDING, PAID, SHIPPED, CANCELLED
-  subtotal Decimal @db.Decimal(8,2)
   shippingFee Int
-  total Decimal @db.Decimal(8,2)
   shippingAddress String
   clientSecret String
   paymentIntentId String

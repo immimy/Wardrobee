@@ -15,6 +15,7 @@ type ParamsType = {
   labelText: string;
   className?: string;
   disabled?: boolean;
+  isPreventPointerEvent?: boolean;
 };
 
 function FormCheckbox({
@@ -25,6 +26,7 @@ function FormCheckbox({
   labelText,
   className,
   disabled,
+  isPreventPointerEvent,
 }: ParamsType) {
   return (
     <div className={cn('flex flex-row items-center gap-2', className)}>
@@ -35,8 +37,16 @@ function FormCheckbox({
         checked={checked}
         onCheckedChange={onChange}
         disabled={disabled}
+        className={`${isPreventPointerEvent && 'pointer-events-none'}`}
+        tabIndex={isPreventPointerEvent ? -1 : undefined}
+        aria-disabled={isPreventPointerEvent}
       />
-      <Label htmlFor={name} className='text-sm font-normal'>
+      <Label
+        htmlFor={isPreventPointerEvent ? '' : name}
+        className={`text-sm font-normal ${
+          isPreventPointerEvent && 'hover:cursor-not-allowed'
+        }`}
+      >
         {labelText}
       </Label>
     </div>

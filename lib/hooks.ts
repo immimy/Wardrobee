@@ -28,6 +28,7 @@ import {
   rollbackAddFavorite,
   rollbackRemoveFavorite,
 } from './features/user/favoriteSlice';
+import { toast } from 'sonner';
 
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
@@ -151,11 +152,11 @@ export const useClearCart = () => {
       await clearCartAction();
       // Persist success result
       dispatch(clearCart({ isCleared: true }));
-    } catch (error) {
+    } catch {
       // Rollback in case of failure
       dispatch(rollbackClearCart());
       // Alert an error
-      toastError(error);
+      toast.error('Failed to clear cart');
     }
   };
 };
@@ -185,7 +186,7 @@ export const useToggleFavorite = () => {
         // Toggle favorite in the database
         await toggleFavorite({ favoriteId, productId, pathname });
       }
-    } catch (error) {
+    } catch {
       if (!favoriteId) {
         // Rollback in case of failure
         dispatch(rollbackAddFavorite({ productId }));
@@ -193,7 +194,7 @@ export const useToggleFavorite = () => {
         // Rollback in case of failure
         dispatch(rollbackRemoveFavorite({ productId, favoriteId }));
       }
-      toastError(error);
+      toast.error('Failed to toggle favorite');
     }
   };
 };

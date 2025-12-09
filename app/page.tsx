@@ -9,7 +9,7 @@ import { fetchAllProducts } from '@/utils/actions';
 // So the products data will be refreshed once a week.
 export const revalidate = 604800; // once a week
 
-async function page() {
+async function Homepage() {
   const limit = '30';
   const [featured, bestseller] = await Promise.all([
     fetchAllProducts({
@@ -64,4 +64,4 @@ async function page() {
     </Container>
   );
 }
-export default page;
+export default Homepage;

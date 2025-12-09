@@ -12,14 +12,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../ui/dialog';
-import { FaHome } from 'react-icons/fa';
-import { useState } from 'react';
+import { MdOutlineAddLocationAlt } from 'react-icons/md';
+import { Dispatch, SetStateAction, useState } from 'react';
 import AddressForm from './AddressForm';
 import { toast } from 'sonner';
 import FormContainer from '../form/FormContainer';
 import { FormState } from '@/utils/types';
+import { ShippingAddressState } from '../checkout/CheckoutProvider';
 
-function CreateAddressModal() {
+type ParamsType = {
+  disableDefaultUpdate?: boolean;
+  state?: ShippingAddressState;
+  dispatch?: Dispatch<SetStateAction<ShippingAddressState>>;
+};
+
+function CreateAddressModal({
+  disableDefaultUpdate,
+  state,
+  dispatch,
+}: ParamsType) {
   const [open, setOpen] = useState(false);
 
   const createAddressAction = async (
@@ -27,11 +38,14 @@ function CreateAddressModal() {
     formData: FormData
   ) => {
     try {
-      await createAddress(formData);
+      // Create address to database
+      const shippingAddress = await createAddress(formData);
       toast.success('Shipping address is added.');
+      // Update selected shipping address state (Checkout Page)
+      if (dispatch && !state) dispatch({ ...shippingAddress });
       setOpen(false);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'An error occurred');
+    } catch {
+      toast.error('Failed to create an address');
       setOpen(false);
     }
   };
@@ -41,7 +55,7 @@ function CreateAddressModal() {
       <DialogTrigger asChild>
         <Button className='w-full font-medium tracking-wider'>
           <span>
-            <FaHome />
+            <MdOutlineAddLocationAlt />
           </span>
           Add Shipping Address
         </Button>
@@ -53,8 +67,8 @@ function CreateAddressModal() {
         </DialogHeader>
         <FormContainer action={createAddressAction}>
           {/* Content */}
-          <div className='overflow-y-scroll max-h-[450px]'>
-            <AddressForm />
+          <div className='overflow-y-auto max-h-[calc(100vh-60px)]'>
+            <AddressForm disableDefaultUpdate={disableDefaultUpdate} />
           </div>
           {/* Footer */}
           <DialogFooter>

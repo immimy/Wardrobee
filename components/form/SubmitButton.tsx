@@ -22,7 +22,8 @@ type ParamsType = {
   variant?: VariantParam;
   size?: SizeParam;
   className?: string;
-  disabled?:boolean
+  disabled?: boolean;
+  formId?: string;
 };
 
 function SubmitButton({
@@ -31,15 +32,17 @@ function SubmitButton({
   variant = 'default',
   size = 'default',
   className,
-  disabled
+  disabled,
+  formId,
 }: ParamsType) {
   const { pending } = useFormStatus();
   return (
     <Button
+      form={formId}
       type='submit'
       variant={variant}
       size={size}
-      disabled={disabled||pending}
+      disabled={disabled || pending}
       className={cn(
         'capitalize tracking-tight font-semibold hover:cursor-pointer',
         className

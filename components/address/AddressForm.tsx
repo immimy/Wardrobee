@@ -1,11 +1,10 @@
 import FormInput from '../form/FormInput';
 import FormCheckbox from '../form/FormCheckbox';
 import AddressTextarea from './AddressTextarea';
-import MapContainer from './MapContainer';
-import { ShippingAddress } from '@prisma/client';
+import { ShippingAddressType } from '@/utils/types';
 
 type ParamsType = {
-  defaultValue?: ShippingAddress;
+  defaultValue?: ShippingAddressType;
   disableDefaultUpdate?: boolean;
 };
 
@@ -28,22 +27,15 @@ function AddressForm({ defaultValue, disableDefaultUpdate }: ParamsType) {
         labelText='phone number'
         defaultValue={defaultValue?.phoneNumber}
       />
-      {/* Map container */}
-      <MapContainer />
       {/* Address */}
       <AddressTextarea defaultValue={defaultValue?.address} />
-      {/* Fix Bug */}
-      {/* Cause: Disable change of isDefault field from true to false. */}
-      {defaultValue?.isDefault && (
-        <input type='hidden' name='isDefault' defaultValue='true' />
-      )}
-      {/* Default address state */}
+      {/* Is Default Address? */}
       <FormCheckbox
         name='isDefault'
         labelText='Set this address as default'
-        className='py-4 mx-auto w-fit'
+        className={`py-4 mx-auto w-fit ${disableDefaultUpdate && 'hidden'}`}
         defaultChecked={defaultValue?.isDefault}
-        disabled={disableDefaultUpdate}
+        isPreventPointerEvent={disableDefaultUpdate || defaultValue?.isDefault}
       />
     </>
   );

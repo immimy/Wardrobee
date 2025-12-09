@@ -6,10 +6,11 @@ import FormContainer from '../form/FormContainer';
 import AvatarImage from '../global/AvatarImage';
 import { useUser } from '@clerk/nextjs';
 import { FormState } from '@/utils/types';
-import { renderError, validateAvatar } from '@/utils/clientFunctions';
+import { validateAvatar } from '@/utils/clientFunctions';
 import { redirect } from 'next/navigation';
 import { useAppDispatch } from '@/lib/hooks';
 import { setUser } from '@/lib/features/user/userSlice';
+import { toast } from 'sonner';
 
 function AvatarContainer() {
   const { user, isLoaded } = useUser();
@@ -19,7 +20,7 @@ function AvatarContainer() {
   const updateAvatarAction = async (
     formState: FormState,
     formData: FormData
-  ): Promise<FormState> => {
+  ) => {
     try {
       const file = formData.get('avatar');
       const validatedFile = validateAvatar(file);
@@ -29,21 +30,21 @@ function AvatarContainer() {
       });
       // Update user state
       dispatch(setUser({ image }));
-      return { message: 'Avatar is updated.', type: 'success' };
-    } catch (error) {
-      return renderError(error);
+      toast.success('Avatar is updated.');
+    } catch {
+      toast.success('Failed to update avatar');
     }
   };
 
-  const deleteAvatarAction = async (): Promise<FormState> => {
+  const deleteAvatarAction = async () => {
     try {
       // Delete profile image (Clerk API)
       user!.setProfileImage({ file: null });
       // Update user state
       dispatch(setUser({ image: null }));
-      return { message: 'Avatar is deleted.', type: 'success' };
-    } catch (error) {
-      return renderError(error);
+      toast.success('Avatar is deleted.');
+    } catch {
+      toast.error('Failed to delete avatar');
     }
   };
   return (

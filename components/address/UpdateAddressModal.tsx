@@ -13,16 +13,26 @@ import {
   DialogTrigger,
 } from '../ui/dialog';
 import { FaPencil } from 'react-icons/fa6';
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import AddressForm from './AddressForm';
-import { ShippingAddress } from '@prisma/client';
 import FormContainer from '../form/FormContainer';
 import { toast } from 'sonner';
-import { FormState } from '@/utils/types';
+import { FormState, ShippingAddressType } from '@/utils/types';
+import { ShippingAddressState } from '../checkout/CheckoutProvider';
 
-type ParamsType = { shippingAddress: ShippingAddress };
+type ParamsType = {
+  data: ShippingAddressType;
+  state?: ShippingAddressState;
+  dispatch?: Dispatch<SetStateAction<ShippingAddressState>>;
+  disableDefaultUpdate?: boolean;
+};
 
-function UpdateAddressModal({ shippingAddress }: ParamsType) {
+function UpdateAddressModal({
+  data,
+  state,
+  dispatch,
+  disableDefaultUpdate,
+}: ParamsType) {
   const [open, setOpen] = useState(false);
 
   const updateAddressAction = async (
@@ -30,11 +40,24 @@ function UpdateAddressModal({ shippingAddress }: ParamsType) {
     formData: FormData
   ) => {
     try {
+      // Checkout page with selected shipping address state
+      if (dispatch && state?.id === data.id) {
+        // Optimistic update
+        dispatch({ ...data, ...Object.fromEntries(formData) });
+      }
+      // Update address to database
       await updateAddress(formData);
       toast.success('Shipping address is updated.');
+      // Close modal
       setOpen(false);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'An error occurred');
+    } catch {
+      // Checkout page with selected shipping address state
+      if (dispatch && state?.id === data.id) {
+        // Rollback
+        dispatch(data);
+      }
+      toast.error('Failed to update an address');
+      // Close modal
       setOpen(false);
     }
   };
@@ -42,7 +65,12 @@ function UpdateAddressModal({ shippingAddress }: ParamsType) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button type='button' variant='ghost' size='icon'>
+        <Button
+          type='button'
+          variant='ghost'
+          size='icon'
+          className='hover:cursor-pointer'
+        >
           <FaPencil />
         </Button>
       </DialogTrigger>
@@ -55,8 +83,9 @@ function UpdateAddressModal({ shippingAddress }: ParamsType) {
           {/* Content */}
           <div className='overflow-y-scroll max-h-[450px]'>
             <AddressForm
-              defaultValue={shippingAddress}
-              disableDefaultUpdate={shippingAddress.isDefault}
+              key={data.id}
+              defaultValue={data}
+              disableDefaultUpdate={disableDefaultUpdate}
             />
           </div>
           {/* Footer */}

@@ -1,11 +1,14 @@
-import { ShippingAddress } from '@prisma/client';
 import { Badge } from '../ui/badge';
 import { FaLocationDot } from 'react-icons/fa6';
 import UpdateAddressModal from './UpdateAddressModal';
 import DeleteAddressButton from './DeleteAddressButton';
 import { cn } from '@/lib/utils';
+import { FetchAllAddressesType } from '@/utils/types';
 
-type ParamsType = { addresses: Array<ShippingAddress>; className?: string };
+type ParamsType = {
+  addresses: FetchAllAddressesType;
+  className?: string;
+};
 
 function AddressList({ addresses, className }: ParamsType) {
   if (addresses.length < 1) return null;
@@ -41,7 +44,7 @@ function AddressList({ addresses, className }: ParamsType) {
               {/* Delete button & Update Button */}
               <div className='col-start-3 flex gap-x-1'>
                 {!isDefault && <DeleteAddressButton id={item.id} />}
-                <UpdateAddressModal shippingAddress={item} />
+                <UpdateAddressModal data={item} />
               </div>
             </div>
           </li>

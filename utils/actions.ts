@@ -1,6 +1,6 @@
 'use server';
 
-import { clerkClient, auth, currentUser, getAuth } from '@clerk/nextjs/server';
+import { clerkClient, auth, currentUser } from '@clerk/nextjs/server';
 import { isClerkAPIResponseError } from '@clerk/nextjs/errors';
 import { AllRoles, CartType, FormState, ProductCategory } from './types';
 import { redirect } from 'next/navigation';
@@ -15,11 +15,11 @@ import {
   userSchema,
   validateWithZodSchema,
 } from './schemas';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { collectProductUpdate, collectProductCreate } from './form';
 import db from './db';
 import { deleteImage, uploadImage } from './supabase';
-import { ProductVariant } from '@prisma/client';
+import { Prisma, ProductVariant, ShippingAddress } from '@prisma/client';
 
 const client = await clerkClient();
 
@@ -381,46 +381,52 @@ export const deleteProducts = async (formData: FormData) => {
   revalidatePath('/');
 };
 
-export const fetchAllAddresses = async () => {
-  const { userId } = await getAuthUser();
+export const fetchAllAddresses = async (userId: string) => {
   const addresses = await db.shippingAddress.findMany({
     where: { userId },
     orderBy: { createdAt: 'asc' },
+    omit: { userId: true },
   });
   return addresses;
 };
 
-export const createAddress = async (formData: FormData): Promise<void> => {
+export const createAddress = async (
+  formData: FormData
+): Promise<Omit<ShippingAddress, 'userId'>> => {
   // Only login user can perform an action
   const { userId } = await getAuthUser();
   // Input validation
   const rawData = Object.fromEntries(formData);
   const data = validateWithZodSchema(shippingAddressSchema, rawData);
   // Limit address to 3
-  const numOfShippingAddress = await db.shippingAddress.count({
+  const dbAddresses = await db.shippingAddress.findMany({
     where: { userId },
+    select: { id: true, isDefault: true },
   });
-  if (numOfShippingAddress === 3)
+  if (dbAddresses.length > 2)
     throw new Error('Shipping address is limited to 3');
   // The first address must be default.
-  if (numOfShippingAddress < 1) {
+  if (dbAddresses.length < 1) {
     data.isDefault = true;
-  } else {
+  } else if (data.isDefault) {
     // Ensure only 1 default address per 1 userId
-    if (data.isDefault) {
-      const oldDefault = await db.shippingAddress.findFirst({
-        where: { userId, isDefault: true },
+    const defaultAddress = dbAddresses.find((item) => item.isDefault === true);
+    if (defaultAddress) {
+      await db.shippingAddress.update({
+        where: { id: defaultAddress.id },
+        data: { isDefault: false },
       });
-      oldDefault &&
-        (await db.shippingAddress.update({
-          where: { id: oldDefault.id },
-          data: { isDefault: false },
-        }));
     }
   }
   // Crete shipping address
-  await db.shippingAddress.create({ data: { userId, ...data } });
-  // ⚠️ Revalidate tag
+  const shippingAddress = await db.shippingAddress.create({
+    data: { userId, ...data },
+    omit: { userId: true },
+  });
+  // Revalidate tag
+  revalidateTag(`${userId}-all-addresses`);
+
+  return shippingAddress;
 };
 
 export const updateAddress = async (formData: FormData): Promise<void> => {
@@ -441,21 +447,24 @@ export const updateAddress = async (formData: FormData): Promise<void> => {
   );
   // Ensure only 1 default address per 1 userId
   if (data.isDefault) {
-    const oldDefault = await db.shippingAddress.findFirst({
+    const dbDefault = await db.shippingAddress.findFirst({
       where: { userId: user.userId, isDefault: true },
+      select: { id: true },
     });
-    oldDefault &&
-      (await db.shippingAddress.update({
-        where: { id: oldDefault.id },
+    if (dbDefault) {
+      await db.shippingAddress.update({
+        where: { id: dbDefault.id },
         data: { isDefault: false },
-      }));
+      });
+    }
   }
   // Update address
   await db.shippingAddress.update({
     where: { id: addressId },
     data: { ...data },
   });
-  // ⚠️ Revalidate tag
+  // Revalidate tag
+  revalidateTag(`${user.userId}-all-addresses`);
 };
 
 export const deleteAddressAction = async (
@@ -473,7 +482,8 @@ export const deleteAddressAction = async (
     await authorizeOwner(dbAddress.userId, user);
     // Remove address from database
     await db.shippingAddress.delete({ where: { id: addressId } });
-    // ⚠️ Revalidate tag
+    //  Revalidate tag
+    revalidateTag(`${user.userId}-all-addresses`);
     return { message: 'Deleted shipping address', type: 'success' };
   } catch (error) {
     return renderError(error);
@@ -592,14 +602,13 @@ export const refreshCart = async (): Promise<CartType> => {
       };
     }
   }
-  // ⚠️ Clear cart cache;
+  // Revalidate tag
+  revalidateTag(`${user.id}-cart`);
   return returnData;
 };
 
-export const fetchCart = async (): Promise<CartType> => {
-  const user = await currentUser();
-  if (!user) return emptyCart;
-  const cart = await getMyCart(user.id);
+export const fetchCart = async (userId: string): Promise<CartType> => {
+  const cart = await getMyCart(userId);
   if (!cart || cart.cartItems.length < 1) return emptyCart;
 
   let returnData: CartType = { ...emptyCart };
@@ -648,7 +657,8 @@ export const clearCart = async () => {
   });
   if (!cart) throw new Error('No cart related with the user');
   await db.cartItem.deleteMany({ where: { cartId: cart.id } });
-  // ⚠️ Clear cart cache;
+  // Revalidate tag
+  revalidateTag(`${user.id}-cart`);
 };
 
 export const addToCart = async (formData: FormData) => {
@@ -719,7 +729,8 @@ export const addToCart = async (formData: FormData) => {
     cartItemId: id,
     state: { variantId, quantity },
   };
-  // ⚠️ Clear cart cache;
+  // Revalidate tag
+  revalidateTag(`${user.id}-cart`);
   return { returnData };
 };
 
@@ -805,8 +816,8 @@ export const updateCartItem = async (formData: FormData) => {
       },
     };
   }
-
-  // ⚠️ Revalidate tag
+  // Revalidate tag
+  revalidateTag(`${user.id}-cart`);
   return {
     returnData,
   };
@@ -822,82 +833,143 @@ export const deleteCartItem = async (id: string) => {
   if (!dbCartItem) throw new Error(`No cart item with id: "${id}"`);
   // Remove cart item from database
   await db.cartItem.delete({ where: { id } });
-  // ⚠️ Clear cart cache;
+  // Revalidate tag
+  revalidateTag(`${user.id}-cart`);
 };
 
-// ⚠️⚠️📢 DEV
-export const checkoutAction = async (userId: string) => {
+export const checkout = async (formData: FormData) => {
+  const { userId } = await getAuthUser();
+  const addressId = formData.get('addressId') as string;
+
+  // Validate shipping address
+  const dbShippingAddress = await db.shippingAddress.findUnique({
+    where: { id: addressId },
+  });
+  if (!dbShippingAddress) throw new Error('Please provide a shipping address');
+  // Validate cart items
   const cart = await db.cart.findUnique({
     where: { userId },
-    include: { cartItems: true },
+    include: {
+      cartItems: {
+        include: { productVariant: { include: { product: true } } },
+      },
+    },
   });
-  if (!cart?.cartItems) return;
-  // Create new order
+  if (!cart?.cartItems) throw new Error('Your cart is empty.');
+
+  const shippingFee = 100;
+  const shippingAddress = [
+    dbShippingAddress.receiver,
+    dbShippingAddress.phoneNumber,
+    dbShippingAddress.address,
+  ].join('\r\n');
+  // Create new empty order
   const order = await db.order.create({
     data: {
       userId,
-      shippingAddress: 'some address',
-      shippingFee: 50,
-      subtotal: 0.0,
-      total: 0.0,
+      shippingAddress,
+      shippingFee,
       clientSecret: 'client secret',
       paymentIntentId: 'payment intent id',
     },
+    select: { id: true },
   });
-  let checks: Promise<void>[] = [];
-  // Use transaction and row-level lock mode to avoid overselling issue.
+  // Place several order items in parallel
+  // Use transaction and row-level lock to avoid overselling issue.
+  let allTransactions: Promise<{ id: string }>[] = [];
   for (const cartItem of cart.cartItems) {
-    const { productVariantId, quantity } = cartItem;
+    const { quantity } = cartItem;
+    const dbProductVariant = cartItem.productVariant;
+    const dbProduct = cartItem.productVariant.product;
 
-    // BEGIN
-    // Lock product variant until
-    const check = db.$transaction(async (tx) => {
-      const dbProductVariant = (await tx.$queryRaw`
-        SELECT * FROM ProductVariant
-        WHERE id = ${productVariantId}
-        FOR UPDATE`) as ProductVariant;
-      if (!dbProductVariant) throw new Error(`Invalid product`);
-      if (dbProductVariant.stock < quantity) return;
-      // Create order item
-      await tx.orderItem.create({
+    const transaction = db.$transaction(async (tx) => {
+      // Row-level lock (via FOR UPDATE clause)
+      const dbData = await tx.$queryRaw<
+        {
+          discount: number;
+          stock: number;
+        }[]
+      >(Prisma.sql`SELECT discount, stock FROM "ProductVariant" 
+        WHERE id = ${dbProductVariant.id} FOR UPDATE`);
+
+      if (!dbData?.length) throw new Error('Invalid product');
+      if (dbData[0].stock < 1) throw new Error('Product is out of stock.');
+
+      // Ensure placed quantity doesn't exceed stock
+      const { stock, discount } = dbData[0];
+      const validQuantity = stock < quantity ? stock : quantity;
+      const total = validQuantity * (dbProduct.price * (1 - discount / 100));
+
+      // Create order item (Snapshot)
+      const orderItem = await tx.orderItem.create({
         data: {
           orderId: order.id,
-          productId: dbProductVariant.productId,
-          productVariantId: productVariantId,
-          productImage: 'image url',
-          productName: 'product name',
-          productSize: 'product size',
-          productColor: 'product color',
-          unitPrice: 0, // original price
-          discountAmount: 0,
-          quantity: cartItem.quantity,
-          total: 0,
+          productVariantId: dbProductVariant.id,
+          productId: dbProduct.id,
+          productImage: dbProduct.image,
+          productName: dbProduct.name,
+          productSize: dbProductVariant.size,
+          productColor: dbProductVariant.color,
+          price: dbProduct.price,
+          discount,
+          quantity: validQuantity,
+          total,
         },
+        select: { id: true },
       });
-      // Update product variant stock
+
+      // Update stock and sales (Both Product and Variant)
       await tx.productVariant.update({
         where: { id: dbProductVariant.id },
-        data: { stock: { decrement: quantity } },
+        data: {
+          stock: { decrement: validQuantity },
+          sales: { increment: validQuantity },
+          product: {
+            update: {
+              totalStock: { decrement: validQuantity },
+              totalSales: { increment: validQuantity },
+            },
+          },
+        },
       });
+
+      // Revalidate single product page
+      revalidatePath(`/products/${dbProduct.id}`);
+
+      return orderItem;
     });
-    // COMMIT
-
-    // Collect promise
-    checks = [...checks, check];
+    // Collect all transactions
+    allTransactions = [...allTransactions, transaction];
   }
-
-  // await all stock check
-  await Promise.all(checks);
-
-  // Check if order items more than zero
-  const confirmOrder = await db.order.findUnique({
-    where: { id: order.id },
-    include: { OrderItems: true },
-  });
-  if (!confirmOrder?.OrderItems || confirmOrder.OrderItems.length < 1) {
-    db.order.delete({ where: { id: order.id } });
+  // Await for all order items no matter what the results
+  // Users will always succeed on placing an order with valid items.
+  const orderItems = await Promise.allSettled(allTransactions);
+  const isAtLeastOneSuccess = orderItems.some(
+    (item) => item.status === 'fulfilled'
+  );
+  // If order items is less than 1
+  if (!isAtLeastOneSuccess) {
+    // Remove order from database
+    await db.order.delete({ where: { id: order.id } });
     throw new Error('Failed to place an order');
   }
+
+  // Clearing cart
+  await db.cart.delete({ where: { id: cart.id } });
+  // Revalidate homepage
+  revalidatePath('/');
+  // Revalidate single product page
+  const orderItemIds = new Set(
+    orderItems.reduce<string[]>((acc, item) => {
+      if (item.status === 'rejected') return acc;
+      return [...acc, item.value.id];
+    }, [])
+  );
+  for (const orderItemId of orderItemIds) {
+    revalidatePath(`/products/${orderItemId}`);
+  }
+  // Revalidate cart (Checkout Page)
+  revalidateTag(`${userId}-cart`);
 };
 
 export const fetchAllFavorites = async (searchParams: {

@@ -1,25 +1,24 @@
 'use client';
 
-import { FormState } from '@/utils/types';
 import FormContainer from '../form/FormContainer';
 import SubmitButton from '../form/SubmitButton';
 import { useClerk } from '@clerk/nextjs';
 import { deleteAccount } from '@/utils/actions';
-import { renderError } from '@/utils/clientFunctions';
 import { useAppDispatch } from '@/lib/hooks';
 import { loadingUser } from '@/lib/features/user/userSlice';
+import { toast } from 'sonner';
 
 function DeleteUserButton() {
   const dispatch = useAppDispatch();
   const { signOut } = useClerk();
-  const deleteUserAction = async (): Promise<FormState> => {
+  const deleteUserAction = async () => {
     try {
       deleteAccount();
       dispatch(loadingUser());
       signOut({ redirectUrl: '/' });
-      return { message: 'Account is closed.', type: 'success' };
-    } catch (error) {
-      return renderError(error);
+      toast.success('Account is closed.');
+    } catch {
+      toast.error('Failed to close an account');
     }
   };
   return (

@@ -55,7 +55,7 @@ function CartButton() {
             // With cart items
             <>
               {/* Cart Items List */}
-              <ul className='*:border-b md:*:border-b-0'>
+              <ul className='*:border-b md:*:border-b-0 overflow-y-auto max-h-[calc(100vh-250px)]'>
                 {Object.keys(cartItems).map((id) => {
                   return <CartItemList key={id} cartItemId={id} />;
                 })}
@@ -71,7 +71,7 @@ function CartButton() {
                 className='w-full font-medium tracking-wider'
                 onClick={() => dispatch(setCartState({ cartOpen: false }))}
               >
-                <Link href='/cart'>View Cart</Link>
+                <Link href='/checkout'>Checkout</Link>
               </Button>
               {/* Clear cart button */}
               <FormContainer action={clearCart}>

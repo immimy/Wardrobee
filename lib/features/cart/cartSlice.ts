@@ -497,6 +497,10 @@ const cartSlice = createSlice({
         // Clearing backup
         state._removedCart = {};
         state._removedCartItem = {};
+        // Clearing cart
+        state.cartItems = {};
+        state.totalQuantity = 0;
+        state.subtotal = 0;
       } else {
         // Case: In the process of clearing cart
         // Backup data before clearing

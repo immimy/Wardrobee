@@ -14,9 +14,16 @@ type ParamsType = {
   action: ActionFunction;
   onChange?: FormEventHandler;
   id?: string;
+  className?: string;
 };
 
-function FormContainer({ children, action, onChange, id }: ParamsType) {
+function FormContainer({
+  children,
+  action,
+  onChange,
+  id,
+  className,
+}: ParamsType) {
   const [state, formAction] = useActionState(action, initialState);
   useEffect(() => {
     if (state?.message) {
@@ -37,7 +44,7 @@ function FormContainer({ children, action, onChange, id }: ParamsType) {
     }
   }, [state]);
   return (
-    <form id={id} action={formAction} onChange={onChange}>
+    <form id={id} action={formAction} onChange={onChange} className={className}>
       {children}
     </form>
   );

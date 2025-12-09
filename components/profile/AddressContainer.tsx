@@ -1,9 +1,9 @@
-import { ShippingAddress } from '@prisma/client';
 import CreateAddressModal from '../address/CreateAddressModal';
 import Title from '../global/Title';
 import AddressList from '../address/AddressList';
+import { FetchAllAddressesType } from '@/utils/types';
 
-type ParamsType = { addresses: Array<ShippingAddress> };
+type ParamsType = { addresses: FetchAllAddressesType };
 
 function AddressContainer({ addresses }: ParamsType) {
   return (
