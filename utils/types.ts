@@ -61,7 +61,7 @@ type CartItemObject = {
     isUpdating?: boolean;
   };
 };
-type DeletedCartItemType = {
+export type DeletedCartItemType = {
   variantId: string;
   image: string;
   name: string;

@@ -11,13 +11,25 @@ import LoadingContainer from '../global/LoadingContainer';
 import SubmitButton from '../form/SubmitButton';
 import FormContainer from '../form/FormContainer';
 import { useAppDispatch, useAppSelector, useClearCart } from '@/lib/hooks';
-import { setCartState } from '@/lib/features/cart/cartSlice';
+import {
+  clearDeletedCartItems,
+  setCartState,
+} from '@/lib/features/cart/cartSlice';
+import DeletedCartItemList from '../cart/DeletedCartItemList';
 
 function CartButton() {
   const clearCart = useClearCart();
   const dispatch = useAppDispatch();
   const cartState = useAppSelector((store) => store.cart);
-  const { isLoading, cartOpen, cartItems, subtotal, totalQuantity } = cartState;
+  const {
+    isLoading,
+    cartOpen,
+    cartItems,
+    subtotal,
+    totalQuantity,
+    deletedCartItems,
+  } = cartState;
+  const isCartEmpty = isObjectEmpty(cartItems);
 
   return (
     <>
@@ -44,22 +56,45 @@ function CartButton() {
         <PopoverContent
           sideOffset={16}
           align='end'
-          className='bg-background text-foreground md:min-w-fit md:max-w-md w-full'
+          className='bg-background text-foreground md:min-w-fit max-w-screen md:max-w-md w-full'
         >
-          {isObjectEmpty(cartItems) ? (
-            // No cart items
-            <p className='text-center md:px-16 tracking-widest italic'>
-              Your cart is empty.
-            </p>
-          ) : (
-            // With cart items
-            <>
-              {/* Cart Items List */}
-              <ul className='*:border-b md:*:border-b-0 overflow-y-auto max-h-[calc(100vh-250px)]'>
+          {/* CONTENT LISTS */}
+          <ul className='overflow-y-auto max-h-[calc(100vh-250px)]'>
+            {/* DELETED CART ITEMS */}
+            {!isObjectEmpty(deletedCartItems) && (
+              <div className='border-b pb-2 w-full'>
+                <Button
+                  size='sm'
+                  variant='link'
+                  className='text-destructive/70 capitalize hover:cursor-pointer tracking-wider block mx-auto'
+                  onClick={() => dispatch(clearDeletedCartItems())}
+                >
+                  clear history
+                </Button>
+                {Object.entries(deletedCartItems).map(([key, item]) => (
+                  <DeletedCartItemList key={key} cartItem={item} />
+                ))}
+              </div>
+            )}
+            {/* CART ITEMS */}
+            {isCartEmpty ? (
+              // No cart items
+              <p className='text-center py-2 md:px-16 tracking-widest italic'>
+                Your cart is empty.
+              </p>
+            ) : (
+              // With cart items
+              <>
+                {/* CART ITEMS */}
                 {Object.keys(cartItems).map((id) => {
                   return <CartItemList key={id} cartItemId={id} />;
                 })}
-              </ul>
+              </>
+            )}
+          </ul>
+          {/* CONTENT BOTTOM */}
+          {!isCartEmpty && (
+            <>
               {/* Subtotal */}
               <span className='py-4 float-end text-md font-medium tracking-wider underline'>
                 Subtotal: {subtotal}

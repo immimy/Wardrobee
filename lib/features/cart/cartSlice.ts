@@ -547,6 +547,7 @@ const cartSlice = createSlice({
       state.totalQuantity = totalQuantity;
       state.subtotal = subtotal;
     },
+    clearDeletedCartItems: (state) => ({ ...state, deletedCartItems: {} }),
   },
   extraReducers(builder) {
     builder
@@ -575,5 +576,6 @@ export const {
   rollbackUpdateCartItem,
   rollbackRemoveCartItem,
   rollbackClearCart,
+  clearDeletedCartItems,
 } = cartSlice.actions;
 export default cartSlice.reducer;

@@ -40,8 +40,8 @@ function AddressContainer({ className }: ParamsType) {
       // Refresh cart
       dispatch(getFreshCart());
       toast.error('Failed to place an order.');
-      // Navigate to orders page
-      router.push('/dashboard/orders');
+      // Navigate to homepage
+      router.push('/');
     }
   };
 

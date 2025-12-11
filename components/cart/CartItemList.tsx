@@ -28,7 +28,7 @@ function CartItemList({ cartItemId }: ParamsType) {
   )!.stock;
 
   return (
-    <li>
+    <li className='border-b md:border-b-0'>
       <div className='py-6 md:py-4 flex flex-wrap gap-x-4 md:gap-x-10 items-center relative'>
         {/* Remove cart item button */}
         <Button
