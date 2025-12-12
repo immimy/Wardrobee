@@ -860,7 +860,7 @@ export const checkout = async (formData: FormData) => {
   const shippingFee = 100;
   const shippingAddress = [
     dbShippingAddress.receiver,
-    dbShippingAddress.phoneNumber,
+    `(${dbShippingAddress.phoneNumber})`,
     dbShippingAddress.address,
   ].join('\r\n');
   // Create new empty order
@@ -1054,4 +1054,23 @@ export const toggleFavorite = async ({
     });
     return resp;
   }
+};
+
+export const fetchAllOrders = async () => {
+  const { userId, role } = await getAuthUser();
+  let whereConditions = {};
+  if (role === 'user') {
+    whereConditions = { userId };
+  }
+  const orders = await db.order.findMany({
+    where: whereConditions,
+    omit: { clientSecret: true, paymentIntentId: true },
+    include: { orderItems: { select: { total: true } } },
+  });
+  const result = orders.map((item) => {
+    const { userId: dbUserId, orderItems, ...rest } = item;
+    const total = orderItems.reduce((acc, item) => acc + Number(item.total), 0);
+    return { ...rest, orderTotal: total, isOwner: String(dbUserId === userId) };
+  });
+  return result;
 };

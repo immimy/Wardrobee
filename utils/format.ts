@@ -6,6 +6,13 @@ export const priceFormatter = (input: number): string => {
   return thaiBaht.format(Number(input));
 };
 
+export const DateFormatter = (input: Date): string => {
+  return new Intl.DateTimeFormat('en-GB', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(input);
+};
+
 export const capitalizeFirstLetter = (input: any): string | any => {
   if (typeof input !== 'string') return input;
   if (input.length <= 1) return input.toUpperCase();
