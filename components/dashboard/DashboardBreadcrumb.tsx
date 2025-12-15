@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/breadcrumb';
 import { usePathname } from 'next/navigation';
 import PageOrLinkItem from './PageOrLinkItem';
+import Link from 'next/link';
 
 function DashboardBreadcrumb() {
   // example: '/admin/products/:id' -> '', 'admin', 'products', ':id'
@@ -20,7 +21,9 @@ function DashboardBreadcrumb() {
       <BreadcrumbList>
         {/* 1) Home page */}
         <BreadcrumbItem>
-          <BreadcrumbLink href='/'>Home</BreadcrumbLink>
+          <BreadcrumbLink asChild>
+            <Link href='/'>Home</Link>
+          </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         {/* 2) Dashboard page */}
@@ -41,7 +44,7 @@ function DashboardBreadcrumb() {
                 total={pathnameList.length}
                 index={2}
                 pathName={pathnameList[2]}
-                path={pathnameList.slice(0,3).join('/')}
+                path={pathnameList.slice(0, 3).join('/')}
               />
             </BreadcrumbItem>
           </>

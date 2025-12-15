@@ -1,8 +1,8 @@
 import DescriptionContent from '@/components/product/DescriptionContent';
 import { ProductWithVariants } from '@/utils/types';
-import Image from 'next/image';
 import AddToCartContainer from './AddToCartContainer';
 import StoreFavoriteButton from '../favorite/StoreFavoriteButton';
+import ImageContainer from '../global/ImageContainer';
 
 type ParamsType = { product: ProductWithVariants };
 function ProductContainer({ product }: ParamsType) {
@@ -11,15 +11,11 @@ function ProductContainer({ product }: ParamsType) {
   return (
     <section className='pt-8 grid gap-8 md:grid-cols-[380px_1fr] md:gap-10'>
       {/* Product Image */}
-      <figure className='relative h-68 md:h-[350px] transition-all overflow-hidden rounded-2xl shadow-xl'>
-        <Image
-          alt='product image'
-          src={image}
-          fill
-          sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
-          className='object-cover'
-        />
-      </figure>
+      <ImageContainer
+        src={image}
+        alt='product image'
+        className='h-68 md:h-[350px] transition-all rounded-2xl shadow-xl'
+      />
       {/* Product Details */}
       <article className='flex flex-col gap-y-4'>
         {/* Name & Brand */}

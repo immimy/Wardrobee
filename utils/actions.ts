@@ -1057,6 +1057,7 @@ export const fetchAllOrders = async () => {
     where: whereConditions,
     omit: { clientSecret: true, paymentIntentId: true },
     include: { orderItems: { select: { total: true } } },
+    orderBy: { updatedAt: 'desc' },
   });
   const result = orders.map((item) => {
     const { userId: dbUserId, orderItems, ...rest } = item;

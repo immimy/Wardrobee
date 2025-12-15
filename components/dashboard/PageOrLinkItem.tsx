@@ -1,5 +1,6 @@
 import { BreadcrumbLink, BreadcrumbPage } from '@/components/ui/breadcrumb';
 import { capitalizeFirstLetter } from '@/utils/format';
+import Link from 'next/link';
 
 type ParamsType = {
   total: number;
@@ -12,8 +13,8 @@ function PageOrLinkItem({ total, index, pathName, path }: ParamsType) {
   return (
     <>
       {total > index + 1 ? (
-        <BreadcrumbLink href={path}>
-          {capitalizeFirstLetter(pathName)}
+        <BreadcrumbLink asChild>
+          <Link href={path}>{capitalizeFirstLetter(pathName)}</Link>
         </BreadcrumbLink>
       ) : (
         <BreadcrumbPage className='capitalize'>{pathName}</BreadcrumbPage>
