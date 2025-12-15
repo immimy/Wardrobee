@@ -1,3 +1,5 @@
+'use client';
+
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
@@ -17,6 +19,7 @@ function ImageContainer({ alt, src, className }: ImageContainerParams) {
         sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
         className='object-cover'
         priority
+        onError={(e) => (e.currentTarget.srcset = '/images/image-404.svg')}
       />
     </figure>
   );

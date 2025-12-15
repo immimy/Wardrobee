@@ -16,6 +16,12 @@ export type NavLink = {
   icon?: IconType;
 };
 
+export type OrderStatus = 'PENDING' | 'PAID' | 'SHIPPED';
+export type OrderStatusStepType = {
+  icon: IconType;
+  text: OrderStatus;
+};
+
 export type FormState = {
   message: string;
   type: 'default' | 'success' | 'error';

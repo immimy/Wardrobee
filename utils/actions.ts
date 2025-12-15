@@ -29,29 +29,15 @@ export const getAuthUser = async () => {
   return { userId, role: (sessionClaims?.metadata.role || 'user') as AllRoles };
 };
 
-const authorizeRoles = async (
-  authorizedRoles: Array<AllRoles>,
-  user: Awaited<ReturnType<typeof getAuthUser>>
+const isAuthorizedUser = (
+  user: Awaited<ReturnType<typeof getAuthUser>>,
+  authorized: { roles?: AllRoles[]; dbUserId?: string }
 ) => {
-  if (!authorizedRoles.includes(user.role))
-    throw new Error('Unauthorized to perform this action.');
-};
-
-const authorizeOwnerOrAdmin = async (
-  dbUserId: string,
-  user: Awaited<ReturnType<typeof getAuthUser>>
-) => {
-  if (user.role === 'admin') return;
-  if (dbUserId !== user.userId)
-    throw new Error('Unauthorized to perform this action.');
-};
-
-const authorizeOwner = async (
-  dbUserId: string,
-  user: Awaited<ReturnType<typeof getAuthUser>>
-) => {
-  if (dbUserId !== user.userId)
-    throw new Error('Unauthorized to perform this action.');
+  // Check if user is the owner
+  if (authorized.dbUserId && authorized.dbUserId === user.userId) return;
+  // Check if user role is given permission
+  if (authorized.roles && authorized.roles.includes(user.role)) return;
+  throw new Error('Unauthorized to perform this action.');
 };
 
 const renderError = async (error: unknown): Promise<FormState> => {
@@ -186,7 +172,7 @@ export const fetchSingleProduct = async (id: string) => {
 export const createProduct = async (formData: FormData) => {
   const user = await getAuthUser();
   // Only allow admin or moderator to perform an action.
-  await authorizeRoles(['admin', 'moderator'], user);
+  isAuthorizedUser(user, { roles: ['admin', 'moderator'] });
 
   // Collect input data by fieldset
   const result = collectProductCreate(formData);
@@ -262,7 +248,7 @@ export const updateProduct = async (formData: FormData) => {
   });
   if (!dbProduct) throw new Error(`No product with id: "${productId}"`);
   // Only allow admin or creator who own the asset to perform an action.
-  await authorizeOwnerOrAdmin(dbProduct.creatorId, user);
+  isAuthorizedUser(user, { roles: ['admin'], dbUserId: dbProduct.creatorId });
   // Collect form data
   const {
     product: rawProduct,
@@ -368,9 +354,14 @@ export const deleteProducts = async (formData: FormData) => {
     throw new Error(`No product with id: "${productIds.concat(', ')}"`);
   // Only allow admin or creator who own the asset to perform an action.
   const creator = new Set(dbProducts.map((item) => item.creatorId));
-  if (creator.size > 1 && user.role !== 'admin')
-    throw new Error('Unauthorized to perform this action.');
-  await authorizeOwnerOrAdmin(dbProducts[0].creatorId, user);
+  if (creator.size > 1) {
+    isAuthorizedUser(user, { roles: ['admin'] });
+  } else {
+    isAuthorizedUser(user, {
+      roles: ['admin'],
+      dbUserId: dbProducts[0].creatorId,
+    });
+  }
   // Remove product from database
   await deleteImage(dbProducts.map((item) => item.image));
   await db.product.deleteMany({ where: { id: { in: productIds } } });
@@ -439,7 +430,7 @@ export const updateAddress = async (formData: FormData): Promise<void> => {
   if (!dbAddress)
     throw new Error(`No shipping address with id: "${addressId}"`);
   // Only allow user who own the asset to perform an action.
-  await authorizeOwner(dbAddress.userId, user);
+  isAuthorizedUser(user, { dbUserId: dbAddress.userId });
   // Input validation
   const data = validateWithZodSchema(
     shippingAddressSchema,
@@ -479,7 +470,7 @@ export const deleteAddressAction = async (
     if (!dbAddress)
       throw new Error(`No shipping address with id: "${addressId}"`);
     // Only allow user who own the asset to perform an action.
-    await authorizeOwner(dbAddress.userId, user);
+    isAuthorizedUser(user, { dbUserId: dbAddress.userId });
     // Remove address from database
     await db.shippingAddress.delete({ where: { id: addressId } });
     //  Revalidate tag
@@ -1073,4 +1064,23 @@ export const fetchAllOrders = async () => {
     return { ...rest, orderTotal: total, isOwner: String(dbUserId === userId) };
   });
   return result;
+};
+
+export const fetchSingleOrder = async (id: string) => {
+  const user = await getAuthUser();
+  // Fetch data from the database
+  const order = await db.order.findFirst({
+    where: { id },
+    include: { orderItems: true },
+    omit: { clientSecret: true, paymentIntentId: true },
+  });
+  if (!order) return redirect('/dashboard/orders');
+  const { userId, ...returnData } = order;
+  // User can only see their orders,
+  // but admin and moderator can see all orders.
+  isAuthorizedUser(user, {
+    roles: ['admin', 'moderator'],
+    dbUserId: userId,
+  });
+  return returnData;
 };
