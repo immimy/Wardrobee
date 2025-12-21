@@ -1,284 +1,374 @@
-[
-  {
-    "extension": "jpeg",
-    "name": "City Commuter",
-    "category": "bag",
-    "brand": "Aero Style",
-    "description": "This premium leather crossbody bag is designed for those who value both style and practicality. Crafted from soft yet durable leather, it features a compact, lightweight structure that makes carrying essentials effortless. The thoughtfully designed interior has enough room for your phone, wallet, keys, and small accessories, while the smooth zipper closure ensures everything stays secure. Its adjustable strap lets you wear it comfortably across your body or over the shoulder, adapting to your preferred style. Polished hardware accents and fine stitching add a touch of sophistication, making it versatile enough for daytime errands, travel, or an evening out. Whether paired with casual jeans or a sleek dress, this crossbody bag elevates your look with understated elegance and timeless charm.",
-    "price": 550,
-    "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE",
-    "totalSales": 330,
-    "totalStock": 95,
-    "variants": [
-      {
-        "color": "#444ad3",
-        "stock": 0,
-        "discount": 0,
-        "sales": 150,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      },
-      {
-        "color": "#46ee41",
-        "stock": 80,
-        "discount": 30,
-        "sales": 60,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      },
-      {
-        "color": "#ff5aa6",
-        "stock": 15,
-        "discount": 15,
-        "sales": 120,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      }
-    ]
-  },
-  {
-    "extension": "jpeg",
-    "name": "Downtown Tote",
-    "category": "bag",
-    "brand": "Free Spirit",
-    "description": "Built for versatility, this spacious canvas tote bag blends durability with modern design to become your reliable everyday companion. Made with high-quality, heavy-duty canvas and reinforced stitching, it is strong enough to carry laptops, books, groceries, or even gym gear. The wide opening allows easy access, while the roomy interior ensures you never run out of space. Designed with sturdy, comfortable handles, it sits well on your shoulder without strain, making it suitable for long commutes or weekend getaways. Its minimalist aesthetic gives it a clean, timeless look, and the neutral color palette pairs effortlessly with any outfit. Whether used for work, school, shopping, or casual outings, this tote provides a perfect balance between practicality and style, ensuring it remains your go-to bag for years to come.",
-    "price": 150,
-    "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE",
-    "totalSales": 89,
-    "totalStock": 330,
-    "variants": [
-      {
-        "color": "#9b6db7",
-        "stock": 150,
-        "discount": 0,
-        "sales": 50,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      },
-      {
-        "color": "#6758ee",
-        "stock": 180,
-        "discount": 0,
-        "sales": 39,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      }
-    ]
-  },
-  {
-    "extension": "jpeg",
-    "name": "Jetsetter Duffel",
-    "category": "bag",
-    "brand": "Calista",
-    "description": "Sophisticated and functional, this structured handbag is the ultimate accessory for those who seek elegance with utility. Made with premium materials, it features a roomy main compartment with multiple interior pockets, perfect for keeping essentials like your phone, cosmetics, notebook, and wallet organized. The sleek design is enhanced by polished metal accents, a magnetic clasp, and a sturdy base that helps the bag maintain its refined silhouette. Carry it with the elegant top handles for a polished office look, or attach the detachable shoulder strap for hands-free convenience during busy days. Its timeless design transitions seamlessly from professional settings to evening events, making it a versatile choice in your wardrobe. Perfectly blending classic charm with modern needs, this handbag elevates your style while providing the practicality required for everyday use.",
-    "price": 330,
-    "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE",
-    "totalSales": 120,
-    "totalStock": 890,
-    "variants": [
-      {
-        "color": "#aa2e89",
-        "stock": 350,
-        "discount": 50,
-        "sales": 20,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      },
-      {
-        "color": "#aa2e89",
-        "stock": 350,
-        "discount": 50,
-        "sales": 20,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      },
-      {
-        "color": "#aa2e89",
-        "stock": 190,
-        "discount": 15,
-        "sales": 80,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      }
-    ]
-  },
-  {
-    "extension": "jpeg",
-    "name": "Classic Linen Shirt",
-    "category": "clothes",
-    "brand": "Aero Style",
-    "description": "This classic linen shirt is crafted from breathable, lightweight fabric designed for all-day comfort. Featuring a modern slim fit with carefully tailored seams, it combines casual elegance with versatility. The natural linen texture keeps you cool in warm weather, while its durability ensures long-lasting wear. Ideal for both office settings and casual weekends, this shirt transitions effortlessly between occasions. With attention to detail in every stitch and buttons reinforced for added strength, it’s a timeless piece to elevate your wardrobe. Pair it with trousers for a polished look or jeans for a relaxed vibe. Whether you’re heading to a meeting, dinner, or a getaway, this shirt adds effortless style to your outfit.",
-    "price": 650,
-    "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE",
-    "totalSales": 3300,
-    "totalStock": 720,
-    "variants": [
-      {
-        "size": "sm",
-        "stock": 250,
-        "discount": 30,
-        "sales": 300,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      },
-      {
-        "size": "m",
-        "stock": 50,
-        "discount": 20,
-        "sales": 800,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      },
-      {
-        "size": "l",
-        "stock": 20,
-        "discount": 20,
-        "sales": 1200,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      },
-      {
-        "size": "xl",
-        "stock": 200,
-        "discount": 20,
-        "sales": 700,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      },
-      {
-        "size": "2xl",
-        "stock": 200,
-        "discount": 30,
-        "sales": 300,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      }
-    ]
-  },
-  {
-    "extension": "webp",
-    "name": "Slim Fit Denim Jacket",
-    "category": "clothes",
-    "brand": "Free Spirit",
-    "description": "A modern take on the classic denim jacket, this slim fit design offers both comfort and contemporary style. Constructed with durable cotton denim and accented with reinforced stitching, it’s built to withstand everyday wear while keeping you stylish. The versatile silhouette pairs easily with t-shirts, shirts, or even hoodies, making it an essential layering piece. Featuring practical front pockets, buttoned cuffs, and a tailored cut, it delivers a polished yet casual aesthetic. Whether worn for casual outings, city explorations, or weekend trips, this jacket is a wardrobe staple that balances durability, comfort, and timeless appeal.",
-    "price": 780,
-    "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE",
-    "totalSales": 2950,
-    "totalStock": 580,
-    "variants": [
-      {
-        "size": "m",
-        "stock": 0,
-        "discount": 20,
-        "sales": 1500,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      },
-      {
-        "size": "l",
-        "stock": 180,
-        "discount": 15,
-        "sales": 900,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      },
-      {
-        "size": "xl",
-        "stock": 400,
-        "discount": 10,
-        "sales": 550,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      }
-    ]
-  },
-  {
-    "extension": "jpg",
-    "name": "Casual Cotton Polo",
-    "category": "clothes",
-    "brand": "Prestige",
-    "description": "Designed with everyday comfort in mind, this cotton polo shirt combines breathable fabric with a tailored fit that flatters any body type. The soft cotton weave ensures durability and a lightweight feel, while the classic collar and two-button placket maintain a timeless look. Suitable for both casual and semi-formal settings, this polo offers flexibility and style for a range of occasions. Whether worn with chinos for a smart-casual office outfit or paired with shorts for relaxed weekends, it delivers reliable comfort and understated sophistication. Reinforced stitching ensures long-lasting wear, making it a dependable addition to your wardrobe.",
-    "price": 540,
-    "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE",
-    "totalSales": 2400,
-    "totalStock": 620,
-    "variants": [
-      {
-        "size": "xs",
-        "stock": 0,
-        "discount": 10,
-        "sales": 200,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      },
-      {
-        "size": "s",
-        "stock": 20,
-        "discount": 25,
-        "sales": 300,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      },
-      {
-        "size": "m",
-        "stock": 300,
-        "discount": 5,
-        "sales": 800,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      },
-      {
-        "size": "l",
-        "stock": 300,
-        "discount": 5,
-        "sales": 1000,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      },
-      {
-        "size": "xl",
-        "stock": 0,
-        "discount": 5,
-        "sales": 100,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      }
-    ]
-  },
-  {
-    "extension": "jpeg",
-    "name": "Plaid Wool Scarf",
-    "category": "accessory",
-    "brand": "Calista",
-    "description": "Wrap yourself in warmth and timeless style with this plaid wool scarf, designed to be both functional and fashionable. Made from high-quality wool, it offers exceptional softness and insulation against cold weather while remaining breathable. The classic plaid pattern adds a touch of sophistication that pairs seamlessly with coats, jackets, or sweaters, making it a versatile accessory for both casual and formal occasions. Its generous length allows for multiple styling options—drape it loosely over your shoulders, wrap it snugly around your neck, or knot it for a polished look. Durable yet lightweight, this scarf is crafted to withstand regular use without losing its softness or shape. Whether you’re heading to the office, exploring the city, or enjoying a winter getaway, this plaid wool scarf elevates your outfit while keeping you comfortably warm throughout the season.",
-    "price": 950,
-    "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE",
-    "totalSales": 3100,
-    "totalStock": 0,
-    "variants": [
-      {
-        "stock": 0,
-        "discount": 10,
-        "sales": 3100,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      }
-    ]
-  },
-  {
-    "extension": "jpeg",
-    "name": "Cable Knit Beanie",
-    "category": "accessory",
-    "brand": "Legacy Trek",
-    "description": "Embrace cozy comfort with this cable knit beanie, a must-have accessory for chilly days. Carefully knitted with thick yarn, it combines warmth, stretch, and style in one simple piece. The intricate cable knit pattern not only enhances texture but also adds a timeless charm, making it easy to pair with casual or outdoor looks. Designed with a snug yet comfortable fit, the beanie provides reliable insulation to keep your head and ears protected against the cold. Lightweight and easy to carry, it fits into your bag or pocket when not in use. Available in versatile colors, it complements any winter outfit and is suitable for both men and women. Perfect for outdoor activities, daily commutes, or cozy evenings by the fire, this beanie delivers practical warmth while adding a stylish finishing touch to your cold-weather wardrobe.",
-    "price": 720,
-    "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE",
-    "totalSales": 200,
-    "totalStock": 460,
-    "variants": [
-      {
-        "stock": 460,
-        "discount": 0,
-        "sales": 200,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      }
-    ]
-  },
-  {
-    "extension": "jpeg",
-    "name": "Knitted Mittens",
-    "category": "accessory",
-    "brand": "Wander Lux",
-    "description": "Stay warm and stylish with these knitted mittens, designed to keep your hands cozy without sacrificing comfort. Made from soft and durable yarn, they provide reliable insulation against winter chill while remaining breathable for extended wear. The stretchy knit ensures a snug fit, while the ribbed cuffs help trap heat and prevent cold air from seeping in. Their simple yet classic design makes them easy to pair with a variety of outerwear, from puffer jackets to wool coats. Perfect for everyday use, they offer functionality whether you’re walking, commuting, or enjoying outdoor activities like ice skating or winter markets. These mittens also make a thoughtful gift for loved ones during the colder months, as their timeless appeal and practical design suit all ages. Crafted for comfort and durability, they are a dependable companion to see you through winter in warmth and style.",
-    "price": 480,
-    "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE",
-    "totalSales": 150,
-    "totalStock": 20,
-    "variants": [
-      {
-        "stock": 20,
-        "discount": 10,
-        "sales": 150,
-        "creatorId": "user_2yGTnLjV2PmurUPSzZZZ9tnTkDE"
-      }
-    ]
-  }
-]
+{
+  "products": [
+    {
+      "extension": "jpeg",
+      "name": "City Commuter",
+      "category": "bag",
+      "brand": "Aero Style",
+      "description": "This premium leather crossbody bag is designed for those who value both style and practicality. Crafted from soft yet durable leather, it features a compact, lightweight structure that makes carrying essentials effortless. The thoughtfully designed interior has enough room for your phone, wallet, keys, and small accessories, while the smooth zipper closure ensures everything stays secure. Its adjustable strap lets you wear it comfortably across your body or over the shoulder, adapting to your preferred style. Polished hardware accents and fine stitching add a touch of sophistication, making it versatile enough for daytime errands, travel, or an evening out. Whether paired with casual jeans or a sleek dress, this crossbody bag elevates your look with understated elegance and timeless charm.",
+      "price": 550,
+      "totalSales": 330,
+      "totalStock": 95,
+      "featured": true,
+      "variants": [
+        {
+          "color": "#444ad3",
+          "stock": 0,
+          "discount": 0,
+          "sales": 150
+        },
+        {
+          "color": "#46ee41",
+          "stock": 80,
+          "discount": 30,
+          "sales": 60
+        },
+        {
+          "color": "#ff5aa6",
+          "stock": 15,
+          "discount": 15,
+          "sales": 120
+        }
+      ]
+    },
+    {
+      "extension": "jpeg",
+      "name": "Downtown Tote",
+      "category": "bag",
+      "brand": "Free Spirit",
+      "description": "Built for versatility, this spacious canvas tote bag blends durability with modern design to become your reliable everyday companion. Made with high-quality, heavy-duty canvas and reinforced stitching, it is strong enough to carry laptops, books, groceries, or even gym gear. The wide opening allows easy access, while the roomy interior ensures you never run out of space. Designed with sturdy, comfortable handles, it sits well on your shoulder without strain, making it suitable for long commutes or weekend getaways. Its minimalist aesthetic gives it a clean, timeless look, and the neutral color palette pairs effortlessly with any outfit. Whether used for work, school, shopping, or casual outings, this tote provides a perfect balance between practicality and style, ensuring it remains your go-to bag for years to come.",
+      "price": 150,
+      "totalSales": 89,
+      "totalStock": 330,
+      "featured": false,
+      "variants": [
+        {
+          "color": "#9b6db7",
+          "stock": 150,
+          "discount": 0,
+          "sales": 50
+        },
+        {
+          "color": "#6758ee",
+          "stock": 180,
+          "discount": 0,
+          "sales": 39
+        }
+      ]
+    },
+    {
+      "extension": "jpeg",
+      "name": "Jetsetter Duffel",
+      "category": "bag",
+      "brand": "Calista",
+      "description": "Sophisticated and functional, this structured handbag is the ultimate accessory for those who seek elegance with utility. Made with premium materials, it features a roomy main compartment with multiple interior pockets, perfect for keeping essentials like your phone, cosmetics, notebook, and wallet organized. The sleek design is enhanced by polished metal accents, a magnetic clasp, and a sturdy base that helps the bag maintain its refined silhouette. Carry it with the elegant top handles for a polished office look, or attach the detachable shoulder strap for hands-free convenience during busy days. Its timeless design transitions seamlessly from professional settings to evening events, making it a versatile choice in your wardrobe. Perfectly blending classic charm with modern needs, this handbag elevates your style while providing the practicality required for everyday use.",
+      "price": 330,
+      "totalSales": 120,
+      "totalStock": 890,
+      "featured": true,
+      "variants": [
+        {
+          "color": "#aa2e89",
+          "stock": 350,
+          "discount": 50,
+          "sales": 20
+        },
+        {
+          "color": "#aa2e89",
+          "stock": 350,
+          "discount": 50,
+          "sales": 20
+        },
+        {
+          "color": "#aa2e89",
+          "stock": 190,
+          "discount": 15,
+          "sales": 80
+        }
+      ]
+    },
+    {
+      "extension": "jpeg",
+      "name": "Classic Wanderer",
+      "category": "bag",
+      "brand": "Legacy Trek",
+      "description": "The Classic Wanderer is a versatile everyday bag designed for those who move with purpose and style. Crafted from durable, high-quality materials, it offers a clean silhouette that blends effortlessly with both casual and smart outfits. The thoughtfully sized interior provides enough space for daily essentials like your wallet, phone, keys, and small accessories, while secure closures keep everything protected on the go. Comfortable to carry and easy to style, this bag is ideal for city walks, travel, or daily commutes. With its timeless design and practical functionality, the Classic Wanderer is a reliable companion for every journey.",
+      "price": 200,
+      "totalSales": 500,
+      "totalStock": 20,
+      "featured": false,
+      "variants": [
+        {
+          "color": "#94aa66",
+          "stock": 10,
+          "discount": 0,
+          "sales": 200
+        },
+        {
+          "color": "#a67ad9",
+          "stock": 9,
+          "discount": 0,
+          "sales": 200
+        },
+        {
+          "color": "#8ed5dc",
+          "stock": 1,
+          "discount": 50,
+          "sales": 100
+        }
+      ]
+    },
+    {
+      "extension": "jpeg",
+      "name": "Classic Linen Shirt",
+      "category": "clothes",
+      "brand": "Aero Style",
+      "description": "This classic linen shirt is crafted from breathable, lightweight fabric designed for all-day comfort. Featuring a modern slim fit with carefully tailored seams, it combines casual elegance with versatility. The natural linen texture keeps you cool in warm weather, while its durability ensures long-lasting wear. Ideal for both office settings and casual weekends, this shirt transitions effortlessly between occasions. With attention to detail in every stitch and buttons reinforced for added strength, it’s a timeless piece to elevate your wardrobe. Pair it with trousers for a polished look or jeans for a relaxed vibe. Whether you’re heading to a meeting, dinner, or a getaway, this shirt adds effortless style to your outfit.",
+      "price": 650,
+      "totalSales": 3300,
+      "totalStock": 720,
+      "featured": false,
+      "variants": [
+        {
+          "size": "sm",
+          "stock": 250,
+          "discount": 30,
+          "sales": 300
+        },
+        {
+          "size": "m",
+          "stock": 50,
+          "discount": 20,
+          "sales": 800
+        },
+        {
+          "size": "l",
+          "stock": 20,
+          "discount": 20,
+          "sales": 1200
+        },
+        {
+          "size": "xl",
+          "stock": 200,
+          "discount": 20,
+          "sales": 700
+        },
+        {
+          "size": "2xl",
+          "stock": 200,
+          "discount": 30,
+          "sales": 300
+        }
+      ]
+    },
+    {
+      "extension": "webp",
+      "name": "Slim Fit Denim Jacket",
+      "category": "clothes",
+      "brand": "Free Spirit",
+      "description": "A modern take on the classic denim jacket, this slim fit design offers both comfort and contemporary style. Constructed with durable cotton denim and accented with reinforced stitching, it’s built to withstand everyday wear while keeping you stylish. The versatile silhouette pairs easily with t-shirts, shirts, or even hoodies, making it an essential layering piece. Featuring practical front pockets, buttoned cuffs, and a tailored cut, it delivers a polished yet casual aesthetic. Whether worn for casual outings, city explorations, or weekend trips, this jacket is a wardrobe staple that balances durability, comfort, and timeless appeal.",
+      "price": 780,
+      "totalSales": 2950,
+      "totalStock": 580,
+      "featured": false,
+      "variants": [
+        {
+          "size": "m",
+          "stock": 0,
+          "discount": 20,
+          "sales": 1500
+        },
+        {
+          "size": "l",
+          "stock": 180,
+          "discount": 15,
+          "sales": 900
+        },
+        {
+          "size": "xl",
+          "stock": 400,
+          "discount": 10,
+          "sales": 550
+        }
+      ]
+    },
+    {
+      "extension": "jpg",
+      "name": "Casual Cotton Polo",
+      "category": "clothes",
+      "brand": "Prestige",
+      "description": "Designed with everyday comfort in mind, this cotton polo shirt combines breathable fabric with a tailored fit that flatters any body type. The soft cotton weave ensures durability and a lightweight feel, while the classic collar and two-button placket maintain a timeless look. Suitable for both casual and semi-formal settings, this polo offers flexibility and style for a range of occasions. Whether worn with chinos for a smart-casual office outfit or paired with shorts for relaxed weekends, it delivers reliable comfort and understated sophistication. Reinforced stitching ensures long-lasting wear, making it a dependable addition to your wardrobe.",
+      "price": 540,
+      "totalSales": 2400,
+      "totalStock": 620,
+      "featured": false,
+      "variants": [
+        {
+          "size": "xs",
+          "stock": 0,
+          "discount": 10,
+          "sales": 200
+        },
+        {
+          "size": "s",
+          "stock": 20,
+          "discount": 25,
+          "sales": 300
+        },
+        {
+          "size": "m",
+          "stock": 300,
+          "discount": 5,
+          "sales": 800
+        },
+        {
+          "size": "l",
+          "stock": 300,
+          "discount": 5,
+          "sales": 1000
+        },
+        {
+          "size": "xl",
+          "stock": 0,
+          "discount": 5,
+          "sales": 100
+        }
+      ]
+    },
+    {
+      "extension": "webp",
+      "name": "Satin Wrap Dress",
+      "category": "clothes",
+      "brand": "Prestige",
+      "description": "The Satin Wrap Dress is designed to bring effortless elegance and confidence to every occasion. Crafted from smooth, lightweight satin, it drapes beautifully over the body, creating a soft sheen that catches the light with every movement. The wrap-style silhouette naturally flatters your figure, offering an adjustable fit that enhances the waist while providing comfort and flexibility. With its refined texture and graceful flow, this dress delivers a luxurious feel that instantly elevates your look.\nThoughtful details make this dress both stylish and practical. The V-neckline adds a touch of sophistication, while the wrap closure allows you to customize the fit to suit your shape. The fabric feels gentle against the skin, making it comfortable enough for long wear without compromising on style. Whether paired with heels for a formal event or styled with minimal accessories for a modern evening look, this dress adapts seamlessly to different settings.\nPerfect for dinners, celebrations, or special occasions, the Satin Wrap Dress is a timeless wardrobe essential. Its classic design ensures it never goes out of style, while the satin finish adds a modern, polished edge. Easy to dress up or down, it offers versatility for both day-to-night transitions and seasonal styling. If you’re looking for a piece that combines elegance, comfort, and enduring appeal, this dress is a confident choice.",
+      "price": 1000,
+      "totalSales": 0,
+      "totalStock": 1390,
+      "featured": true,
+      "variants": [
+        {
+          "size": "xs",
+          "stock": 20,
+          "discount": 10,
+          "sales": 0
+        },
+        {
+          "size": "s",
+          "stock": 300,
+          "discount": 10,
+          "sales": 0
+        },
+        {
+          "size": "m",
+          "stock": 750,
+          "discount": 10,
+          "sales": 0
+        },
+        {
+          "size": "l",
+          "stock": 300,
+          "discount": 10,
+          "sales": 0
+        },
+        {
+          "size": "xl",
+          "stock": 20,
+          "discount": 10,
+          "sales": 0
+        }
+      ]
+    },
+    {
+      "extension": "jpeg",
+      "name": "Plaid Wool Scarf",
+      "category": "accessory",
+      "brand": "Calista",
+      "description": "Wrap yourself in warmth and timeless style with this plaid wool scarf, designed to be both functional and fashionable. Made from high-quality wool, it offers exceptional softness and insulation against cold weather while remaining breathable. The classic plaid pattern adds a touch of sophistication that pairs seamlessly with coats, jackets, or sweaters, making it a versatile accessory for both casual and formal occasions. Its generous length allows for multiple styling options—drape it loosely over your shoulders, wrap it snugly around your neck, or knot it for a polished look. Durable yet lightweight, this scarf is crafted to withstand regular use without losing its softness or shape. Whether you’re heading to the office, exploring the city, or enjoying a winter getaway, this plaid wool scarf elevates your outfit while keeping you comfortably warm throughout the season.",
+      "price": 950,
+      "totalSales": 3100,
+      "totalStock": 0,
+      "featured": false,
+      "variants": [
+        {
+          "stock": 0,
+          "discount": 10,
+          "sales": 3100
+        }
+      ]
+    },
+    {
+      "extension": "jpeg",
+      "name": "Cable Knit Beanie",
+      "category": "accessory",
+      "brand": "Legacy Trek",
+      "description": "Embrace cozy comfort with this cable knit beanie, a must-have accessory for chilly days. Carefully knitted with thick yarn, it combines warmth, stretch, and style in one simple piece. The intricate cable knit pattern not only enhances texture but also adds a timeless charm, making it easy to pair with casual or outdoor looks. Designed with a snug yet comfortable fit, the beanie provides reliable insulation to keep your head and ears protected against the cold. Lightweight and easy to carry, it fits into your bag or pocket when not in use. Available in versatile colors, it complements any winter outfit and is suitable for both men and women. Perfect for outdoor activities, daily commutes, or cozy evenings by the fire, this beanie delivers practical warmth while adding a stylish finishing touch to your cold-weather wardrobe.",
+      "price": 720,
+      "totalSales": 200,
+      "totalStock": 460,
+      "featured": false,
+      "variants": [
+        {
+          "stock": 460,
+          "discount": 0,
+          "sales": 200
+        }
+      ]
+    },
+    {
+      "extension": "jpeg",
+      "name": "Knitted Mittens",
+      "category": "accessory",
+      "brand": "Wander Lux",
+      "description": "Stay warm and stylish with these knitted mittens, designed to keep your hands cozy without sacrificing comfort. Made from soft and durable yarn, they provide reliable insulation against winter chill while remaining breathable for extended wear. The stretchy knit ensures a snug fit, while the ribbed cuffs help trap heat and prevent cold air from seeping in. Their simple yet classic design makes them easy to pair with a variety of outerwear, from puffer jackets to wool coats. Perfect for everyday use, they offer functionality whether you’re walking, commuting, or enjoying outdoor activities like ice skating or winter markets. These mittens also make a thoughtful gift for loved ones during the colder months, as their timeless appeal and practical design suit all ages. Crafted for comfort and durability, they are a dependable companion to see you through winter in warmth and style.",
+      "price": 480,
+      "totalSales": 150,
+      "totalStock": 20,
+      "featured": false,
+      "variants": [
+        {
+          "stock": 20,
+          "discount": 10,
+          "sales": 150
+        }
+      ]
+    },
+    {
+      "extension": "webp",
+      "name": "Striped Fedora",
+      "category": "accessory",
+      "brand": "Calista",
+      "description": "The Striped Fedora is a refined statement piece designed to elevate your everyday style with effortless sophistication. Crafted from high-quality materials, this hat features a structured crown and a gently curved brim that create a classic fedora silhouette. The subtle striped pattern adds visual interest and a modern twist, making it stand out while remaining timeless. Lightweight and breathable, it offers comfortable wear throughout the day, whether you’re strolling through the city, attending outdoor events, or traveling in warm weather.\nAttention to detail defines the Striped Fedora’s design. The clean lines of the crown are complemented by a neatly finished band, enhancing its polished appearance without overpowering your outfit. The inner lining is smooth and comfortable, ensuring a secure yet relaxed fit that stays in place. Designed to balance style and practicality, the brim provides light sun protection while maintaining a sleek profile that pairs well with both casual and smart looks.\nVersatile and stylish, the Striped Fedora transitions seamlessly across seasons and occasions. Wear it with a summer dress, tailored trousers, or a casual shirt to instantly add character and confidence to your ensemble. Its timeless shape and distinctive striped detail make it a reliable accessory for those who appreciate subtle fashion statements. Whether you’re dressing up for an occasion or adding flair to a relaxed outfit, the Striped Fedora delivers elegance, comfort, and enduring appeal.",
+      "price": 700,
+      "totalSales": 150,
+      "totalStock": 160,
+      "featured": true,
+      "variants": [
+        {
+          "stock": 160,
+          "discount": 0,
+          "sales": 150
+        }
+      ]
+    }
+  ],
+  "addresses": [
+    {
+      "receiver": "Vincent Rudland",
+      "address": "88/12 Soi 15 Sukhumvit Rd.\nKhlong Toei, Bangkok 10110\nThailand",
+      "phoneNumber": "080-555-XXX",
+      "isDefault": true
+    },
+    {
+      "receiver": "Sherie Ameer-Beg",
+      "address": "120/5 Moo 4, Chaeng Watthana Rd.\nPak Kret, Nonthaburi 11120\nThailand",
+      "phoneNumber": "080-666-XXX",
+      "isDefault": false
+    },
+    {
+      "receiver": "Elfie Meaker",
+      "address": "45/89 Rama IX Road\nHuai Khwang, Bangkok 10310\nThailand",
+      "phoneNumber": "080-777-XXX",
+      "isDefault": false
+    }
+  ]
+}
