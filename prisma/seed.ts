@@ -3,6 +3,7 @@ import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 import { PrismaClient } from '@prisma/client';
 import seed from './seed.json' with {type: 'json'};
+import { getRandomData, randomNumber } from '@/utils/mock';
 
 const adminId = process.env.ADMIN_ID!;
 
@@ -24,11 +25,6 @@ const uploadImage = async (image:  Buffer, name: string) => {
   if (!data) throw new Error('Image upload failed');
   return supabase.storage.from(bucket).getPublicUrl(data.path).data.publicUrl;
 };
-
-const randomNumber = (min:number,max:number) => {
-  return Math.floor(Math.random() * (max-min+1)) + min;
-};
-
 
 async function main() {
   await Promise.all([
@@ -82,7 +78,7 @@ async function main() {
   // Place example orders (15 items)
   for(let i=0; i<15; i++){
     // Random shipping address
-    const randomAddress= dbAddresses[randomNumber(0,dbAddresses.length-1)]
+    const randomAddress = getRandomData(dbAddresses)
     const shippingAddress=[randomAddress.receiver, `(${randomAddress.phoneNumber})`, randomAddress.address].join(
     '\r\n'
   )
@@ -97,11 +93,9 @@ async function main() {
         data: Array.from({ length: randomNumber(1,5) }, () => {
           // Random value
           // 1. Product
-          const randomProduct = randomNumber(0,dbProducts.length-1);
-          const product = dbProducts[randomProduct];
+          const product=getRandomData(dbProducts)
           // 2. Variant
-          const randomVariant = randomNumber(0,product.variants.length-1);
-          const variant = product.variants[randomVariant];
+          const variant=getRandomData(product.variants)
           // 3. Quantity
           const quantity = randomNumber(1,3);
           return {

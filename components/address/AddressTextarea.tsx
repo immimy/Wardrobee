@@ -16,7 +16,12 @@ function AddressTextarea({ defaultValue }: ParamsType) {
       >
         address
       </Label>
-      <Textarea id='address' name='address' defaultValue={defaultValue} />
+      <Textarea
+        id='address'
+        name='address'
+        defaultValue={defaultValue}
+        required
+      />
     </div>
   );
 }

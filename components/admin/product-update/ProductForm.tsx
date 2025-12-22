@@ -14,6 +14,7 @@ import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { getFreshCart } from '@/lib/features/cart/cartSlice';
 
 function ProductForm() {
+  const { replaceWithMockData } = useProductUpdateContext();
   const dispatch = useAppDispatch();
   // Get current cart from store
   const { cartItems } = useAppSelector((store) => store.cart);
@@ -34,8 +35,19 @@ function ProductForm() {
     try {
       const formData = new FormData(e.currentTarget);
       // Update product to database
-      await updateProduct(formData);
+      const product = await updateProduct(formData);
       toast.success('Updated product successfully!');
+      // 📑 START: MOCK LAYER 📑
+      // Update form state (Display mock data) & Clear image input
+      replaceWithMockData({
+        ...product,
+        description: product.description ?? '',
+      });
+      const imageInput = document.getElementById(
+        'product-image'
+      ) as HTMLInputElement;
+      imageInput.value = '';
+      // 📑 END: MOCK LAYER 📑
       // Clear all products cache on SWR without revalidation
       allProductsMutate();
       // Ensure that the cart is always fresh

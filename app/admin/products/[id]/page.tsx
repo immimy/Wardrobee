@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { HiOutlineChevronDoubleLeft } from 'react-icons/hi';
 import ProductForm from '@/components/admin/product-update/ProductForm';
+import MockAlert from '@/components/global/MockAlert';
 
 type AdminProductParams = { params: Promise<{ id: string }> };
 
@@ -26,6 +27,8 @@ async function AdminProductPage({ params }: AdminProductParams) {
           back
         </Link>
       </Button>
+      {/* Mock alert */}
+      <MockAlert type='product' className='mb-3' />
       {/* Update product form */}
       <ProductProvider product={product}>
         <div className='grid gap-y-6'>

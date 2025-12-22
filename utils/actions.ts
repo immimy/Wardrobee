@@ -18,8 +18,9 @@ import {
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { collectProductUpdate, collectProductCreate } from './form';
 import db from './db';
-import { deleteImage, uploadImage } from './supabase';
+import { deleteImage } from './supabase';
 import { Prisma, ProductVariant, ShippingAddress } from '@prisma/client';
+import { getMockAddress, getMockProduct, uploadMockImage } from './mock';
 
 const client = await clerkClient();
 
@@ -183,13 +184,22 @@ export const createProduct = async (formData: FormData) => {
   // 1. Product validation
   // 1.1) Image
   const rawFile = product.image as File;
-  const file = validateWithZodSchema(imageSchema, rawFile);
-  const imageUrl = await uploadImage(file);
+  validateWithZodSchema(imageSchema, rawFile);
+  // 📑 Mock data layer (image) 📑
+  const imageUrl = await uploadMockImage();
   // 1.2) Data
   const validatedProduct = validateWithZodSchema(productSchema, {
     ...product,
     image: imageUrl,
   });
+  // 📑 Mock data layer (name, description) 📑
+  Object.assign(validatedProduct, { name: getMockProduct('name') as string });
+  if (product.description) {
+    Object.assign(validatedProduct, {
+      description: getMockProduct('description') as string,
+    });
+  }
+
   const { category } = validatedProduct;
   // 2. Product variant validation
   const validatedVariants = validateWithZodSchema(
@@ -244,7 +254,7 @@ export const updateProduct = async (formData: FormData) => {
   const productId = formData.get('product[id]') as string;
   const dbProduct = await db.product.findUnique({
     where: { id: productId },
-    select: { creatorId: true, image: true },
+    select: { creatorId: true, image: true, name: true, description: true },
   });
   if (!dbProduct) throw new Error(`No product with id: "${productId}"`);
   // Only allow admin or creator who own the asset to perform an action.
@@ -264,7 +274,8 @@ export const updateProduct = async (formData: FormData) => {
   let imageUrl = '';
   if (file.size) {
     // Update product image
-    imageUrl = await uploadImage(file);
+    // 📑 Mock data layer (image) 📑
+    imageUrl = await uploadMockImage();
     // Delete the old image from database storage
     await deleteImage(dbProduct.image);
   }
@@ -273,6 +284,19 @@ export const updateProduct = async (formData: FormData) => {
     ...rawProduct,
     image: imageUrl,
   });
+  // 📑 Mock data layer (name, description) 📑
+  if (dbProduct.name !== product.name) {
+    Object.assign(product, { name: getMockProduct('name') as string });
+  }
+  if (
+    product.description &&
+    (dbProduct.description ?? '') !== (product.description ?? '')
+  ) {
+    Object.assign(product, {
+      description: getMockProduct('description') as string,
+    });
+  }
+
   // 2. Created variants validation
   const createVariants = validateWithZodSchema(
     allProductVariantsSchema({ category: product.category }),
@@ -295,6 +319,7 @@ export const updateProduct = async (formData: FormData) => {
   const dbUpdateProduct = db.product.update({
     where: { id: productId },
     data: { ...product, totalStock: newTotalStock },
+    select: { image: true, name: true, description: true },
   });
   // Create variants
   let dbCreateVariants: Promise<ProductVariant>[] = [];
@@ -329,7 +354,7 @@ export const updateProduct = async (formData: FormData) => {
     : undefined;
 
   // Resolve all requests
-  await Promise.all([
+  const [updatedProduct] = await Promise.all([
     dbUpdateProduct,
     ...dbCreateVariants,
     ...dbUpdateVariants,
@@ -340,6 +365,8 @@ export const updateProduct = async (formData: FormData) => {
   revalidatePath(`/products/${productId}`);
   // 2. Homepage
   if (product.featured) revalidatePath('/');
+  // Return updated data to show that input has been successfully updated and replaced with mock data.
+  return updatedProduct;
 };
 
 export const deleteProducts = async (formData: FormData) => {
@@ -396,6 +423,12 @@ export const createAddress = async (
   });
   if (dbAddresses.length > 2)
     throw new Error('Shipping address is limited to 3');
+  // 📑 Mock data layer 📑
+  Object.assign(data, {
+    receiver: getMockAddress('receiver'),
+    address: getMockAddress('address'),
+    phoneNumber: getMockAddress('phoneNumber'),
+  });
   // The first address must be default.
   if (dbAddresses.length < 1) {
     data.isDefault = true;
@@ -420,7 +453,7 @@ export const createAddress = async (
   return shippingAddress;
 };
 
-export const updateAddress = async (formData: FormData): Promise<void> => {
+export const updateAddress = async (formData: FormData) => {
   const user = await getAuthUser();
   // Check if address is present
   const addressId = formData.get('id') as string;
@@ -436,6 +469,17 @@ export const updateAddress = async (formData: FormData): Promise<void> => {
     shippingAddressSchema,
     Object.fromEntries(formData)
   );
+  // 📑 Mock data layer 📑
+  if (dbAddress.receiver !== data.receiver) {
+    Object.assign(data, { receiver: getMockAddress('receiver') });
+  }
+  if (dbAddress.address !== data.address) {
+    Object.assign(data, { address: getMockAddress('address') });
+  }
+  if (dbAddress.phoneNumber !== data.phoneNumber) {
+    Object.assign(data, { phoneNumber: getMockAddress('phoneNumber') });
+  }
+
   // Ensure only 1 default address per 1 userId
   if (data.isDefault) {
     const dbDefault = await db.shippingAddress.findFirst({
@@ -450,12 +494,14 @@ export const updateAddress = async (formData: FormData): Promise<void> => {
     }
   }
   // Update address
-  await db.shippingAddress.update({
+  const updateAddress = await db.shippingAddress.update({
     where: { id: addressId },
     data: { ...data },
+    omit: { userId: true },
   });
   // Revalidate tag
   revalidateTag(`${user.userId}-all-addresses`);
+  return updateAddress;
 };
 
 export const deleteAddressAction = async (

@@ -11,6 +11,11 @@ type ContextType = {
     value: string | boolean
   ) => void;
   product: ProductWithVariants;
+  replaceWithMockData: (input: {
+    image: string;
+    name: string;
+    description: string;
+  }) => void;
 };
 const ProductUpdateContext = createContext<undefined | ContextType>(undefined);
 export const useProductUpdateContext = () => {
@@ -62,6 +67,11 @@ function ProductProvider({ children, product }: ParamsType) {
   ) => {
     setProductForm((state) => ({ ...state, [field]: value }));
   };
+  const replaceWithMockData = (input: {
+    image: string;
+    name: string;
+    description: string;
+  }) => setProductForm((state) => ({ ...state, ...input }));
 
   return (
     <ProductUpdateContext
@@ -70,6 +80,7 @@ function ProductProvider({ children, product }: ParamsType) {
         setImage,
         setProductData,
         product,
+        replaceWithMockData,
       }}
     >
       {children}

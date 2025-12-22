@@ -19,12 +19,14 @@ import FormContainer from '../form/FormContainer';
 import { toast } from 'sonner';
 import { FormState, ShippingAddressType } from '@/utils/types';
 import { ShippingAddressState } from '../checkout/CheckoutProvider';
+import MockAlert from '../global/MockAlert';
 
 type ParamsType = {
   data: ShippingAddressType;
   state?: ShippingAddressState;
   dispatch?: Dispatch<SetStateAction<ShippingAddressState>>;
   disableDefaultUpdate?: boolean;
+  isDemo?: boolean;
 };
 
 function UpdateAddressModal({
@@ -32,6 +34,7 @@ function UpdateAddressModal({
   state,
   dispatch,
   disableDefaultUpdate,
+  isDemo,
 }: ParamsType) {
   const [open, setOpen] = useState(false);
 
@@ -41,13 +44,18 @@ function UpdateAddressModal({
   ) => {
     try {
       // Checkout page with selected shipping address state
-      if (dispatch && state?.id === data.id) {
+      if (!isDemo && dispatch && state?.id === data.id) {
         // Optimistic update
         dispatch({ ...data, ...Object.fromEntries(formData) });
       }
       // Update address to database
-      await updateAddress(formData);
+      const address = await updateAddress(formData);
       toast.success('Shipping address is updated.');
+      // 📑 (Mock layer) Update address form state 📑
+      if (isDemo && dispatch && state?.id === data.id) {
+        // Optimistic update
+        dispatch({ ...address });
+      }
       // Close modal
       setOpen(false);
     } catch {
@@ -75,6 +83,8 @@ function UpdateAddressModal({
         </Button>
       </DialogTrigger>
       <DialogContent aria-describedby={undefined} className='p-4 sm:p-6 md:p-8'>
+        {/* Mock alert */}
+        <MockAlert type='address' />
         {/* Header */}
         <DialogHeader>
           <DialogTitle>Shipping Address</DialogTitle>

@@ -19,6 +19,8 @@ import { toast } from 'sonner';
 import FormContainer from '../form/FormContainer';
 import { FormState } from '@/utils/types';
 import { ShippingAddressState } from '../checkout/CheckoutProvider';
+import MockAlert from '../global/MockAlert';
+import { toastError } from '@/utils/clientFunctions';
 
 type ParamsType = {
   disableDefaultUpdate?: boolean;
@@ -44,8 +46,8 @@ function CreateAddressModal({
       // Update selected shipping address state (Checkout Page)
       if (dispatch && !state) dispatch({ ...shippingAddress });
       setOpen(false);
-    } catch {
-      toast.error('Failed to create an address');
+    } catch (error) {
+      toastError(error);
       setOpen(false);
     }
   };
@@ -61,6 +63,8 @@ function CreateAddressModal({
         </Button>
       </DialogTrigger>
       <DialogContent aria-describedby={undefined} className='p-4 sm:p-6 md:p-8'>
+        {/* Mock alert */}
+        <MockAlert type='address' />
         {/* Header */}
         <DialogHeader>
           <DialogTitle>Shipping Address</DialogTitle>
