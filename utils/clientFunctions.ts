@@ -87,9 +87,8 @@ export const isDarkTheme = (theme: string | undefined) => theme === 'dark';
 
 export const favoriteIndexSearch = (
   arr: FetchMyFavoriteIdsType,
-  target: string, // productId or id (favoriteId)
-  field?: string
-): number => binarySearch(arr, 0, arr.length - 1, target, field || 'productId');
+  target: string // productId
+): number => binarySearch(arr, 0, arr.length - 1, target, 'productId');
 
 // Array input must be sorted in ascending order.
 function binarySearch(

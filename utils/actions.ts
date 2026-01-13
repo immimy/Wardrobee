@@ -18,7 +18,7 @@ import {
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { collectProductUpdate, collectProductCreate } from './form';
 import db from './db';
-import { deleteImage } from './supabase';
+import { deleteImage, uploadImage } from './supabase';
 import { Prisma, ProductVariant, ShippingAddress } from '@prisma/client';
 import { getMockAddress, getMockProduct, uploadMockImage } from './mock';
 
@@ -49,11 +49,27 @@ const renderError = async (error: unknown): Promise<FormState> => {
   };
 };
 
+export const demoLogin = async (role: 'user' | 'moderator') => {
+  const client = await clerkClient();
+  let userId = '';
+  if (role === 'user') userId = process.env.USER_ID!;
+  if (role === 'moderator') userId = process.env.MOD_ID!;
+  const token = await client.signInTokens.createSignInToken({
+    userId,
+    expiresInSeconds: 60 * 60 * 24 * 7, // one week
+  });
+  redirect(token.url);
+};
+
 /////////////////////// Actions ///////////////////////
 
 export const updateProfile = async (formData: FormData): Promise<void> => {
   try {
     const { userId } = await getAuthUser();
+    if (userId === process.env.USER_ID || userId === process.env.MOD_ID)
+      throw new Error(
+        'Demo accounts are restricted from updating their usernames.'
+      );
     const rawData = Object.fromEntries(formData);
     const data = validateWithZodSchema(userSchema, rawData);
     await client.users.updateUser(userId, { ...data });
@@ -68,8 +84,14 @@ export const updateProfile = async (formData: FormData): Promise<void> => {
 export const deleteAccount = async () => {
   try {
     const { userId } = await getAuthUser();
+    if (userId === process.env.USER_ID || userId === process.env.MOD_ID)
+      throw new Error(
+        'Demo accounts are restricted from closing their accounts.'
+      );
     await client.users.deleteUser(userId);
   } catch (error) {
+    if (!(error instanceof Error))
+      throw new Error('Failed to close an account');
     throw error;
   }
 };
@@ -152,6 +174,7 @@ export const fetchAllProducts = async (searchParams: {
 };
 
 export const fetchSingleProduct = async (id: string) => {
+  const user = await currentUser();
   const product = await db.product.findUnique({
     where: { id },
     include: {
@@ -165,6 +188,7 @@ export const fetchSingleProduct = async (id: string) => {
           stock: true,
         },
       },
+      favorites: { where: { userId: user?.id }, select: { id: true } },
     },
   });
   return product;
@@ -186,18 +210,25 @@ export const createProduct = async (formData: FormData) => {
   const rawFile = product.image as File;
   validateWithZodSchema(imageSchema, rawFile);
   // 📑 Mock data layer (image) 📑
-  const imageUrl = await uploadMockImage();
+  let imageUrl = '';
+  if (user.role !== 'admin') {
+    imageUrl = await uploadMockImage();
+  } else {
+    imageUrl = await uploadImage(rawFile);
+  }
   // 1.2) Data
   const validatedProduct = validateWithZodSchema(productSchema, {
     ...product,
     image: imageUrl,
   });
   // 📑 Mock data layer (name, description) 📑
-  Object.assign(validatedProduct, { name: getMockProduct('name') as string });
-  if (product.description) {
-    Object.assign(validatedProduct, {
-      description: getMockProduct('description') as string,
-    });
+  if (user.role !== 'admin') {
+    Object.assign(validatedProduct, { name: getMockProduct('name') as string });
+    if (product.description) {
+      Object.assign(validatedProduct, {
+        description: getMockProduct('description') as string,
+      });
+    }
   }
 
   const { category } = validatedProduct;
@@ -275,7 +306,11 @@ export const updateProduct = async (formData: FormData) => {
   if (file.size) {
     // Update product image
     // 📑 Mock data layer (image) 📑
-    imageUrl = await uploadMockImage();
+    if (user.role !== 'admin') {
+      imageUrl = await uploadMockImage();
+    } else {
+      imageUrl = await uploadImage(file);
+    }
     // Delete the old image from database storage
     await deleteImage(dbProduct.image);
   }
@@ -285,12 +320,13 @@ export const updateProduct = async (formData: FormData) => {
     image: imageUrl,
   });
   // 📑 Mock data layer (name, description) 📑
-  if (dbProduct.name !== product.name) {
+  if (dbProduct.name !== product.name && user.role !== 'admin') {
     Object.assign(product, { name: getMockProduct('name') as string });
   }
   if (
     product.description &&
-    (dbProduct.description ?? '') !== (product.description ?? '')
+    (dbProduct.description ?? '') !== (product.description ?? '') &&
+    user.role !== 'admin'
   ) {
     Object.assign(product, {
       description: getMockProduct('description') as string,
@@ -361,9 +397,7 @@ export const updateProduct = async (formData: FormData) => {
     dbDeleteVariants,
   ]);
   // Revalidate path
-  // 1. Single product page
-  revalidatePath(`/products/${productId}`);
-  // 2. Homepage
+  // 1. Homepage
   if (product.featured) revalidatePath('/');
   // Return updated data to show that input has been successfully updated and replaced with mock data.
   return updatedProduct;
@@ -393,9 +427,7 @@ export const deleteProducts = async (formData: FormData) => {
   await deleteImage(dbProducts.map((item) => item.image));
   await db.product.deleteMany({ where: { id: { in: productIds } } });
   // Revalidate paths
-  // 1. Single product page
-  dbProducts.forEach((item) => revalidatePath(`/products/${item.id}`));
-  // 2. Homepage
+  // 1. Homepage
   revalidatePath('/');
 };
 
@@ -970,9 +1002,6 @@ export const checkout = async (formData: FormData) => {
         },
       });
 
-      // Revalidate single product page
-      revalidatePath(`/products/${dbProduct.id}`);
-
       return orderItem;
     });
     // Collect all transactions
@@ -995,16 +1024,6 @@ export const checkout = async (formData: FormData) => {
   await db.cart.delete({ where: { id: cart.id } });
   // Revalidate homepage
   revalidatePath('/');
-  // Revalidate single product page
-  const orderItemIds = new Set(
-    orderItems.reduce<string[]>((acc, item) => {
-      if (item.status === 'rejected') return acc;
-      return [...acc, item.value.id];
-    }, [])
-  );
-  for (const orderItemId of orderItemIds) {
-    revalidatePath(`/products/${orderItemId}`);
-  }
   // Revalidate cart (Checkout Page)
   revalidateTag(`${userId}-cart`);
 };
@@ -1059,9 +1078,10 @@ export const fetchAllFavorites = async (searchParams: {
 };
 
 export const fetchMyFavoriteIds = async () => {
-  const { userId } = await getAuthUser();
+  const user = await currentUser();
+  if (!user) return [];
   const favorites = await db.favorite.findMany({
-    where: { userId },
+    where: { userId: user?.id },
     omit: { userId: true },
     orderBy: { productId: 'asc' }, // For binary search
   });
@@ -1081,7 +1101,7 @@ export const toggleFavorite = async ({
   if (favoriteId) {
     // Delete favorite
     await db.favorite.delete({ where: { id: favoriteId } });
-    // Revalidate favorite page
+    // Revalidate current page
     if (pathname) revalidatePath(pathname);
   } else {
     // Create favorite
@@ -1089,6 +1109,8 @@ export const toggleFavorite = async ({
       data: { userId, productId },
       omit: { userId: true },
     });
+    // Revalidate current page
+    if (pathname) revalidatePath(pathname);
     return resp;
   }
 };

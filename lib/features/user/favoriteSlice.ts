@@ -70,14 +70,10 @@ const favoriteSlice = createSlice({
       // Rollback favorite
       state.favorites = removeItemFromArray(state.favorites, favoriteIndex);
     },
-    removeFavorite: (state, action: PayloadAction<{ favoriteId: string }>) => {
-      const { favoriteId } = action.payload;
+    removeFavorite: (state, action: PayloadAction<{ productId: string }>) => {
+      const { productId } = action.payload;
       // Find order in favorites by favorite id
-      const favoriteIndex = favoriteIndexSearch(
-        state.favorites,
-        favoriteId,
-        'id'
-      );
+      const favoriteIndex = favoriteIndexSearch(state.favorites, productId);
       // Remove favorite
       state.favorites = removeItemFromArray(state.favorites, favoriteIndex);
     },

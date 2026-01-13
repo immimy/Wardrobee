@@ -6,6 +6,7 @@ import {
   fetchAllAddresses,
   fetchAllProducts,
   fetchMyFavoriteIds,
+  fetchSingleProduct,
 } from './actions';
 
 export type AllRoles = 'user' | Roles;
@@ -130,6 +131,10 @@ export type ProductWithVariants = Prisma.ProductGetPayload<
 
 export type FetchAllProductsType = Awaited<ReturnType<typeof fetchAllProducts>>;
 export type AllProductsType = FetchAllProductsType['data'];
+
+export type SingleProductType = NonNullable<
+  Awaited<ReturnType<typeof fetchSingleProduct>>
+>;
 
 export type CreateProductType = Awaited<ReturnType<typeof createProduct>>;
 

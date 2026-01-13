@@ -182,7 +182,7 @@ export const useToggleFavorite = () => {
         dispatch(addFavorite({ productId, favoriteId: resp?.id }));
       } else {
         // Optimistic response
-        dispatch(removeFavorite({ favoriteId }));
+        dispatch(removeFavorite({ productId }));
         // Toggle favorite in the database
         await toggleFavorite({ favoriteId, productId, pathname });
       }

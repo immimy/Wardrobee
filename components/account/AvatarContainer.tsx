@@ -6,7 +6,7 @@ import FormContainer from '../form/FormContainer';
 import AvatarImage from '../global/AvatarImage';
 import { useUser } from '@clerk/nextjs';
 import { FormState } from '@/utils/types';
-import { validateAvatar } from '@/utils/clientFunctions';
+import { toastError, validateAvatar } from '@/utils/clientFunctions';
 import { redirect } from 'next/navigation';
 import { useAppDispatch } from '@/lib/hooks';
 import { setUser } from '@/lib/features/user/userSlice';
@@ -22,6 +22,12 @@ function AvatarContainer() {
     formData: FormData
   ) => {
     try {
+      // Demo guard
+      if (user?.username === 'user' || user?.username === 'moderator')
+        throw new Error(
+          'Demo accounts are restricted from updating theirs avatars.'
+        );
+
       const file = formData.get('avatar');
       const validatedFile = validateAvatar(file);
       // Update profile image (Clerk API)
@@ -31,22 +37,31 @@ function AvatarContainer() {
       // Update user state
       dispatch(setUser({ image }));
       toast.success('Avatar is updated.');
-    } catch {
-      toast.success('Failed to update avatar');
+    } catch (error) {
+      if (error instanceof Error) return toastError(error);
+      toast.error('Failed to update avatar');
     }
   };
 
   const deleteAvatarAction = async () => {
     try {
+      // Demo guard
+      if (user?.username === 'user' || user?.username === 'moderator')
+        throw new Error(
+          'Demo accounts are restricted from deleting theirs avatars.'
+        );
+
       // Delete profile image (Clerk API)
       user!.setProfileImage({ file: null });
       // Update user state
       dispatch(setUser({ image: null }));
       toast.success('Avatar is deleted.');
-    } catch {
+    } catch (error) {
+      if (error instanceof Error) return toastError(error);
       toast.error('Failed to delete avatar');
     }
   };
+
   return (
     <div className='mt-6 px-4 flex justify-center items-center gap-x-6'>
       <AvatarImage height={128} width={128} className='h-32 w-32 min-w-32' />

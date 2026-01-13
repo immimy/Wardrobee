@@ -6,6 +6,8 @@ import {
   LinksDropdownLazyLoading,
   ToggleThemeLazyLoading,
 } from './LazyLoading';
+import DemoLogin from './DemoLogin';
+import { SignedOut } from '@clerk/nextjs';
 
 async function Navbar() {
   return (
@@ -14,6 +16,9 @@ async function Navbar() {
         <HomeButton />
         <NavSearch />
         <div className='flex items-center gap-x-2 dark:*:bg-muted dark:*:text-muted-foreground dark:*:shadow-foreground/50'>
+          <SignedOut>
+            <DemoLogin />
+          </SignedOut>
           <ToggleThemeLazyLoading />
           <CartContainerLazyLoading />
           <LinksDropdownLazyLoading />

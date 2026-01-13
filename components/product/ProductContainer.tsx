@@ -1,10 +1,10 @@
 import DescriptionContent from '@/components/product/DescriptionContent';
-import { ProductWithVariants } from '@/utils/types';
+import { SingleProductType } from '@/utils/types';
 import AddToCartContainer from './AddToCartContainer';
-import StoreFavoriteButton from '../favorite/StoreFavoriteButton';
 import ImageContainer from '../global/ImageContainer';
+import StaticFavoriteButton from '../favorite/StaticFavoriteButton';
 
-type ParamsType = { product: ProductWithVariants };
+type ParamsType = { product: SingleProductType };
 function ProductContainer({ product }: ParamsType) {
   const { image, name, brand, description } = product;
 
@@ -27,7 +27,10 @@ function ProductContainer({ product }: ParamsType) {
             <p className='text-lg md:text-xl font-medium uppercase'>{brand}</p>
           </div>
           {/* Favorite Button */}
-          <StoreFavoriteButton productId={product.id} text='favorite' />
+          <StaticFavoriteButton
+            productId={product.id}
+            favoriteId={product?.favorites[0]?.id}
+          />
         </header>
         {/* Description */}
         <DescriptionContent description={description} />

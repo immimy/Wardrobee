@@ -8,15 +8,10 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import Link from 'next/link';
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  SignOutButton,
-} from '@clerk/nextjs';
+import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 import AvatarImage from '../global/AvatarImage';
 import ProtectedLinkItems from './ProtectedLinkItems';
-import LoadingUserButton from './LoadingUserButton';
+import CustomSignOutButton from './CustomSignOutButton';
 
 function LinksDropdown() {
   return (
@@ -50,19 +45,13 @@ function LinksDropdown() {
         <DropdownMenuItem>
           {/* Sign in */}
           <SignedIn>
-            <LoadingUserButton>
-              <SignOutButton>
-                <span className='w-full hover:cursor-pointer'>Sign out</span>
-              </SignOutButton>
-            </LoadingUserButton>
+            <CustomSignOutButton />
           </SignedIn>
           {/* Sign out */}
           <SignedOut>
-            <LoadingUserButton>
-              <SignInButton mode='modal'>
-                <span className='w-full hover:cursor-pointer'>Sign in</span>
-              </SignInButton>
-            </LoadingUserButton>
+            <SignInButton mode='modal'>
+              <button className='w-full hover:cursor-pointer'>Sign in</button>
+            </SignInButton>
           </SignedOut>
         </DropdownMenuItem>
       </DropdownMenuContent>
