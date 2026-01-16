@@ -49,18 +49,6 @@ const renderError = async (error: unknown): Promise<FormState> => {
   };
 };
 
-export const demoLogin = async (role: 'user' | 'moderator') => {
-  const client = await clerkClient();
-  let userId = '';
-  if (role === 'user') userId = process.env.USER_ID!;
-  if (role === 'moderator') userId = process.env.MOD_ID!;
-  const token = await client.signInTokens.createSignInToken({
-    userId,
-    expiresInSeconds: 60 * 60 * 24 * 7, // one week
-  });
-  redirect(token.url);
-};
-
 /////////////////////// Actions ///////////////////////
 
 export const updateProfile = async (formData: FormData): Promise<void> => {
