@@ -1,6 +1,8 @@
 import { fetchAllProducts, getAuthUser } from '@/utils/actions';
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export const GET = async (req: NextRequest) => {
   const searchParams = req.nextUrl.searchParams;
   const queryParams = Object.fromEntries(searchParams.entries());

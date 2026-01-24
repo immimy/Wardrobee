@@ -1,27 +1,14 @@
 import Container from '@/components/global/Container';
-import NoProductFound from '@/components/global/NotFoundContainer';
 import Title from '@/components/global/Title';
+import BestSellerProducts from '@/components/homepage/BestSellerProducts';
+import FeaturedProducts from '@/components/homepage/FeaturedProducts';
 import HeroCarousel from '@/components/homepage/HeroCarousel';
-import ProductCarousel from '@/components/homepage/ProductCarousel';
-import { fetchAllProducts } from '@/utils/actions';
+import CardsSkeleton from '@/components/skeleton/CardsSkeleton';
+import { Suspense } from 'react';
 
-// Time-based revalidation
-// So the products data will be refreshed once a week.
-export const revalidate = 604800; // once a week
+export const dynamic = 'force-dynamic';
 
-async function Homepage() {
-  const limit = '30';
-  const [featured, bestseller] = await Promise.all([
-    fetchAllProducts({
-      featured: 'on',
-      limit,
-    }),
-    fetchAllProducts({
-      bestseller: 'on',
-      limit,
-    }),
-  ]);
-
+function Homepage() {
   return (
     <Container className='pt-8 md:pt-12 pb-16'>
       {/* Hero */}
@@ -48,18 +35,14 @@ async function Homepage() {
       <section className='mt-16 md:mt-8'>
         {/* Featured products */}
         <Title title='featured products' />
-        {featured.data.length ? (
-          <ProductCarousel products={featured} />
-        ) : (
-          <NoProductFound className='py-4' />
-        )}
+        <Suspense fallback={<CardsSkeleton number={3} />}>
+          <FeaturedProducts />
+        </Suspense>
         {/* Best-selling products */}
         <Title title='bestseller' />
-        {bestseller.data.length ? (
-          <ProductCarousel products={bestseller} />
-        ) : (
-          <NoProductFound className='py-4' />
-        )}
+        <Suspense fallback={<CardsSkeleton number={3} />}>
+          <BestSellerProducts />
+        </Suspense>
       </section>
     </Container>
   );

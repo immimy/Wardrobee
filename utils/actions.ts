@@ -32,7 +32,7 @@ export const getAuthUser = async () => {
 
 const isAuthorizedUser = (
   user: Awaited<ReturnType<typeof getAuthUser>>,
-  authorized: { roles?: AllRoles[]; dbUserId?: string }
+  authorized: { roles?: AllRoles[]; dbUserId?: string },
 ) => {
   // Check if user is the owner
   if (authorized.dbUserId && authorized.dbUserId === user.userId) return;
@@ -56,7 +56,7 @@ export const updateProfile = async (formData: FormData): Promise<void> => {
     const { userId } = await getAuthUser();
     if (userId === process.env.USER_ID || userId === process.env.MOD_ID)
       throw new Error(
-        'Demo accounts are restricted from updating their usernames.'
+        'Demo accounts are restricted from updating their usernames.',
       );
     const rawData = Object.fromEntries(formData);
     const data = validateWithZodSchema(userSchema, rawData);
@@ -74,7 +74,7 @@ export const deleteAccount = async () => {
     const { userId } = await getAuthUser();
     if (userId === process.env.USER_ID || userId === process.env.MOD_ID)
       throw new Error(
-        'Demo accounts are restricted from closing their accounts.'
+        'Demo accounts are restricted from closing their accounts.',
       );
     await client.users.deleteUser(userId);
   } catch (error) {
@@ -223,12 +223,12 @@ export const createProduct = async (formData: FormData) => {
   // 2. Product variant validation
   const validatedVariants = validateWithZodSchema(
     allProductVariantsSchema({ category }),
-    Object.values(result)
+    Object.values(result),
   );
   // Calculate total stock
   const totalStock = validatedVariants.reduce(
     (total, variant) => total + variant.stock,
-    0
+    0,
   );
 
   // Create product with total product stock
@@ -261,8 +261,6 @@ export const createProduct = async (formData: FormData) => {
     },
   });
 
-  // Revalidate homepage
-  if (newProduct.featured) revalidatePath('/');
   // Return new created product
   return newProduct;
 };
@@ -324,12 +322,12 @@ export const updateProduct = async (formData: FormData) => {
   // 2. Created variants validation
   const createVariants = validateWithZodSchema(
     allProductVariantsSchema({ category: product.category }),
-    createdVariants
+    createdVariants,
   );
   // 3. Updated variants validation
   const updateVariants = validateWithZodSchema(
     allProductVariantsSchema({ category: product.category, requiredId: true }),
-    updatedVariants
+    updatedVariants,
   );
 
   // Calculate new total product stock
@@ -384,9 +382,7 @@ export const updateProduct = async (formData: FormData) => {
     ...dbUpdateVariants,
     dbDeleteVariants,
   ]);
-  // Revalidate path
-  // 1. Homepage
-  if (product.featured) revalidatePath('/');
+
   // Return updated data to show that input has been successfully updated and replaced with mock data.
   return updatedProduct;
 };
@@ -414,9 +410,6 @@ export const deleteProducts = async (formData: FormData) => {
   // Remove product from database
   await deleteImage(dbProducts.map((item) => item.image));
   await db.product.deleteMany({ where: { id: { in: productIds } } });
-  // Revalidate paths
-  // 1. Homepage
-  revalidatePath('/');
 };
 
 export const fetchAllAddresses = async (userId: string) => {
@@ -429,7 +422,7 @@ export const fetchAllAddresses = async (userId: string) => {
 };
 
 export const createAddress = async (
-  formData: FormData
+  formData: FormData,
 ): Promise<Omit<ShippingAddress, 'userId'>> => {
   // Only login user can perform an action
   const { userId } = await getAuthUser();
@@ -487,7 +480,7 @@ export const updateAddress = async (formData: FormData) => {
   // Input validation
   const data = validateWithZodSchema(
     shippingAddressSchema,
-    Object.fromEntries(formData)
+    Object.fromEntries(formData),
   );
   // 📑 Mock data layer 📑
   if (dbAddress.receiver !== data.receiver) {
@@ -525,7 +518,7 @@ export const updateAddress = async (formData: FormData) => {
 };
 
 export const deleteAddressAction = async (
-  addressId: string
+  addressId: string,
 ): Promise<FormState> => {
   try {
     const user = await getAuthUser();
@@ -726,7 +719,7 @@ export const addToCart = async (formData: FormData) => {
   // Input validation
   const data = validateWithZodSchema(
     cartItemSchema,
-    Object.fromEntries(formData)
+    Object.fromEntries(formData),
   );
   // Check if product is still available
   const dbProductVariant = await db.productVariant.findUnique({
@@ -800,7 +793,7 @@ export const updateCartItem = async (formData: FormData) => {
   const cartItemId = formData.get('id') as string;
   const { productVariantId, quantity } = validateWithZodSchema(
     cartItemSchema,
-    Object.fromEntries(formData)
+    Object.fromEntries(formData),
   );
   // Check if product is still available
   const dbProductVariant = await db.productVariant.findUnique({
@@ -999,7 +992,7 @@ export const checkout = async (formData: FormData) => {
   // Users will always succeed on placing an order with valid items.
   const orderItems = await Promise.allSettled(allTransactions);
   const isAtLeastOneSuccess = orderItems.some(
-    (item) => item.status === 'fulfilled'
+    (item) => item.status === 'fulfilled',
   );
   // If order items is less than 1
   if (!isAtLeastOneSuccess) {
@@ -1010,8 +1003,6 @@ export const checkout = async (formData: FormData) => {
 
   // Clearing cart
   await db.cart.delete({ where: { id: cart.id } });
-  // Revalidate homepage
-  revalidatePath('/');
   // Revalidate cart (Checkout Page)
   revalidateTag(`${userId}-cart`);
 };
